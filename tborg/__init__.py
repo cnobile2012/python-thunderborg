@@ -20,6 +20,10 @@ from __future__ import absolute_import
 import os
 import logging
 
+from .tborg import ThunderBorg
+
+__all__ = ('ConfigLogger', 'ThunderBorg',)
+
 
 class ConfigLogger(object):
     """
@@ -28,13 +32,16 @@ class ConfigLogger(object):
     _DEFAULT_FORMAT = ("%(asctime)s %(levelname)s %(name)s %(funcName)s "
                        "[line:%(lineno)d] %(message)s")
 
-    def __init__(self, log_path=None):
+    def __init__(self, log_path=None, format_str=None):
         if log_path:
             self._log_path = log_path.rstrip('/')
 
-        self._format = self._DEFAULT_FORMAT
+        if format_str:
+            self._format = format_str
+        else:
+            self._format = self._DEFAULT_FORMAT
 
-    def config(self, loggerName=None, filename=None, level=logging.INFO):
+    def config(self, loggerName=None, filename=None, level=logging.WARNING):
         """
         Config the logger.
         """
@@ -53,10 +60,3 @@ class ConfigLogger(object):
         else:
             logging.basicConfig(filename=file_path, format=self._format,
                                 level=level)
-
-    def set_format(self, fmt=None, default=_DEFAULT_FORMAT):
-        """
-        Must be called before the config method or it will have no effect.
-        """
-        if not fmt: fmt = default
-        self._format = fmt

@@ -16,11 +16,12 @@ import time
 import logging
 
 
-class ThunderBorg(objects):
+class ThunderBorg(object):
     """
     .. autoclass: ThunderBorg
        :members:
     """
+    _DEF_LOG_LEVEL = logging.WARNING
     _REVISION = 1
     _DEVICE_PREFIX = '/dev/i2c-{}'
     _DEFAULT_BUS_NUM = 1
@@ -110,70 +111,79 @@ class ThunderBorg(objects):
     """Maximum value for analog readings"""
 
     def __init__(self, address=_I2C_ID_THUNDERBORG, bus_num=_DEFAULT_BUS_NUM,
-                 logger_name='', log_level=logging.WARNING):
+                 logger_name='', log_level=_DEF_LOG_LEVEL):
         """
+        Setup logging and initialize the ThunderBorg motor driver board.
 
-
+        :param address: The I2C address to use, defaults to 0x{0:X}.
+        :type address: int
+        :param bus_num: The I2C bus number, defaults to {1:d}.
+        :type bud_num: int
+        :param logger_name: The name of the logger to log to, defaults to
+                            the root logger.
+        :type logger_name: str
+        :param log_level: The lowest log level to log, defaults to {2:s}.
+        :type log_level: int
         """
         # Setup logging
         if logger_name == '':
             logging.basicConfig()
 
         self._log = logging.getLogger(logger_name)
-        self._log.setLevel(level)
+        self._log.setLevel(log_level)
         # Setup I2C connections
-        self.__orig_bus_num = bus_num
-        self._init_thunder_borg(address, bus_num)
+        orig_bus_num = bus_num
+        found_chip, last_bus_num = self._init_thunder_borg(address, bus_num)
 
-    def _init_thunder_borg(self, address, bus_num)
+        if not found_chip and orig_bus_num == last_bus_num:
+            self._log.error("ThunderBorg not found on bus %s at address %02X",
+                            last_bus_num, address)
+            self.close_streams()
+            def_bus_num = self._DEFAULT_BUS_NUM
+            bus_num = 0 if last_bus_num == def_bus_num else def_bus_num
+            found_chip, last_bus_num = self._init_thunder_borg(
+                address, bus_num)
+
+            if not found_chip:
+                self.close_streams()
+                self._log.error("ThunderBorg could not be found; is it "
+                                "properly attached, the correct address "
+                                "used, and the I2C driver module loaded?")
+                return
+
+        self._log.info("ThunderBorg loaded on bus %d at address %02X",
+                       bus_num, address)
+    __init__.__doc__ = __init__.__doc__.format(
+        _I2C_ID_THUNDERBORG, _DEFAULT_BUS_NUM,
+        logging._levelNames[_DEF_LOG_LEVEL])
+
+    def _init_thunder_borg(self, address, bus_num):
         self._log.debug("Loading ThunderBorg on bus version %d, address %02X",
                         self._REVISION, address)
         device = self._DEVICE_PREFIX.format(bus_num)
-        self._i2c_read = io.open(device, 'rb', buffering=0)
-        fcntl.ioctl(self.i2c_read, self._I2C_SLAVE, address)
-        self._i2c_write = io.open(device, 'wb', buffering=0)
-        fcntl.ioctl(self.i2c_write, self._I2C_SLAVE, address)
+        tbfound_chip = False
 
-        # Check that the ThunderBorg is connected.
         try:
-            data = self._read(self.COMMAND_GET_ID, self._I2C_READ_LEN)
-        except KeyboardInterrupt as e:
-            self._log.warning("Keyboard interrupt, %s", e)
-            raise e
-        except Exception as e:
-            self._log.error("%s", e)
+            self._i2c_read = io.open(device, 'rb', buffering=0)
+            self._i2c_write = io.open(device, 'wb', buffering=0)
+        except IOError as e:
+            self._log.critical("IO Error, %s", e)
         else:
-            found_chip = self.__check_if_connected(address, bus_num, data)
+            fcntl.ioctl(self.i2c_read, self._I2C_SLAVE, address)
+            fcntl.ioctl(self.i2c_write, self._I2C_SLAVE, address)
 
-            # See if we are missing chips
-            if not found_chip:
-                self._log.error("ThunderBorg was not found")
-                last_bus_num = bus_num
-
-                if bus_num == self._DEFAULT_BUS_NUM:
-                    bus_num = 0
-                else:
-                    bus_num = 1
-
-                # Lets close both streams before we try to open them again. We
-                # don't want memory leaks.
-                self._i2c_read.close()
-                self._i2c_write.close()
-                self._log.info("ThunderBorg not found on bus %d, trying "
-                               "bus %d", last_bus_num, bus_num)
-                self._init_thunder_borg(address, bus_num)
-
-                # Lets not do this ad infinitum.
-                if not found_chip and self.__orig_bus_num != bus_num:
-                    self._i2c_read.close()
-                    self._i2c_write.close()
-                    self._log.error("ThunderBorg could not be found, is it "
-                                    "properly attached, the correct address "
-                                    "used, and the I2C driver module is "
-                                    "active?")
+            # Check that the ThunderBorg is connected.
+            try:
+                data = self._read(self.COMMAND_GET_ID, self._I2C_READ_LEN)
+            except KeyboardInterrupt as e:
+                self._log.warning("Keyboard interrupt, %s", e)
+                raise e
+            except Exception as e:
+                self._log.error("%s", e)
             else:
-                self._log.info("ThunderBorg loaded on bus %d at address %02X",
-                               bus_num, address)
+                found_chip = self.__check_if_connected(address, bus_num, data)
+
+        return found_chip, bus_num
 
     def __check_if_connected(self, address, bus_num, data):
         found_chip = False
@@ -192,6 +202,19 @@ class ThunderBorg(objects):
                             bus_num, address)
 
         return found_chip
+
+    def close_streams(self):
+        """
+        Close both streams if the ThunderBorg was not found and when we
+        are shutting down. We don't want memory leaks.
+        """
+        if hasattr(self, '_i2c_read'):
+            self._i2c_read.close()
+            self._log.debug("_i2c_read is now closed.")
+
+        if hasattr(self, '_i2c_write'):
+            self._i2c_write.close()
+            self._log.debug("_i2c_write is now closed.")
 
     def _write(self, command, data):
         """

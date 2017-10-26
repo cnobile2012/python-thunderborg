@@ -18,7 +18,7 @@ import logging
 
 class ThunderBorg(object):
     """
-    .. autoclass: ThunderBorg
+    .. autoclass: tborg.ThunderBorg
        :members:
     """
     _DEF_LOG_LEVEL = logging.WARNING
@@ -103,10 +103,10 @@ class ThunderBorg(object):
     """I2C value representing forward"""
     COMMAND_VALUE_REV = 2
     """I2C value representing reverse"""
-    COMMAND_VALUE_ON = 1
-    """I2C value representing on"""
     COMMAND_VALUE_OFF = 0
     """I2C value representing off"""
+    COMMAND_VALUE_ON = 1
+    """I2C value representing on"""
     COMMAND_ANALOG_MAX = 0x3FF
     """Maximum value for analog readings"""
 
@@ -118,7 +118,7 @@ class ThunderBorg(object):
         :param address: The I2C address to use, defaults to 0x{0:X}.
         :type address: int
         :param bus_num: The I2C bus number, defaults to {1:d}.
-        :type bud_num: int
+        :type bus_num: int
         :param logger_name: The name of the logger to log to, defaults to
                             the root logger.
         :type logger_name: str
@@ -257,3 +257,99 @@ class ThunderBorg(object):
             msg = "I2C read for command '{}' failed".format(command)
             self._log.error(msg)
             raise IOError(msg)
+
+    def _set_motor(self, level, fwd, rev):
+        if value < 0:
+            # Reverse
+            command = rev
+            pwm = -int(self._PWM_MAX * level)
+            pwm = self._PWM_MAX if pwm < -self._PWM_MAX else pwm
+        else:
+            # Forward / stopped
+            command = fwd
+            pwm = int(self._PWM_MAX * level)
+            pwm = self._PWM_MAX if pwm > self._PWM_MAX else pwm
+
+        try:
+            self._write(command, [pwm])
+        except KeyboardInterrupt as e:
+            self._log.warning("Keyboard interrupt, %s", e)
+            raise e
+        except IOError as e:
+            motor = 1 if fwd == self.COMMAND_SET_A_FWD else 2
+            self._log.error("Failed sending motor %d drive level, %s",
+                            motor, e)
+
+    def set_motor_one(self, value):
+        """
+        Set the drive level for motor one.
+
+        :param value: Valid values are from -1.0 to +1.0.
+                      A value of 0.0 is full stop.
+                      A value of 0.75 is 75% foward.
+                      A value of -0.25 is 25% reverse.
+                      A value of 1.0 is 100% forward.
+        :type value: float
+        :raises KeyboardInterrupt: Keyboard interrupt.
+        :raises IOError: An error happening on a stream.
+        """
+        self._set_motor(value, self.COMMAND_SET_A_FWD, self.COMMAND_SET_A_REV)
+
+    def set_motor_two(self, value):
+        """
+        Set the drive level for motor two.
+
+        :param value: Valid values are from -1.0 to +1.0.
+                      A value of 0.0 is full stop.
+                      A value of 0.75 is 75% foward.
+                      A value of -0.25 is 25% reverse.
+                      A value of 1.0 is 100% forward.
+        :type value: float
+        :raises KeyboardInterrupt: Keyboard interrupt.
+        :raises IOError: An error happening on a stream.
+        """
+        self._set_motor(value, self.COMMAND_SET_B_FWD, self.COMMAND_SET_B_REV)
+
+    def _get_motor(self, motor):
+        try:
+            recv = self._read(self.COMMAND_GET_A, self._I2C_READ_LEN)
+        except KeyboardInterrupt as e:
+            self._log.warning("Keyboard interrupt, %s", e)
+            raise e
+        except IOError as e:
+            self._log.error("Failed reading motor %d drive level, %s",
+                            motor, e)
+            raise e
+
+        value = float(recv[2]) / PWM_MAX
+        direction = recv[1]
+
+        if direction == self.COMMAND_VALUE_REV:
+            value = -value
+        elif direction != self.COMMAND_VALUE_FWD:
+            self._log.error("Invalid command while getting drive level "
+                            "for motor %d", motor)
+
+        return value
+
+    def get_motor_one(self):
+        """
+        Get the drive level of motor one.
+
+        :rtype: The motor drive level.
+        :raises KeyboardInterrupt: Keyboard interrupt.
+        :raises IOError: An error happening on a stream.
+        """
+        return self._get_motor(1)
+
+    def get_motor_two(self):
+        """
+        Get the drive level of motor one.
+
+        :rtype: The motor drive level.
+        :raises KeyboardInterrupt: Keyboard interrupt.
+        :raises IOError: An error happening on a stream.
+        """
+        return self._get_motor(2)
+
+

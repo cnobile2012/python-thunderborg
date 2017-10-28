@@ -24,17 +24,19 @@ board has additional features the original API does not have.
 
 1. Python 2.7.x and 3.4 and greater are supported in the same code.
 
-2. Built in logging to a log file of your choice--`no print statements`.
+2. Built in logging to a log file of your choice--**no print statements**.
 
-3. Auto `voltage in` settings.
+3. Auto **voltage in** settings.
 
-4. TBD
+4. API initialization is done during class instantiation.
+
+5. TBD
 
 
 .. warning::
    This version of the **ThunderBorg API** is a complete rewrite of the
    version provided by `PiBorg <https://www.piborg.org/monsterborg/install>`_
-   It is functionally compatable, but not signature compatable. In other
+   It is functionally compatible, but not signature compatible. In other
    words the class and method calls are completely different.
 
 Provides

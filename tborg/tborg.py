@@ -39,17 +39,17 @@ class ThunderBorg(object):
     """Default maximum battery monitoring voltage"""
     # Commands
     COMMAND_SET_LED1 = 1
-    """Set the colour of the ThunderBorg LED"""
+    """Set the color of the ThunderBorg LED"""
     COMMAND_GET_LED1 = 2
-    """Get the colour of the ThunderBorg LED"""
+    """Get the color of the ThunderBorg LED"""
     COMMAND_SET_LED2 = 3
-    """Set the colour of the ThunderBorg Lid LED"""
+    """Set the color of the ThunderBorg Lid LED"""
     COMMAND_GET_LED2 = 4
-    """Get the colour of the ThunderBorg Lid LED"""
+    """Get the color of the ThunderBorg Lid LED"""
     COMMAND_SET_LEDS = 5
-    """Set the colour of both the LEDs"""
+    """Set the color of both the LEDs"""
     COMMAND_SET_LED_BATT_MON = 6
-    """Set the colour of both LEDs to show the current battery level"""
+    """Set the color of both LEDs to show the current battery level"""
     COMMAND_GET_LED_BATT_MON = 7
     """Get the state of showing the current battery level via the LEDs"""
     COMMAND_SET_A_FWD = 8
@@ -259,7 +259,7 @@ class ThunderBorg(object):
             raise IOError(msg)
 
     def _set_motor(self, level, fwd, rev):
-        if value < 0:
+        if level < 0:
             # Reverse
             command = rev
             pwm = -int(self._PWM_MAX * level)
@@ -280,39 +280,57 @@ class ThunderBorg(object):
             self._log.error("Failed sending motor %d drive level, %s",
                             motor, e)
 
-    def set_motor_one(self, value):
+    def set_motor_one(self, level):
         """
         Set the drive level for motor one.
 
-        :param value: Valid values are from -1.0 to +1.0.
-                      A value of 0.0 is full stop.
-                      A value of 0.75 is 75% foward.
-                      A value of -0.25 is 25% reverse.
-                      A value of 1.0 is 100% forward.
-        :type value: float
+        :param level: Valid levels are from -1.0 to +1.0.
+                      A level of 0.0 is full stop.
+                      A level of 0.75 is 75% foward.
+                      A level of -0.25 is 25% reverse.
+                      A level of 1.0 is 100% forward.
+        :type level: float
         :raises KeyboardInterrupt: Keyboard interrupt.
         :raises IOError: An error happening on a stream.
         """
-        self._set_motor(value, self.COMMAND_SET_A_FWD, self.COMMAND_SET_A_REV)
+        self._set_motor(level, self.COMMAND_SET_A_FWD, self.COMMAND_SET_A_REV)
 
-    def set_motor_two(self, value):
+    def set_motor_two(self, level):
         """
         Set the drive level for motor two.
 
-        :param value: Valid values are from -1.0 to +1.0.
-                      A value of 0.0 is full stop.
-                      A value of 0.75 is 75% foward.
-                      A value of -0.25 is 25% reverse.
-                      A value of 1.0 is 100% forward.
-        :type value: float
+        :param level: Valid levels are from -1.0 to +1.0.
+                      A level of 0.0 is full stop.
+                      A level of 0.75 is 75% foward.
+                      A level of -0.25 is 25% reverse.
+                      A level of 1.0 is 100% forward.
+        :type level: float
         :raises KeyboardInterrupt: Keyboard interrupt.
         :raises IOError: An error happening on a stream.
         """
-        self._set_motor(value, self.COMMAND_SET_B_FWD, self.COMMAND_SET_B_REV)
+        self._set_motor(level, self.COMMAND_SET_B_FWD, self.COMMAND_SET_B_REV)
 
-    def _get_motor(self, motor):
+    def set_both_motors(self, level):
+        """
+        Set the drive level for motor two.
+
+        :param level: Valid levels are from -1.0 to +1.0.
+                      A level of 0.0 is full stop.
+                      A level of 0.75 is 75% foward.
+                      A level of -0.25 is 25% reverse.
+                      A level of 1.0 is 100% forward.
+        :type level: float
+        :raises KeyboardInterrupt: Keyboard interrupt.
+        :raises IOError: An error happening on a stream.
+        """
+        self._set_motor(level, self.COMMAND_SET_ALL_FWD,
+                        self.COMMAND_SET_ALL_REV)
+
+    def _get_motor(self, command):
+        motor = 1 if command == self.COMMAND_GET_A else 2
+
         try:
-            recv = self._read(self.COMMAND_GET_A, self._I2C_READ_LEN)
+            recv = self._read(command, self._I2C_READ_LEN)
         except KeyboardInterrupt as e:
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
@@ -321,16 +339,16 @@ class ThunderBorg(object):
                             motor, e)
             raise e
 
-        value = float(recv[2]) / PWM_MAX
+        level = float(recv[2]) / PWM_MAX
         direction = recv[1]
 
         if direction == self.COMMAND_VALUE_REV:
-            value = -value
+            level = -level
         elif direction != self.COMMAND_VALUE_FWD:
             self._log.error("Invalid command while getting drive level "
                             "for motor %d", motor)
 
-        return value
+        return level
 
     def get_motor_one(self):
         """
@@ -340,7 +358,7 @@ class ThunderBorg(object):
         :raises KeyboardInterrupt: Keyboard interrupt.
         :raises IOError: An error happening on a stream.
         """
-        return self._get_motor(1)
+        return self._get_motor(self.COMMAND_GET_A)
 
     def get_motor_two(self):
         """
@@ -350,6 +368,254 @@ class ThunderBorg(object):
         :raises KeyboardInterrupt: Keyboard interrupt.
         :raises IOError: An error happening on a stream.
         """
-        return self._get_motor(2)
+        return self._get_motor(self.COMMAND_GET_B)
+
+    def halt_motors(self):
+        """
+        Halt both motors. Should be used when ending a program or
+        when needing to come to an abrupt halt.
+
+        :raises KeyboardInterrupt: Keyboard interrupt.
+        :raises IOError: An error happening on a stream.
+        """
+        try:
+            self._write(self.COMMAND_ALL_OFF, [0])
+        except KeyboardInterrupt as e:
+            self._log.warning("Keyboard interrupt, %s", e)
+            raise e
+        except IOError as e:
+            self._log.error('Failed sending motors halt command, %s', e)
+            raise e
+        else:
+            self._log.debug("Both motors were halted successfully.")
+
+    def _set_led(self, command, r, g, b):
+        level_r = max(0, min(self._PWM_MAX, int(r * self._PWM_MAX)))
+        level_g = max(0, min(self._PWM_MAX, int(g * self._PWM_MAX)))
+        level_b = max(0, min(self._PWM_MAX, int(b * self._PWM_MAX)))
+
+        try:
+            self._write(command, [level_r, level_g, level_b])
+        except KeyboardInterrupt as e:
+            self._log.warning("Keyboard interrupt, %s", e)
+            raise e
+        except IOError as e:
+            self._log.error('Failed sending color to the ThunderBorg LED one.')
+            raise e
+
+    def set_led_one(self, r, g, b):
+        """
+        Set the color of the ThunderBorg LED number one.
+
+        .. note::
+
+          (0, 0, 0)       LED off
+          (1, 1, 1)       LED full white
+          (1.0, 0.5, 0.0) LED bright orange
+          (0.2, 0.0, 0.2) LED dull violet
+
+        :param r: Range is between 0.0 and 1.0.
+        :type r: float
+        :param g: Range is between 0.0 and 1.0.
+        :type g: float
+        :param b: Range is between 0.0 and 1.0.
+        :type b: float
+        :raises KeyboardInterrupt: Keyboard interrupt.
+        :raises IOError: An error happening on a stream.
+        """
+        self._set_led(self.COMMAND_SET_LED1, r, g, b)
+
+    def set_led_two(self, r, g, b):
+        """
+        Set the color of the ThunderBorg LED number two.
+
+        .. note::
+
+          (0, 0, 0)       LED off
+          (1, 1, 1)       LED full white
+          (1.0, 0.5, 0.0) LED bright orange
+          (0.2, 0.0, 0.2) LED dull violet
+
+        :param r: Range is between 0.0 and 1.0.
+        :type r: float
+        :param g: Range is between 0.0 and 1.0.
+        :type g: float
+        :param b: Range is between 0.0 and 1.0.
+        :type b: float
+        :raises KeyboardInterrupt: Keyboard interrupt.
+        :raises IOError: An error happening on a stream.
+        """
+        self._set_led(self.COMMAND_SET_LED2, r, g, b)
+
+    def set_both_leds(self, r, g, b):
+        """
+        Set the color of both of the ThunderBorg LEDs
+
+        .. note::
+
+          (0, 0, 0)       LED off
+          (1, 1, 1)       LED full white
+          (1.0, 0.5, 0.0) LED bright orange
+          (0.2, 0.0, 0.2) LED dull violet
+
+        :param r: Range is between 0.0 and 1.0.
+        :type r: float
+        :param g: Range is between 0.0 and 1.0.
+        :type g: float
+        :param b: Range is between 0.0 and 1.0.
+        :type b: float
+        :raises KeyboardInterrupt: Keyboard interrupt.
+        :raises IOError: An error happening on a stream.
+        """
+        self._set_led(self.COMMAND_SET_LEDS, r, g, b)
+
+    def _get_led(self, command):
+        try:
+            recv = self._read(command, I2C_MAX_LEN)
+        except KeyboardInterrupt as e:
+            self._log.warning("Keyboard interrupt, %s", e)
+            raise e
+        except IOError as e:
+            led = 1 if command == self.COMMAND_GET_LED1 else 2
+            self._log.error('Failed to read ThunderBorg LED %d color, %s',
+                            led, e)
+            raise e
+        else:
+            r = recv[1] / self._PWM_MAX
+            g = recv[2] / self._PWM_MAX
+            b = recv[3] / self._PWM_MAX
+            return r, g, b
+
+    def get_led_one(self):
+        """
+        Get the current RGB color of the ThunderBorg LED number one.
+
+        .. note::
+
+          (0, 0, 0)       LED off
+          (1, 1, 1)       LED full white
+          (1.0, 0.5, 0.0) LED bright orange
+          (0.2, 0.0, 0.2) LED dull violet
+
+        :rtype: Returns a tuple of the RGB color for LED number one.
+        :raises KeyboardInterrupt: Keyboard interrupt.
+        :raises IOError: An error happening on a stream.
+        """
+        return self._get_led(self.COMMAND_GET_LED1)
+
+    def get_led_two(self):
+        """
+        Get the current RGB color of the ThunderBorg LED number two.
+
+        .. note::
+
+          (0, 0, 0)       LED off
+          (1, 1, 1)       LED full white
+          (1.0, 0.5, 0.0) LED bright orange
+          (0.2, 0.0, 0.2) LED dull violet
+
+        :rtype: Returns a tuple of the RGB color for LED number two.
+        :raises KeyboardInterrupt: Keyboard interrupt.
+        :raises IOError: An error happening on a stream.
+        """
+        return self._get_led(self.COMMAND_GET_LED2)
+
+    def set_led_state(self, state):
+        """
+        Set the state of the LEDs from showing the configured state (set
+        with `set_led_one` and/or `set_led_two`) to the battery monitoring
+        state.
+
+        .. note::
+
+          If in the battery monitoring state the configured state is
+          disabled. The battery monitoring state sweeps the full range
+          between red (7V) and green (35V) is swept.
+
+        :param state: If `True` (enabled) LEDs will show the current
+                      battery level, else if `False` (disabled) the LEDs
+                      will be used. `Confused? So am I`
+        :type state: bool
+        :raises KeyboardInterrupt: Keyboard interrupt.
+        :raises IOError: An error happening on a stream.
+        """
+        level = self.COMMAND_VALUE_ON if state else self.COMMAND_VALUE_OFF
+
+        try:
+            self._write(self.COMMAND_SET_LED_BATT_MON, [level])
+        except KeyboardInterrupt as e:
+            self._log.warning("Keyboard interrupt, %s", e)
+            raise e
+        except IOError as e:
+            self._log.error(
+                "Failed to send LEDs battery monitoring state, %s", e)
+            raise e
+
+    def get_led_state(self):
+        """
+        Get the state of the LEDs between the configured and battery
+        monitoring state.
+
+        :rtype: Returns `False` for the configured state and `True` for
+                the battery monitoring state.
+        :raises KeyboardInterrupt: Keyboard interrupt.
+        :raises IOError: An error happening on a stream.
+        """
+        try:
+            recv = self._read(self.COMMAND_GET_LED_BATT_MON,
+                              self._I2C_READ_LEN)
+        except KeyboardInterrupt as e:
+            self._log.warning("Keyboard interrupt, %s", e)
+            raise e
+        except IOError as e:
+            self._log.error(
+                "Failed reading LED battery monitoring state, %s", e)
+            raise e
+
+        return False if recv[1] == self.COMMAND_VALUE_OFF else True
+
+    def set_comms_failsafe(self, state):
+        """
+        Set the state of the communication failsafe. If the failsafe state
+        is on the motors will be turned off unless the board receives a
+        command at least once every 1/4th of a second.
+
+        :param state: If set to `True` failsafe is enabled, else if set to
+                      `False` failsafe is disabled. Default is disables
+                      when powered on.
+        :raises KeyboardInterrupt: Keyboard interrupt.
+        :raises IOError: An error happening on a stream.
+        """
+        level = self.COMMAND_VALUE_ON if state else self.COMMAND_VALUE_OFF
+
+        try:
+            self._write(self.COMMAND_SET_FAILSAFE, [level])
+        except KeyboardInterrupt as e:
+            self._log.warning("Keyboard interrupt, %s", e)
+            raise e
+        except IOError as e:
+            self._log.error(
+                "Failed sending communications failsafe state, %s", e)
+            raise e
+
+    def get_comms_failsafe(self):
+        """
+        Get the failsafe state.
+
+        :rtype: Returns the failsafe state.
+        :raises KeyboardInterrupt: Keyboard interrupt.
+        :raises IOError: An error happening on a stream.
+        """
+        try:
+            recv = self._read(self.COMMAND_GET_FAILSAFE, self._I2C_READ_LEN)
+        except KeyboardInterrupt as e:
+            self._log.warning("Keyboard interrupt, %s", e)
+            raise e
+        except IOError as e:
+            self._log.error(
+                "Failed reading communications failsafe state, %s", e)
+            raise e
+
+        return False if recv[1] == COMMAND_VALUE_OFF else True
 
 

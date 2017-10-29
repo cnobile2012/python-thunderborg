@@ -20,7 +20,7 @@ Overview
 ========
 
 This API for the `ThunderBorg <https://shop.piborg.org/collections/our-boards/products/thunderborg>`_
-board has additional features the original API does not have.
+board has additional features that the original API does not have.
 
 1. Python 2.7.x and 3.4 and greater are supported in the same code.
 

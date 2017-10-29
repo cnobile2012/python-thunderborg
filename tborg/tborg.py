@@ -5,7 +5,15 @@
 """
 The TunderBorg API class
 
+by Carl J. Nobile
 
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 """
 from __future__ import absolute_import
 
@@ -15,12 +23,32 @@ import types
 import time
 import logging
 
+# Map the integer log levels to their names.
+_LEVEL_TO_NAME = {
+    logging.CRITICAL: 'CRITICAL',
+    logging.ERROR: 'ERROR',
+    logging.WARNING: 'WARNING',
+    logging.INFO: 'INFO',
+    logging.DEBUG: 'DEBUG',
+    logging.NOTSET: 'NOTSET',
+    }
+
 
 class ThunderBorg(object):
     """
-    .. autoclass: tborg.ThunderBorg
-       :members:
+    This module is designed to communicate with the ThunderBorg
+
+    busNumber     I<B2>C bus on which the ThunderBorg is attached.
+                  (Rev 1 is bus 0, Rev 2 is bus 1)
+    bus           the smbus object used to talk to the I<B2>C bus.
+    i2cAddress    The I<B2>C address of the ThunderBorg chip to control.
+    foundChip     True if the ThunderBorg chip can be seen, False
+                  otherwise.
+    printFunction Function reference to call when printing text, if None
+                  'print' is used
     """
+    #.. autoclass: tborg.ThunderBorg
+    #   :members:
     _DEF_LOG_LEVEL = logging.WARNING
     _REVISION = 1
     _DEVICE_PREFIX = '/dev/i2c-{}'
@@ -154,14 +182,13 @@ class ThunderBorg(object):
         self._log.info("ThunderBorg loaded on bus %d at address %02X",
                        bus_num, address)
     __init__.__doc__ = __init__.__doc__.format(
-        _I2C_ID_THUNDERBORG, _DEFAULT_BUS_NUM,
-        logging._levelNames[_DEF_LOG_LEVEL])
+        _I2C_ID_THUNDERBORG, _DEFAULT_BUS_NUM, _LEVEL_TO_NAME[_DEF_LOG_LEVEL])
 
     def _init_thunder_borg(self, address, bus_num):
         self._log.debug("Loading ThunderBorg on bus version %d, address %02X",
                         self._REVISION, address)
         device = self._DEVICE_PREFIX.format(bus_num)
-        tbfound_chip = False
+        found_chip = False
 
         try:
             self._i2c_read = io.open(device, 'rb', buffering=0)
@@ -471,7 +498,7 @@ class ThunderBorg(object):
 
     def _get_led(self, command):
         try:
-            recv = self._read(command, I2C_MAX_LEN)
+            recv = self._read(command, I2C_READ_LEN)
         except KeyboardInterrupt as e:
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
@@ -497,7 +524,7 @@ class ThunderBorg(object):
           (1.0, 0.5, 0.0) LED bright orange
           (0.2, 0.0, 0.2) LED dull violet
 
-        :rtype: Returns a tuple of the RGB color for LED number one.
+        :rtype: Return a tuple of the RGB color for LED number one.
         :raises KeyboardInterrupt: Keyboard interrupt.
         :raises IOError: An error happening on a stream.
         """
@@ -514,7 +541,7 @@ class ThunderBorg(object):
           (1.0, 0.5, 0.0) LED bright orange
           (0.2, 0.0, 0.2) LED dull violet
 
-        :rtype: Returns a tuple of the RGB color for LED number two.
+        :rtype: Return a tuple of the RGB color for LED number two.
         :raises KeyboardInterrupt: Keyboard interrupt.
         :raises IOError: An error happening on a stream.
         """
@@ -556,7 +583,7 @@ class ThunderBorg(object):
         Get the state of the LEDs between the configured and battery
         monitoring state.
 
-        :rtype: Returns `False` for the configured state and `True` for
+        :rtype: Return `False` for the configured state and `True` for
                 the battery monitoring state.
         :raises KeyboardInterrupt: Keyboard interrupt.
         :raises IOError: An error happening on a stream.
@@ -583,6 +610,7 @@ class ThunderBorg(object):
         :param state: If set to `True` failsafe is enabled, else if set to
                       `False` failsafe is disabled. Default is disables
                       when powered on.
+        :type state: bool
         :raises KeyboardInterrupt: Keyboard interrupt.
         :raises IOError: An error happening on a stream.
         """
@@ -602,7 +630,7 @@ class ThunderBorg(object):
         """
         Get the failsafe state.
 
-        :rtype: Returns the failsafe state.
+        :rtype: Return the failsafe state.
         :raises KeyboardInterrupt: Keyboard interrupt.
         :raises IOError: An error happening on a stream.
         """
@@ -616,6 +644,232 @@ class ThunderBorg(object):
                 "Failed reading communications failsafe state, %s", e)
             raise e
 
+        return False if recv[1] == self.COMMAND_VALUE_OFF else True
+
+    def _get_drive_fault(self, command):
+        try:
+            recv = self._read(command, self._I2C_READ_LEN)
+        except KeyboardInterrupt as e:
+            self._log.warning("Keyboard interrupt, %s", e)
+            raise e
+        except IOError as e:
+            motor = 1 if command == self.COMMAND_GET_DRIVE_A_FAULT else 2
+            self._log.error(
+                "Failed reading the drive fault state for motor %s, %s",
+                motor, e)
+            raise e
+
         return False if recv[1] == COMMAND_VALUE_OFF else True
 
+    def get_drive_fault_one(self):
+        """
+        Read the motor drive fault state for motor one.
 
+        .. note::
+
+          1. Faults may indicate power problems, such as under-voltage
+             (not enough power), and may be cleared by setting a lower
+             drive power.
+          2. If a fault is persistent (repeatably occurs when trying to
+             control the board) it may indicate a wiring issue such as:
+             a. The supply is not powerful enough for the motors. The
+                board has a bare minimum requirement of 6V to operate
+                correctly. The recommended minimum supply of 7.2V should
+                be sufficient for smaller motors.
+             b. The + and - connections for the motor are connected to
+                each other.
+             c. Either + or - is connected to ground (GND, also known as
+                0V or earth).
+             d. Either + or - is connected to the power supply (V+,
+                directly to the battery or power pack).
+             e. One of the motors may be damaged.
+          3. Faults will self-clear, they do not need to be reset, however
+             some faults require both motors to be moving at less than
+             100% to clear.
+          4. The easiest way to run a check is to put both motors at a low
+             power setting that is high enough for them to rotate easily.
+             e.g. 30%
+          5. Note that the fault state may be true at power up, this is
+             normal and should clear when both motors have been driven.
+
+        :rtype: Return a `False` if there are not problems else a `True` if
+                a fault has been detected.
+        :raises KeyboardInterrupt: Keyboard interrupt.
+        :raises IOError: An error happening on a stream.
+        """
+        return self._get_drive_fault(self.COMMAND_GET_DRIVE_A_FAULT)
+
+
+    def get_drive_fault_two(self):
+        """
+        Read the motor drive fault state for motor two.
+
+        .. note::
+
+          1. Faults may indicate power problems, such as under-voltage
+             (not enough power), and may be cleared by setting a lower
+             drive power.
+          2. If a fault is persistent (repeatably occurs when trying to
+             control the board) it may indicate a wiring issue such as:
+             a. The supply is not powerful enough for the motors. The
+                board has a bare minimum requirement of 6V to operate
+                correctly. The recommended minimum supply of 7.2V should
+                be sufficient for smaller motors.
+             b. The + and - connections for the motor are connected to
+                each other.
+             c. Either + or - is connected to ground (GND, also known as
+                0V or earth).
+             d. Either + or - is connected to the power supply (V+,
+                directly to the battery or power pack).
+             e. One of the motors may be damaged.
+          3. Faults will self-clear, they do not need to be reset, however
+             some faults require both motors to be moving at less than
+             100% to clear.
+          4. The easiest way to run a check is to put both motors at a low
+             power setting that is high enough for them to rotate easily.
+             e.g. 30%
+          5. Note that the fault state may be true at power up, this is
+             normal and should clear when both motors have been driven.
+
+        :rtype: Return a `False` if there are not problems else a `True` if
+                a fault has been detected.
+        :raises KeyboardInterrupt: Keyboard interrupt.
+        :raises IOError: An error happening on a stream.
+        """
+        return self._get_drive_fault(self.COMMAND_GET_DRIVE_B_FAULT)
+
+    def get_battery_voltage(self):
+        """
+        Read the current battery level from the main input.
+
+        :rtype: Return a voltage value based on the 3.3 V rail as a
+                reference.
+        """
+        try:
+            recv = self._read(self.COMMAND_GET_BATT_VOLT, self._I2C_READ_LEN)
+        except KeyboardInterrupt as e:
+            self._log.warning("Keyboard interrupt, %s", e)
+            raise e
+        except IOError as e:
+            self._log.error("Failed reading battery level, %s", e)
+            raise e
+
+        raw = (recv[1] << 8) + recv[2]
+        level = float(raw) / self.COMMAND_ANALOG_MAX
+        level *= self._VOLTAGE_PIN_MAX
+        return level + self._VOLTAGE_PIN_CORRECTION
+
+    def set_battery_monitoring_limits(self, minimum, maximum):
+        """
+        Set the battery monitoring limits used for setting the LED color.
+
+        .. note::
+
+          1. The colors shown, range from full red at minimum or below,
+             yellow half way, and full green at maximum or higher.
+          2. These values are stored in EEPROM and reloaded when the board
+             is powered.
+
+        :param minimum: Value between 0.0 and 36.3 Volts.
+        :type minimun: int
+        :param maximum: Value between 0.0 and 36.3 Volts.
+        :type maximun: int
+        :raises KeyboardInterrupt: Keyboard interrupt.
+        :raises IOError: An error happening on a stream.
+        """
+        level_min = float(minimum) / self._VOLTAGE_PIN_MAX
+        level_max = float(maximum) / self._VOLTAGE_PIN_MAX
+        level_min = max(0, min(0xFF, int(level_min * 0xFF)))
+        level_max = max(0, min(0xFF, int(level_max * 0xFF)))
+
+        try:
+            self._write(self.COMMAND_SET_BATT_LIMITS, [level_min, level_max])
+            time.sleep(0.2) # Wait for EEPROM write to complete
+        except KeyboardInterrupt as e:
+            self._log.warning("Keyboard interrupt, %s", e)
+            raise e
+        except IOError as e:
+            self._log.error("Failed sending battery monitoring limits, %s", e)
+            raise e
+
+    def get_battery_monitoring_limits(self):
+        """
+        Read the current battery monitoring limits used for setting the
+        LED color.
+
+        .. note::
+
+          The colors shown, range from full red at minimum or below,
+          yellow half way, and full green at maximum or higher.
+
+        :rtype: Return a tuple of `(minimum, maximum)`. The values are
+                between 0.0 and 36.3 V.
+        :raises KeyboardInterrupt: Keyboard interrupt.
+        :raises IOError: An error happening on a stream.
+        """
+        try:
+            recv = self._read(self.COMMAND_GET_BATT_LIMITS, self._I2C_READ_LEN)
+        except KeyboardInterrupt as e:
+            self._log.warning("Keyboard interrupt, %s", e)
+            raise e
+        except IOError as e:
+            self._log.error("Failed reading battery monitoring limits, %s", e)
+            raise e
+
+        level_min = float(recv[1]) / 0xFF
+        level_max = float(recv[2]) / 0xFF
+        level_min *= self._VOLTAGE_PIN_MAX
+        level_max *= self_.VOLTAGE_PIN_MAX
+        return level_min, level_max
+
+    def write_external_led_word(self, b0, b1, b2, b3):
+        """
+        Write low level serial LED word.
+
+        .. note::
+
+          Bytes are written MSB (Most Significant Byte) first, starting at
+          b0. e.g. Executing `tb.write_extermnal_led_word(255, 64, 1, 0)`
+          would send 11111111 01000000 00000001 00000000 to the LEDs.
+
+        :param b0: Byte zero
+        :type b0: int
+        :param b1: Byte one
+        :type b1: int
+        :param b2: Byte two
+        :type b2: int
+        :param b3: Byte three
+        :type b3: int
+        """
+        b0 = max(0, min(self._PWM_MAX, int(b0)))
+        b1 = max(0, min(self._PWM_MAX, int(b1)))
+        b2 = max(0, min(self._PWM_MAX, int(b2)))
+        b3 = max(0, min(self._PWM_MAX, int(b3)))
+
+        try:
+            self._write(self.COMMAND_WRITE_EXTERNAL_LED, [b0, b1, b2, b3])
+        except KeyboardInterrupt as e:
+            self._log.warning("Keyboard interrupt, %s", e)
+            raise e
+        except IOError as e:
+            self._log.error("Failed sending word for the external LEDs, %s", e)
+            raise e
+
+    def set_external_led_colors(self, colors):
+        """
+        Takes a set of RGB values to set each LED to.
+
+        .. note::
+
+          Each call will set all of the LEDs.
+          e.g. Executing `tb.set_external_led_colors([[1.0, 1.0, 0.0]])`
+          will set a single LED to full yellow while executing
+          `tb.set_external_led_colors([[1.0, 0.0, 0.0], [0.5, 0.0, 0.0], [0.0, 0.0, 0.0]])`
+          will set LED 1 to full red, LED 2 to half red, and LED 3 to off.
+        """
+        # Send the start marker
+        self.write_external_led_word(0, 0, 0, 0)
+
+        # Send each color in turn
+        for r, g, b in colours:
+            self.write_external_led_word(255, 255 * b, 255 * g, 255 * r)

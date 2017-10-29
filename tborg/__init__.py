@@ -22,7 +22,7 @@ import logging
 
 from .tborg import ThunderBorg
 
-__all__ = ('ConfigLogger', 'ThunderBorg',)
+__all__ = ['ConfigLogger', 'ThunderBorg']
 
 
 class ConfigLogger(object):

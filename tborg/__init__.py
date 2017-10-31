@@ -45,7 +45,7 @@ class ConfigLogger(object):
         """
         Config the logger.
         """
-        if filename is not None:
+        if filename and hasattr(self, '_log_path') and self._log_path:
             file_path = os.path.join(self._log_path, filename)
         else:
             file_path = None

@@ -163,8 +163,8 @@ class ThunderBorg(object):
         found_chip, last_bus_num = self._init_thunder_borg(bus_num, address)
 
         if not found_chip and orig_bus_num == last_bus_num:
-            self._log.error("ThunderBorg not found on bus %s at address %02X",
-                            last_bus_num, address)
+            self._log.error("ThunderBorg not found on bus %s at address "
+                            "0x%02X", last_bus_num, address)
             self.close_streams()
             def_bus_num = self._DEFAULT_BUS_NUM
             bus_num = 0 if last_bus_num == def_bus_num else def_bus_num
@@ -178,7 +178,7 @@ class ThunderBorg(object):
                                 "used, and the I2C driver module loaded?")
                 return
 
-        self._log.info("ThunderBorg loaded on bus %d at address %02X",
+        self._log.info("ThunderBorg loaded on bus %d at address 0x%02X",
                        bus_num, address)
     __init__.__doc__ = __init__.__doc__.format(
         _I2C_ID_THUNDERBORG, _DEFAULT_BUS_NUM, _LEVEL_TO_NAME[_DEF_LOG_LEVEL])
@@ -232,15 +232,15 @@ class ThunderBorg(object):
         if len(data) >= self._I2C_READ_LEN:
             if data[1] == self._I2C_ID_THUNDERBORG:
                 found_chip = True
-                self._log.info("Found ThunderBorg on bus %d at %02X",
+                self._log.info("Found ThunderBorg on bus %d at 0x%02X",
                                bus_num, address)
             else:
-                self._log.error("Found a device at %02X, but it is not a "
-                                "ThunderBorg (ID %02X instead of %02X)",
+                self._log.error("Found a device at 0x%02X, but it is not a "
+                                "ThunderBorg (ID 0x%02X instead of 0x%02X)",
                                 address, data[1], self._I2C_ID_THUNDERBORG)
         else:
-            self._log.error("ThunderBorg not found on bus %d at address %02X",
-                            bus_num, address)
+            self._log.error("ThunderBorg not found on bus %d at address "
+                            "0x%02X", bus_num, address)
 
         return found_chip
 
@@ -309,6 +309,8 @@ class ThunderBorg(object):
             ThunderBorg.log_static_message(msg, 'error', *[command])
             raise IOError(msg)
 
+        return reply
+
     @classmethod
     def find_board(self, bus_num=_DEFAULT_BUS_NUM):
         """
@@ -354,8 +356,8 @@ class ThunderBorg(object):
         size = len(found)
 
         if size == 0:
-            msg = ("No ThunderBorg boards found, is bus number %d "
-                   "correct (should be 0 for Rev 1, 1 for Rev 2)")
+            msg = ("No ThunderBorg boards found, is the bus number '%d' "
+                   "correct? (should be 0 for Rev 1 and 1 for Rev 2)")
             ThunderBorg.log_static_message(msg, 'error', *[bus_num])
         elif size == 1:
             ThunderBorg.log_static_message(

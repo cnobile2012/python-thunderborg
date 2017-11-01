@@ -453,7 +453,7 @@ class ThunderBorg(object):
                             motor, e)
             raise e
 
-        level = float(recv[2]) / PWM_MAX
+        level = float(recv[2]) / self._PWM_MAX
         direction = recv[1]
 
         if direction == self.COMMAND_VALUE_REV:
@@ -746,7 +746,7 @@ class ThunderBorg(object):
                 motor, e)
             raise e
 
-        return False if recv[1] == COMMAND_VALUE_OFF else True
+        return False if recv[1] == self.COMMAND_VALUE_OFF else True
 
     def get_drive_fault_one(self):
         """

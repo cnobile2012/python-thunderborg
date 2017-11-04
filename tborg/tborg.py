@@ -193,16 +193,16 @@ class ThunderBorg(object):
         device = self._DEVICE_PREFIX.format(bus_num)
 
         try:
-            self.__i2c_read = io.open(device, 'rb', buffering=0)
-            self.__i2c_write = io.open(device, 'wb', buffering=0)
+            self._i2c_read = io.open(device, 'rb', buffering=0)
+            self._i2c_write = io.open(device, 'wb', buffering=0)
         except (IOError, PermissionError) as e:
             msg = ("Could not open read or write stream on bus {:d} at "
                    "address 0x{:02X}, {}").format(bus_num, address, e)
             ThunderBorg.log_static_message(msg, 'critical')
             raise ThunderBorgException(msg)
         else:
-            fcntl.ioctl(self.__i2c_read, self._I2C_SLAVE, address)
-            fcntl.ioctl(self.__i2c_write, self._I2C_SLAVE, address)
+            fcntl.ioctl(self._i2c_read, self._I2C_SLAVE, address)
+            fcntl.ioctl(self._i2c_write, self._I2C_SLAVE, address)
 
     def _init_thunder_borg(self, bus_num, address):
         """
@@ -239,12 +239,12 @@ class ThunderBorg(object):
         Close both streams if the ThunderBorg was not found and when we
         are shutting down. We don't want memory leaks.
         """
-        if hasattr(self, '__i2c_read'):
-            self.__i2c_read.close()
+        if hasattr(self, '_i2c_read'):
+            self._i2c_read.close()
             self._log.debug("I2C stream is now closed.")
 
-        if hasattr(self, '__i2c_write'):
-            self.__i2c_write.close()
+        if hasattr(self, '_i2c_write'):
+            self._i2c_write.close()
             self._log.debug("I2C write is now closed.")
 
     @classmethod
@@ -265,7 +265,7 @@ class ThunderBorg(object):
             raise ThunderBorgException(msg)
 
         data.insert(0, command)
-        self.__i2c_write.write(bytes(data))
+        self._i2c_write.write(bytes(data))
 
     @classmethod
     def _read(self, command, length, retry_count=3):
@@ -281,7 +281,7 @@ class ThunderBorg(object):
         """
         for i in range(retry_count-1, -1, -1):
             self._write(command, [])
-            reply = self.__i2c_read.read(length)
+            reply = self._i2c_read.read(length)
             data = [bt for bt in reply]
 
             if command == data[0]:
@@ -336,9 +336,6 @@ class ThunderBorg(object):
             msg = ("No ThunderBorg boards found, is the bus number '%d' "
                    "correct? (should be 0 for Rev 1 and 1 for Rev 2)")
             ThunderBorg.log_static_message(msg, 'error', *[bus_num])
-        elif size == 1:
-            ThunderBorg.log_static_message(
-                "1 ThunderBorg board found.", 'info')
         else:
             ThunderBorg.log_static_message(
                 "%d ThunderBorg boards found.", 'info', *[size])
@@ -426,7 +423,7 @@ class ThunderBorg(object):
         if length == ThunderBorg._I2C_READ_LEN:
             if recv[1] == ThunderBorg._I2C_ID_THUNDERBORG:
                 found_chip = True
-                msg = "Found ThunderBorg on bus '%d' at address 0x%02X"
+                msg = "Found ThunderBorg on bus '%d' at address 0x%02X."
                 ThunderBorg.log_static_message(msg, 'info',
                                                *[bus_num, address])
             else:

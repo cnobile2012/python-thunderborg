@@ -265,7 +265,13 @@ class ThunderBorg(object):
             raise ThunderBorgException(msg)
 
         data.insert(0, command)
-        cls._i2c_write.write(bytes(data))
+
+        try:
+            cls._i2c_write.write(bytes(data))
+        except ValueError as e:
+            msg = "{}".format(e)
+            cls.log_static_message(msg, 'error')
+            raise ThunderBorgException(msg)
 
     @classmethod
     def _read(cls, command, length, retry_count=3):
@@ -335,9 +341,6 @@ class ThunderBorg(object):
             msg = ("No ThunderBorg boards found, is the bus number '%d' "
                    "correct? (should be 0 for Rev 1 and 1 for Rev 2)")
             cls.log_static_message(msg, 'error', *[bus_num])
-        else:
-            cls.log_static_message(
-                "%d ThunderBorg boards found.", 'info', *[size])
 
         return found
     find_board.__doc__ = find_board.__doc__.format(_DEFAULT_BUS_NUM)

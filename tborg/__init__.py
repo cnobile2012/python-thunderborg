@@ -20,9 +20,9 @@ from __future__ import absolute_import
 import os
 import logging
 
-from .tborg import ThunderBorg
+from .tborg import ThunderBorg, ThunderBorgException
 
-__all__ = ['ConfigLogger', 'ThunderBorg']
+__all__ = ['ConfigLogger', 'ThunderBorg', 'ThunderBorgException']
 
 
 class ConfigLogger(object):

@@ -143,7 +143,7 @@ class ThunderBorg(object):
     """Maximum value for analog readings"""
 
     def __init__(self, address=_I2C_ID_THUNDERBORG, bus_num=_DEFAULT_BUS_NUM,
-                 logger_name='', log_level=_DEF_LOG_LEVEL):
+                 logger_name='', log_level=_DEF_LOG_LEVEL, static=False):
         """
         Setup logging and initialize the ThunderBorg motor driver board.
 
@@ -163,46 +163,47 @@ class ThunderBorg(object):
 
         self._log = logging.getLogger(logger_name)
         self._log.setLevel(log_level)
-        # Setup I2C connections
-        orig_bus_num = bus_num
-        found_chip, last_bus_num = self._init_thunder_borg(bus_num, address)
 
-        if not found_chip and orig_bus_num == last_bus_num:
-            self._log.error("ThunderBorg not found on bus %s at address "
-                            "0x%02X", last_bus_num, address)
-            self.close_streams()
-            def_bus_num = self._DEFAULT_BUS_NUM
-            bus_num = 0 if last_bus_num == def_bus_num else def_bus_num
+        if not static:
+            # Setup I2C connections
+            orig_bus_num = bus_num
             found_chip, last_bus_num = self._init_thunder_borg(
-                address, bus_num)
+                bus_num, address)
 
-            if not found_chip:
+            if not found_chip and orig_bus_num == last_bus_num:
+                self._log.error("ThunderBorg not found on bus %s at address "
+                                "0x%02X", last_bus_num, address)
                 self.close_streams()
-                self._log.error("ThunderBorg could not be found; is it "
-                                "properly attached, the correct address "
-                                "used, and the I2C driver module loaded?")
-                return
+                def_bus_num = self._DEFAULT_BUS_NUM
+                bus_num = 0 if last_bus_num == def_bus_num else def_bus_num
+                found_chip, last_bus_num = self._init_thunder_borg(
+                    address, bus_num)
+
+                if not found_chip:
+                    self.close_streams()
+                    self._log.error("ThunderBorg could not be found; is it "
+                                    "properly attached, the correct address "
+                                    "used, and the I2C driver module loaded?")
 
         self._log.info("ThunderBorg loaded on bus %d at address 0x%02X",
                        bus_num, address)
     __init__.__doc__ = __init__.__doc__.format(
         _I2C_ID_THUNDERBORG, _DEFAULT_BUS_NUM, _LEVEL_TO_NAME[_DEF_LOG_LEVEL])
 
-    @classmethod
-    def _init_bus(cls, bus_num, address):
-        device = cls._DEVICE_PREFIX.format(bus_num)
+    def _init_bus(self, bus_num, address):
+        device = self._DEVICE_PREFIX.format(bus_num)
 
         try:
-            cls._i2c_read = io.open(device, 'rb', buffering=0)
-            cls._i2c_write = io.open(device, 'wb', buffering=0)
+            self._i2c_read = io.open(device, 'rb', buffering=0)
+            self._i2c_write = io.open(device, 'wb', buffering=0)
         except (IOError, PermissionError) as e:
             msg = ("Could not open read or write stream on bus {:d} at "
                    "address 0x{:02X}, {}").format(bus_num, address, e)
-            cls.log_static_message(msg, 'critical')
+            self._log.critical(msg)
             raise ThunderBorgException(msg)
         else:
-            fcntl.ioctl(cls._i2c_read, cls._I2C_SLAVE, address)
-            fcntl.ioctl(cls._i2c_write, cls._I2C_SLAVE, address)
+            fcntl.ioctl(self._i2c_read, self._I2C_SLAVE, address)
+            fcntl.ioctl(self._i2c_write, self._I2C_SLAVE, address)
 
     def _init_thunder_borg(self, bus_num, address):
         """
@@ -227,13 +228,6 @@ class ThunderBorg(object):
 
         return found_chip, bus_num
 
-    @classmethod
-    def log_static_message(cls, msg, log_method, *args):
-        if hasattr(cls, '_log'):
-            getattr(cls._log, log_method)(msg, *args)
-        else:
-            print(msg % args)
-
     def close_streams(self):
         """
         Close both streams if the ThunderBorg was not found and when we
@@ -247,8 +241,7 @@ class ThunderBorg(object):
             self._i2c_write.close()
             self._log.debug("I2C write is now closed.")
 
-    @classmethod
-    def _write(cls, command, data):
+    def _write(self, command, data):
         """
         Write data to the `ThunderBorg`.
 
@@ -261,20 +254,19 @@ class ThunderBorg(object):
         if not isinstance(data, list):
             msg = ("Programming error, the 'data' argument must be "
                    "of type list.")
-            cls.log_static_message(msg, 'error')
+            self._log.error(msg)
             raise ThunderBorgException(msg)
 
         data.insert(0, command)
 
         try:
-            cls._i2c_write.write(bytes(data))
+            self._i2c_write.write(bytes(data))
         except ValueError as e:
             msg = "{}".format(e)
-            cls.log_static_message(msg, 'error')
+            self._log.error(msg)
             raise ThunderBorgException(msg)
 
-    @classmethod
-    def _read(cls, command, length, retry_count=3):
+    def _read(self, command, length, retry_count=3):
         """
         Reads data from the `ThunderBorg`.
 
@@ -286,8 +278,8 @@ class ThunderBorg(object):
         :raises ThunderBorgException: If reading a command failed.
         """
         for i in range(retry_count-1, -1, -1):
-            cls._write(command, [])
-            reply = cls._i2c_read.read(length)
+            self._write(command, [])
+            reply = self._i2c_read.read(length)
             data = [bt for bt in reply]
 
             if command == data[0]:
@@ -295,7 +287,7 @@ class ThunderBorg(object):
 
         if len(reply) <= 0:
             msg = "I2C read for command '{}' failed.".format(command)
-            cls.log_static_message(msg, 'error')
+            self._log.error(msg)
             raise ThunderBorgException(msg)
 
         return reply
@@ -317,22 +309,21 @@ class ThunderBorg(object):
         :raises IOError: An error happening on a stream.
         """
         found = []
-        cls.log_static_message("Scanning I2C bus number %d.", 'debug',
-                               *[bus_num])
+        tb = ThunderBorg(static=True)
+        tb._log.debug("Scanning I2C bus number %d.", bus_num)
 
         for address in range(0x04, 0x76, 1):
-            cls._init_bus(bus_num, address)
+            tb._init_bus(bus_num, address)
 
             try:
-                recv = cls._read(cls.COMMAND_GET_ID, cls._I2C_READ_LEN)
+                recv = tb._read(cls.COMMAND_GET_ID, cls._I2C_READ_LEN)
             except KeyboardInterrupt as e:
-                cls.log_static_message(
-                    "Keyboard interrupt, %s", 'warning', *[e])
+                tb._log.warning("Keyboard interrupt, %s", e)
                 raise e
             except IOError as e:
                 pass
             else:
-                if cls._check_board_found(recv, bus_num, address):
+                if tb._check_board_found(recv, bus_num, address):
                     found.append(address)
 
         size = len(found)
@@ -340,7 +331,7 @@ class ThunderBorg(object):
         if size == 0:
             msg = ("No ThunderBorg boards found, is the bus number '%d' "
                    "correct? (should be 0 for Rev 1 and 1 for Rev 2)")
-            cls.log_static_message(msg, 'error', *[bus_num])
+            tb._log.error(msg, bus_num)
 
         return found
     find_board.__doc__ = find_board.__doc__.format(_DEFAULT_BUS_NUM)
@@ -357,83 +348,80 @@ class ThunderBorg(object):
         Warning, this new I<B2>C address will still be used after
         resetting the power on the device.
         """
+        tb = ThunderBorg(static=True)
+
         if not (0x03 < new_addr < 0x77):
             msg = ("Error, I<B2>C addresses must be between the range "
                    "of 0x03 to 0x77")
-            cls.log_static_message(msg, 'error')
+            tb._log.error(msg)
             raise ThunderBorgException(msg)
 
         if old_addr < 0x00:
-            found = cls.find_board(bus_num=bus_num)
+            found = tb.find_board(bus_num=bus_num)
 
             if len(found) < 1:
                 msg = ("No ThunderBorg boards found, cannot set a new "
                        "I<B2>C address!")
-                cls.log_static_message(msg, 'info')
+                tb._log.info(msg)
                 raise ThunderBorgException(msg)
 
         old_addr = found[0]
         msg = "Changing I<B2>C address from 0x%02X to 0x%02X on bus number %d."
-        cls.log_static_message(msg, 'info', *[old_addr, new_addr, bus_num])
-        cls._init_bus(bus_num, old_addr)
+        tb._log.info(msg, old_addr, new_addr, bus_num)
+        tb._init_bus(bus_num, old_addr)
 
         try:
-            recv = cls._read(self.COMMAND_GET_ID, self._I2C_READ_LEN)
+            recv = tb._read(cls.COMMAND_GET_ID, cls._I2C_READ_LEN)
         except KeyboardInterrupt as e:
-            cls.log_static_message("Keyboard interrupt, %s", 'warning', *[e])
+            tb._log.warning("Keyboard interrupt, %s", e)
             raise e
         except IOError as e:
             msg = "Missing ThunderBorg at address 0x%02X."
-            cls.log_static_message(msg, 'error', old_addr)
+            tb._log.error(msg, old_addr)
             raise ThunderBorgException(msg)
         else:
-            if cls._check_board_found(recv, bus_num, old_addr):
-                cls._write(self.COMMAND_SET_I2C_ADD, [new_addr])
+            if tb._check_board_found(recv, bus_num, old_addr):
+                tb._write(cls.COMMAND_SET_I2C_ADD, [new_addr])
                 time.sleep(0.1)
                 msg = ("Address changed to 0x%02X, attempting to talk "
                        "with the new address.")
-                cls.log_static_message(msg, 'info', *[new_addr])
-                cls._init_bus(bus_num, new_addr)
+                tb._log.info(msg, new_addr)
+                tb._init_bus(bus_num, new_addr)
 
                 try:
-                    recv = cls._read(cls.COMMAND_GET_ID, cls._I2C_READ_LEN)
+                    recv = tb._read(cls.COMMAND_GET_ID, cls._I2C_READ_LEN)
                 except KeyboardInterrupt as e:
-                    cls.log_static_message(
-                        "Keyboard interrupt, %s", 'warning', *[e])
+                    tb._log.warning("Keyboard interrupt, %s", e)
                     raise e
                 except IOError as e:
                     msg = "Missing ThunderBorg at address 0x%02X."
-                    cls.log_static_message(msg, 'error', *[new_addr])
+                    tb._log.error(msg, new_addr)
                     raise ThunderBorgException(msg)
                 else:
-                    if cls._check_board_found(recv, bus_num, new_addr):
+                    if tb._check_board_found(recv, bus_num, new_addr):
                         msg = ("New I<B2>C address of 0x{:02X} set "
                                "successfully.").format(new_addr)
-                        cls.log_static_message(msg, 'info')
+                        tb._log.info(msg)
                     else:
-                        cls.log_static_message(
-                            "Failed to set new I<B2>C address...", 'error')
+                        tb._log.error("Failed to set new I<B2>C address...")
 
-    @classmethod
-    def _check_board_found(cls, recv, bus_num, address):
+    def _check_board_found(self, recv, bus_num, address):
         found_chip = False
         length = len(recv)
 
-        if length == cls._I2C_READ_LEN:
-            if recv[1] == cls._I2C_ID_THUNDERBORG:
+        if length == self._I2C_READ_LEN:
+            if recv[1] == self._I2C_ID_THUNDERBORG:
                 found_chip = True
                 msg = "Found ThunderBorg on bus '%d' at address 0x%02X."
-                cls.log_static_message(msg, 'info', *[bus_num, address])
+                self._log.into(msg, bus_num, address)
             else:
                 msg = ("Found a device at 0x%02X, but it is not a "
                        "ThunderBorg (ID 0x%02X instead of 0x%02X).")
-                cls.log_static_message(
-                    msg, 'info', *[address, recv[1], cls._I2C_ID_THUNDERBORG])
+                self._log.info(msg, address, recv[1], self._I2C_ID_THUNDERBORG)
         else:
             msg = ("Wrong number of bytes received, found '%d', should be "
                    "'%d' at address 0x%02X}")
-            cls.log_static_message(
-                msg, 'error', *[length, cls._I2C_READ_LEN, address])
+            self._log.error(msg, length, self._I2C_READ_LEN, address)
 
         return found_chip
 
@@ -977,7 +965,7 @@ class ThunderBorg(object):
         level_min = float(recv[1]) / 0xFF
         level_max = float(recv[2]) / 0xFF
         level_min *= self._VOLTAGE_PIN_MAX
-        level_max *= self_.VOLTAGE_PIN_MAX
+        level_max *= self._VOLTAGE_PIN_MAX
         return level_min, level_max
 
     def write_external_led_word(self, b0, b1, b2, b3):

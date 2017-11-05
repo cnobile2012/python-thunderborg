@@ -185,8 +185,6 @@ class ThunderBorg(object):
                                     "properly attached, the correct address "
                                     "used, and the I2C driver module loaded?")
 
-        self._log.info("ThunderBorg loaded on bus %d at address 0x%02X",
-                       bus_num, address)
     __init__.__doc__ = __init__.__doc__.format(
         _I2C_ID_THUNDERBORG, _DEFAULT_BUS_NUM, _LEVEL_TO_NAME[_DEF_LOG_LEVEL])
 
@@ -309,7 +307,7 @@ class ThunderBorg(object):
         :raises IOError: An error happening on a stream.
         """
         found = []
-        tb = ThunderBorg(static=True)
+        tb = ThunderBorg(log_level=logging.DEBUG, static=True)
         tb._log.debug("Scanning I2C bus number %d.", bus_num)
 
         for address in range(0x04, 0x76, 1):
@@ -348,7 +346,7 @@ class ThunderBorg(object):
         Warning, this new I<B2>C address will still be used after
         resetting the power on the device.
         """
-        tb = ThunderBorg(static=True)
+        tb = ThunderBorg(log_level=logging.DEBUG, static=True)
 
         if not (0x03 < new_addr < 0x77):
             msg = ("Error, I<B2>C addresses must be between the range "
@@ -413,7 +411,7 @@ class ThunderBorg(object):
             if recv[1] == self._I2C_ID_THUNDERBORG:
                 found_chip = True
                 msg = "Found ThunderBorg on bus '%d' at address 0x%02X."
-                self._log.into(msg, bus_num, address)
+                self._log.info(msg, bus_num, address)
             else:
                 msg = ("Found a device at 0x%02X, but it is not a "
                        "ThunderBorg (ID 0x%02X instead of 0x%02X).")

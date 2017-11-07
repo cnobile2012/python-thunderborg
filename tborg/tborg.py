@@ -23,6 +23,7 @@ import fcntl
 import types
 import time
 import logging
+import six
 
 # Map the integer log levels to their names.
 _LEVEL_TO_NAME = {
@@ -273,8 +274,13 @@ class ThunderBorg(object):
 
         data.insert(0, command)
 
+        if six.PY2:
+            data = ''.join([chr(byte) for byte in data])
+        else:
+            data = bytes(data)
+
         try:
-            self._i2c_write.write(bytes(data))
+            self._i2c_write.write(data)
         except ValueError as e:
             msg = "{}".format(e)
             self._log.error(msg)
@@ -294,10 +300,13 @@ class ThunderBorg(object):
         for i in range(retry_count):
             self._write(command, [])
             recv = self._i2c_read.read(length)
-            #print("POOP {}, {}".format(i, recv))
-            data = [bt for bt in recv] # Split string/bytes
-            #print("DUNG {}, {}".format(i, data))
+
+            # Split string/bytes
             # b'\x99\x15\x00\x00\x00\x00' [153, 21, 0, 0, 0, 0]
+            if six.PY2:
+                data = [ord(bt) for bt in recv]
+            else:
+                data = [bt for bt in recv]
 
             if command == data[0]:
                 break

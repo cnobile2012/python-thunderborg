@@ -42,10 +42,12 @@ class ThunderBorgException(Exception):
 
 class ThunderBorg(object):
     """
-    This module is designed to communicate with the ThunderBorg
+    This module is designed to communicate with the ThunderBorg board.
     """
     #.. autoclass: tborg.ThunderBorg
     #   :members:
+    #
+    # sudo i2cdetect -y 1
     _DEF_LOG_LEVEL = logging.WARNING
     _DEVICE_PREFIX = '/dev/i2c-{}'
     _DEFAULT_BUS_NUM = 1 # Rev. 2 boards
@@ -378,8 +380,8 @@ class ThunderBorg(object):
         """
         tb = ThunderBorg(log_level=logging.INFO, static=True)
 
-        if not (0x03 < new_addr < 0x77):
-            msg = ("Error, I<B2>C addresses must be between the range "
+        if not (0x03 <= new_addr <= 0x77):
+            msg = ("Error, I<B2>C addresses must be in the range "
                    "of 0x03 to 0x77")
             tb._log.error(msg)
             raise ThunderBorgException(msg)

@@ -44,21 +44,21 @@ class TestClassMethods(BaseTest):
         Test that the ThunderBorg.set_i2c_address() can set a different
         address.
         """
-        new_address = 0x70
-        ThunderBorg.set_i2c_address(new_address)
-        tb = ThunderBorg(log_level=logging.DEBUG)
-        orig_led_state = tb.get_led_state()
-        new_led_state = True if not orig_led_state else False
-        tb.set_led_state(new_led_state)
-        found_led_state = tb.get_led_state()
-        msg = "Found LED state '{}', should be '{}'.".format(
-            found_led_state, new_led_state)
-        self.assertEqual(found_led_state, new_led_state, msg)
-        tb.set_led_state(orig_led_state)
-        found_led_state = tb.get_led_state()
-        msg = "Found LED state '{}', should be '{}'.".format(
-            found_led_state, orig_led_state)
-        self.assertEqual(found_led_state, orig_led_state, msg)
+        # Set a new address
+        orig_addr = ThunderBorg.find_board()
+        orig_addr = orig_addr[0] if orig_addr else None
+        new_addr = 0x70
+        ThunderBorg.set_i2c_address(new_addr)
+        found = ThunderBorg.find_board()
+        found = found[0] if found else None
+        msg = "Found address '{}', should be '{}'.".format()
+        self.assertEqual(found, new_addr, msg)
+        # Reset the original address
+        ThunderBorg.set_i2c_address(orig_addr)
+        found = ThunderBorg.find_board()
+        found = found[0] if found else None
+        msg = "Found address '{}', should be '{}'.".format()
+        self.assertEqual(found, orig_addr, msg)
 
 
 class TestThunderBorg(BaseTest):

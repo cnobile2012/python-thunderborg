@@ -18,11 +18,8 @@ all	: tar
 
 .PHONY	: coverage
 coverage: clean
-	@rm -rf $(DOCS_DIR)/htmlcov
-	coverage erase
-	coverage run ./manage.py test
-	coverage report
-	coverage html
+	nosetests --with-coverage --cover-erase --cover-inclusive \
+                  --cover-html --cover-html-dir=$(DOCS_DIR)/htmlcov
 
 .PHONY	: sphinx
 sphinx	: clean

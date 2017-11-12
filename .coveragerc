@@ -1,14 +1,17 @@
 [run]
-source =
-    tborg
+source = tborg
 
 omit =
     *tests*
+    # Virtualenv Python 2
+    *tborg2*
+    # Virtualenv Python 3
+    *tborg3*
 
 [report]
     show_missing = True
     skip_covered = True
-precision = 3
+    precision = 3
 
 # Regexes for lines to exclude from consideration
 exclude_lines =

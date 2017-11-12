@@ -4,6 +4,7 @@
 from __future__ import absolute_import
 
 import os
+import logging
 import unittest
 
 from tborg import ConfigLogger, ThunderBorgException, ThunderBorg
@@ -15,8 +16,8 @@ not os.path.isdir(LOG_PATH) and os.mkdir(LOG_PATH, 0o0775)
 
 class BaseTest(unittest.TestCase):
 
-    def __init__(self, name, filename):
-        super(TestClassMethods, self).__init__(name)
+    def __init__(self, name, filename=None):
+        super(BaseTest, self).__init__(name)
         cl = ConfigLogger(log_path=LOG_PATH)
         cl.config(logger_name='thunder-borg', filename=filename,
                   level=logging.DEBUG)

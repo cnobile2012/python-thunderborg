@@ -41,7 +41,7 @@ class ConfigLogger(object):
         else:
             self._format = self._DEFAULT_FORMAT
 
-    def config(self, loggerName=None, filename=None, level=logging.WARNING):
+    def config(self, logger_name=None, filename=None, level=logging.WARNING):
         """
         Config the logger.
         """
@@ -51,7 +51,7 @@ class ConfigLogger(object):
             file_path = None
 
         if logger_name and file_path:
-            logger = logging.getLogger(loggerName)
+            logger = logging.getLogger(logger_name)
             logger.setLevel(level)
             handler = logging.FileHandler(file_path)
             formatter = logging.Formatter(self._format)

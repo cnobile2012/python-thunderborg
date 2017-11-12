@@ -52,13 +52,13 @@ class TestClassMethods(BaseTest):
         ThunderBorg.set_i2c_address(new_addr)
         found = ThunderBorg.find_board()
         found = found[0] if found else None
-        msg = "Found address '{}', should be '{}'.".format()
+        msg = "Found address '{}', should be '{}'.".format(found, new_addr)
         self.assertEqual(found, new_addr, msg)
         # Reset the original address
         ThunderBorg.set_i2c_address(orig_addr)
         found = ThunderBorg.find_board()
         found = found[0] if found else None
-        msg = "Found address '{}', should be '{}'.".format()
+        msg = "Found address '{}', should be '{}'.".format(found, new_addr)
         self.assertEqual(found, orig_addr, msg)
 
 

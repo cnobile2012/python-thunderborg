@@ -30,6 +30,12 @@ class TestClassMethods(BaseTest):
         super(TestClassMethods, self).__init__(
             name, filename=self._LOG_FILENAME)
 
+    def setUp(self):
+        # Reset board address to default.
+        tb = ThunderBorg()
+        tb._write(tb.COMMAND_SET_I2C_ADD, [tb._I2C_ID_THUNDERBORG])
+        tb.close_streams()
+
     def test_find_board(self):
         """
         Test that the ThunderBorg.find_board() method finds a board.
@@ -40,26 +46,34 @@ class TestClassMethods(BaseTest):
             found, ThunderBorg._I2C_ID_THUNDERBORG)
         self.assertEqual(found, ThunderBorg._I2C_ID_THUNDERBORG, msg)
 
-    def test_set_i2c_address(self):
+    def test_set_i2c_address_without_current_address(self):
         """
         Test that the ThunderBorg.set_i2c_address() can set a different
-        address.
+        address. Scans address range to find current address.
         """
         # Set a new address
-        orig_addr = ThunderBorg.find_board()
-        orig_addr = orig_addr[0] if orig_addr else None
         new_addr = 0x70
         ThunderBorg.set_i2c_address(new_addr)
         found = ThunderBorg.find_board()
         found = found[0] if found else None
         msg = "Found address '{}', should be '{}'.".format(found, new_addr)
         self.assertEqual(found, new_addr, msg)
-        # Reset the original address
-        ThunderBorg.set_i2c_address(orig_addr)
+
+    def test_set_i2c_address_with_current_address(self):
+        """
+        Test that the ThunderBorg.set_i2c_address() can set a different
+        address. The current address is provided.
+        """
+        # Set a new address
+        new_addr = 0x70
+        cur_addr = ThunderBorg._I2C_ID_THUNDERBORG
+        ThunderBorg.set_i2c_address(new_addr, cur_addr=cur_addr)
         found = ThunderBorg.find_board()
         found = found[0] if found else None
         msg = "Found address '{}', should be '{}'.".format(found, new_addr)
-        self.assertEqual(found, orig_addr, msg)
+        self.assertEqual(found, new_addr, msg)
+
+
 
 
 class TestThunderBorg(BaseTest):

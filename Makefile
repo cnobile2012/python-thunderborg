@@ -16,8 +16,8 @@ PIP_ARGS	=
 #----------------------------------------------------------------------
 all	: tar
 
-.PHONY	: coverage
-coverage: clean
+.PHONY	: tests
+tests	: clean
 	nosetests --with-coverage --cover-erase --cover-inclusive \
                   --cover-html --cover-html-dir=$(DOCS_DIR)/htmlcov
 

@@ -141,15 +141,17 @@ class ThunderBorg(object):
         """
         Setup logging and initialize the ThunderBorg motor driver board.
 
-        :param address: The I2C address to use, defaults to 0x{0:02X}.
-        :type address: int
         :param bus_num: The I2C bus number, defaults to {1:d}.
         :type bus_num: int
+        :param address: The I2C address to use, defaults to 0x{0:02X}.
+        :type address: int
         :param logger_name: The name of the logger to log to, defaults to
                             the root logger.
         :type logger_name: str
         :param log_level: The lowest log level to log, defaults to {2:s}.
         :type log_level: int
+        :param static: If called by a static or class method.
+        :type static: bool
         :raises KeyboardInterrupt: Keyboard interrupt.
         :raises IOError: An error happened on a stream.
         """
@@ -169,9 +171,9 @@ class ThunderBorg(object):
                 self.close_streams()
                 err_msg = "ThunderBorg not found on bus %s at address 0x%02X"
                 self._log.error(err_msg, bus_num, address)
+                buss = [bus for bus in self._POSSIBLE_BUSS if bus != bus_num]
 
-                for bus in [bus for bus in self._POSSIBLE_BUSS
-                            if bus != bus_num]:
+                for bus in buss:
                     found_chip = self._init_thunder_borg(bus, address)
 
                     if not found_chip:
@@ -203,10 +205,6 @@ class ThunderBorg(object):
             fcntl.ioctl(self._i2c_write, self._I2C_SLAVE, address)
 
     def _init_thunder_borg(self, bus_num, address):
-        """
-        We cannot raise an exception here because this method gets
-        called in the constructor.
-        """
         self._log.debug("Loading ThunderBorg on bus number %d, address 0x%02X",
                         self._DEFAULT_BUS_NUM, address)
         found_chip = False
@@ -404,7 +402,8 @@ class ThunderBorg(object):
                 tb._log.info(msg)
                 raise ThunderBorgException(msg)
 
-        cur_addr = found[0]
+            cur_addr = found[0]
+
         msg = "Changing I<B2>C address from 0x%02X to 0x%02X on bus number %d."
         tb._log.info(msg, cur_addr, new_addr, bus_num)
         tb._init_bus(bus_num, cur_addr)

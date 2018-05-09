@@ -15,11 +15,12 @@ not os.path.isdir(LOG_PATH) and os.mkdir(LOG_PATH, 0o0775)
 
 
 class BaseTest(unittest.TestCase):
+    LOGGER_NAME = 'thunder-borg'
 
     def __init__(self, name, filename=None):
         super(BaseTest, self).__init__(name)
         cl = ConfigLogger(log_path=LOG_PATH)
-        cl.config(logger_name='thunder-borg', filename=filename,
+        cl.config(logger_name=self.LOGGER_NAME, filename=filename,
                   level=logging.DEBUG)
 
 
@@ -32,7 +33,7 @@ class TestClassMethods(BaseTest):
 
     def setUp(self):
         # Reset board address to default.
-        tb = ThunderBorg()
+        tb = ThunderBorg(logger_name=self.LOGGER_NAME, log_level=logging.DEBUG)
         tb._write(tb.COMMAND_SET_I2C_ADD, [tb._I2C_ID_THUNDERBORG])
         tb.close_streams()
 

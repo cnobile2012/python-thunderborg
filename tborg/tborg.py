@@ -188,22 +188,6 @@ class ThunderBorg(object):
     __init__.__doc__ = __init__.__doc__.format(
         _I2C_ID_THUNDERBORG, _DEFAULT_BUS_NUM, _LEVEL_TO_NAME[_DEF_LOG_LEVEL])
 
-    def _init_bus(self, bus_num, address):
-        device = self._DEVICE_PREFIX.format(bus_num)
-
-        try:
-            self._i2c_read = io.open(device, 'rb', buffering=0)
-            self._i2c_write = io.open(device, 'wb', buffering=0)
-        except (IOError, OSError) as e:
-            self.close_streams()
-            msg = ("Could not open read or write stream on bus {:d} at "
-                   "address 0x{:02X}, {}").format(bus_num, address, e)
-            self._log.critical(msg)
-            raise ThunderBorgException(msg)
-        else:
-            fcntl.ioctl(self._i2c_read, self._I2C_SLAVE, address)
-            fcntl.ioctl(self._i2c_write, self._I2C_SLAVE, address)
-
     def _init_thunder_borg(self, bus_num, address):
         self._log.debug("Loading ThunderBorg on bus number %d, address 0x%02X",
                         self._DEFAULT_BUS_NUM, address)
@@ -222,6 +206,22 @@ class ThunderBorg(object):
             found_chip = self._check_board_found(recv, bus_num, address)
 
         return found_chip
+
+    def _init_bus(self, bus_num, address):
+        device = self._DEVICE_PREFIX.format(bus_num)
+
+        try:
+            self._i2c_read = io.open(device, 'rb', buffering=0)
+            self._i2c_write = io.open(device, 'wb', buffering=0)
+        except (IOError, OSError) as e:
+            self.close_streams()
+            msg = ("Could not open read or write stream on bus {:d} at "
+                   "address 0x{:02X}, {}").format(bus_num, address, e)
+            self._log.critical(msg)
+            raise ThunderBorgException(msg)
+        else:
+            fcntl.ioctl(self._i2c_read, self._I2C_SLAVE, address)
+            fcntl.ioctl(self._i2c_write, self._I2C_SLAVE, address)
 
     def _check_board_found(self, recv, bus_num, address):
         found_chip = False

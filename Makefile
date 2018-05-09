@@ -18,8 +18,8 @@ all	: tar
 
 .PHONY	: tests
 tests	: clean
-	nosetests --with-coverage --cover-erase --cover-inclusive \
-                  --cover-html --cover-html-dir=$(DOCS_DIR)/htmlcov
+	@nosetests --with-coverage --cover-erase --cover-inclusive \
+                   --cover-html --cover-html-dir=$(DOCS_DIR)/htmlcov
 
 .PHONY	: sphinx
 sphinx	: clean

@@ -6,6 +6,7 @@ from __future__ import absolute_import
 import os
 import logging
 import unittest
+from unittest.mock import patch
 
 from tborg import ConfigLogger, ThunderBorgException, ThunderBorg
 
@@ -22,6 +23,28 @@ class BaseTest(unittest.TestCase):
         cl = ConfigLogger(log_path=LOG_PATH)
         cl.config(logger_name=self.LOGGER_NAME, filename=filename,
                   level=logging.DEBUG)
+
+
+class TestNoSetUp(BaseTest):
+    _LOG_FILENAME = 'tb-class_method.log'
+
+    def __init__(self, name):
+        super(TestNoSetUp, self).__init__(
+            name, filename=self._LOG_FILENAME)
+
+    @patch.object(ThunderBorg, '_I2C_ID_THUNDERBORG', 0x20)
+    def test_find_address_with_invalid_default_address(self):
+        """
+        Test that an invalid default address will cause a board to be
+        initialized if the `auto_set_addr` argument is `True`.
+        """
+        tb = ThunderBorg(logger_name=self.LOGGER_NAME,
+                         log_level=logging.DEBUG,
+                         auto_set_addr=True)
+        boards = ThunderBorg.find_board()
+        msg = "Boards found: {}".format(boards)
+        self.assertEquals(tb._I2C_ID_THUNDERBORG, 0x20, msg)
+        self.assertTrue(len(boards) > 0, msg)
 
 
 class TestClassMethods(BaseTest):
@@ -73,6 +96,7 @@ class TestClassMethods(BaseTest):
         found = found[0] if found else None
         msg = "Found address '{}', should be '{}'.".format(found, new_addr)
         self.assertEqual(found, new_addr, msg)
+
 
 
 

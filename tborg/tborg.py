@@ -137,7 +137,8 @@ class ThunderBorg(object):
     """Maximum value for analog readings"""
 
     def __init__(self, bus_num=_DEFAULT_BUS_NUM, address=_I2C_ID_THUNDERBORG,
-                 logger_name='', log_level=_DEF_LOG_LEVEL, static=False):
+                 logger_name='', log_level=_DEF_LOG_LEVEL, static=False,
+                 auto_set_addr=False):
         """
         Setup logging and initialize the ThunderBorg motor driver board.
 
@@ -152,6 +153,9 @@ class ThunderBorg(object):
         :type log_level: int
         :param static: If called by a static or class method.
         :type static: bool
+        :param auto_set_addr: If set to `True` will use the first board
+                              that is found. Default is `False`.
+        :type auto_set_addr: bool
         :raises KeyboardInterrupt: Keyboard interrupt.
         :raises IOError: An error happened on a stream.
         """
@@ -181,9 +185,13 @@ class ThunderBorg(object):
                         self._log.error(err_msg, bus, address)
 
                 if not found_chip:
-                    self._log.error("ThunderBorg could not be found; is it "
-                                    "properly attached, the correct address "
-                                    "used, and the I2C driver module loaded?")
+                    msg = ("ThunderBorg could not be found; is it properly "
+                           "attached, the correct address used, and the I2C "
+                           "driver module loaded?")
+
+                    if ((auto_set_addr and not self._auto_set_address(bus_num))
+                        or not auto_set_addr):
+                        self._log.error(msg)
 
     __init__.__doc__ = __init__.__doc__.format(
         _I2C_ID_THUNDERBORG, _DEFAULT_BUS_NUM, _LEVEL_TO_NAME[_DEF_LOG_LEVEL])
@@ -240,6 +248,18 @@ class ThunderBorg(object):
             msg = ("Wrong number of bytes received, found '%d', should be "
                    "'%d' at address 0x%02X.")
             self._log.error(msg, length, self._I2C_READ_LEN, address)
+
+        return found_chip
+
+    def _auto_set_address(self, bus_num):
+        found_chip = False
+        boards = ThunderBorg.find_board()
+        msg = "Found ThunderBorg(s) on bus '%d' at address %s."
+        hex_boards = ', '.join(['0x%02X' % b for b in boards])
+        self._log.warning(msg, bus_num, hex_boards)
+
+        if boards:
+            found_chip = self._init_thunder_borg(bus_num, boards[0])
 
         return found_chip
 

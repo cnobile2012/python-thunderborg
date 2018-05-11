@@ -51,14 +51,10 @@ tar	: clean
 	@(cd ..; tar -czvf $(PACKAGE_DIR).tar.gz --exclude=".git" \
           --exclude="logs/*.log" --exclude="dist/*" $(PACKAGE_DIR))
 
-.PHONE	: build
-build	: clean
-	python setup.py sdist
-
 #----------------------------------------------------------------------
 
 clean	:
-	$(shell cleanDirs.sh clean)
+	$(shell $(RM_CMD))
 	@rm -rf *.egg-info
 	@rm -rf python-thunderborg-1.0
 	@rm -rf dist

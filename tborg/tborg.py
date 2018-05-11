@@ -200,22 +200,23 @@ class ThunderBorg(object):
         self._log.debug("Loading ThunderBorg on bus number %d, address 0x%02X",
                         self._DEFAULT_BUS_NUM, address)
         found_chip = False
-        self._init_bus(bus_num, address)
 
-        # Check that the ThunderBorg is connected.
-        try:
-            recv = self._read(self.COMMAND_GET_ID, self._I2C_READ_LEN)
-        except KeyboardInterrupt as e:
-            self._log.warning("Keyboard interrupt, %s", e)
-            raise e
-        except IOError as e:
-            self._log.error("Could not find the ThunderBorg, %s", e)
-        else:
-            found_chip = self._check_board_found(recv, bus_num, address)
+        if self._init_bus(bus_num, address):
+            # Check that the ThunderBorg is connected.
+            try:
+                recv = self._read(self.COMMAND_GET_ID, self._I2C_READ_LEN)
+            except KeyboardInterrupt as e:
+                self._log.warning("Keyboard interrupt, %s", e)
+                raise e
+            except IOError as e:
+                self._log.error("Could not find the ThunderBorg, %s", e)
+            else:
+                found_chip = self._check_board_found(recv, bus_num, address)
 
         return found_chip
 
     def _init_bus(self, bus_num, address):
+        device_found = False
         device = self._DEVICE_PREFIX.format(bus_num)
 
         try:
@@ -226,10 +227,12 @@ class ThunderBorg(object):
             msg = ("Could not open read or write stream on bus {:d} at "
                    "address 0x{:02X}, {}").format(bus_num, address, e)
             self._log.critical(msg)
-            raise ThunderBorgException(msg)
         else:
             fcntl.ioctl(self._i2c_read, self._I2C_SLAVE, address)
             fcntl.ioctl(self._i2c_write, self._I2C_SLAVE, address)
+            device_found = True
+
+        return device_found
 
     def _check_board_found(self, recv, bus_num, address):
         found_chip = False
@@ -360,19 +363,18 @@ class ThunderBorg(object):
         tb._log.info("Scanning I2C bus number %d.", bus_num)
 
         for address in range(0x03, 0x77, 1):
-            tb._init_bus(bus_num, address)
-
-            try:
-                recv = tb._read(cls.COMMAND_GET_ID, cls._I2C_READ_LEN)
-            except KeyboardInterrupt as e:
-                self.close_streams()
-                tb._log.warning("Keyboard interrupt, %s", e)
-                raise e
-            except IOError as e:
-                pass
-            else:
-                if tb._check_board_found(recv, bus_num, address):
-                    found.append(address)
+            if tb._init_bus(bus_num, address):
+                try:
+                    recv = tb._read(cls.COMMAND_GET_ID, cls._I2C_READ_LEN)
+                except KeyboardInterrupt as e:
+                    self.close_streams()
+                    tb._log.warning("Keyboard interrupt, %s", e)
+                    raise e
+                except IOError as e:
+                    pass
+                else:
+                    if tb._check_board_found(recv, bus_num, address):
+                        found.append(address)
 
         tb.close_streams()
         size = len(found)
@@ -426,48 +428,50 @@ class ThunderBorg(object):
 
         msg = "Changing I<B2>C address from 0x%02X to 0x%02X on bus number %d."
         tb._log.info(msg, cur_addr, new_addr, bus_num)
-        tb._init_bus(bus_num, cur_addr)
 
-        try:
-            recv = tb._read(cls.COMMAND_GET_ID, cls._I2C_READ_LEN)
-        except KeyboardInterrupt as e:
-            tb.close_streams()
-            tb._log.warning("Keyboard interrupt, %s", e)
-            raise e
-        except IOError as e:
-            tb.close_streams()
-            msg = "Missing ThunderBorg at address 0x%02X."
-            tb._log.error(msg, cur_addr)
-            raise ThunderBorgException(msg)
-        else:
-            if tb._check_board_found(recv, bus_num, cur_addr):
-                tb._write(cls.COMMAND_SET_I2C_ADD, [new_addr])
-                time.sleep(0.1)
-                msg = ("Address changed to 0x%02X, attempting to talk "
-                       "with the new address.")
-                tb._log.info(msg, new_addr)
-                tb._init_bus(bus_num, new_addr)
+        if tb._init_bus(bus_num, cur_addr):
+            try:
+                recv = tb._read(cls.COMMAND_GET_ID, cls._I2C_READ_LEN)
+            except KeyboardInterrupt as e:
+                tb.close_streams()
+                tb._log.warning("Keyboard interrupt, %s", e)
+                raise e
+            except IOError as e:
+                tb.close_streams()
+                msg = "Missing ThunderBorg at address 0x%02X."
+                tb._log.error(msg, cur_addr)
+                raise ThunderBorgException(msg)
+            else:
+                if tb._check_board_found(recv, bus_num, cur_addr):
+                    tb._write(cls.COMMAND_SET_I2C_ADD, [new_addr])
+                    time.sleep(0.1)
+                    msg = ("Address changed to 0x%02X, attempting to talk "
+                           "with the new address.")
+                    tb._log.info(msg, new_addr)
 
-                try:
-                    recv = tb._read(cls.COMMAND_GET_ID, cls._I2C_READ_LEN)
-                except KeyboardInterrupt as e:
-                    tb.close_streams()
-                    tb._log.warning("Keyboard interrupt, %s", e)
-                    raise e
-                except IOError as e:
-                    tb.close_streams()
-                    msg = "Missing ThunderBorg at address 0x%02X."
-                    tb._log.error(msg, new_addr)
-                    raise ThunderBorgException(msg)
-                else:
-                    if tb._check_board_found(recv, bus_num, new_addr):
-                        msg = ("New I<B2>C address of 0x{:02X} set "
-                               "successfully.").format(new_addr)
-                        tb._log.info(msg)
-                    else:
-                        tb._log.error("Failed to set new I<B2>C address...")
+                    if tb._init_bus(bus_num, new_addr):
+                        try:
+                            recv = tb._read(cls.COMMAND_GET_ID,
+                                            cls._I2C_READ_LEN)
+                        except KeyboardInterrupt as e:
+                            tb.close_streams()
+                            tb._log.warning("Keyboard interrupt, %s", e)
+                            raise e
+                        except IOError as e:
+                            tb.close_streams()
+                            msg = "Missing ThunderBorg at address 0x%02X."
+                            tb._log.error(msg, new_addr)
+                            raise ThunderBorgException(msg)
+                        else:
+                            if tb._check_board_found(recv, bus_num, new_addr):
+                                msg = ("New I<B2>C address of 0x{:02X} set "
+                                       "successfully.").format(new_addr)
+                                tb._log.info(msg)
+                            else:
+                                msg = "Failed to set new I<B2>C address..."
+                                tb._log.error(msg)
 
-            tb.close_streams()
+                tb.close_streams()
 
     def _set_motor(self, level, fwd, rev):
         if level < 0:

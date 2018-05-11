@@ -26,13 +26,14 @@ class BaseTest(unittest.TestCase):
 
 
 class TestNoSetUp(BaseTest):
-    _LOG_FILENAME = 'tb-class_method.log'
+    _LOG_FILENAME = 'tb-no-setup-method.log'
 
     def __init__(self, name):
         super(TestNoSetUp, self).__init__(
             name, filename=self._LOG_FILENAME)
 
     @patch.object(ThunderBorg, '_I2C_ID_THUNDERBORG', 0x20)
+    #@unittest.skip("Temporarily skipped")
     def test_find_address_with_invalid_default_address(self):
         """
         Test that an invalid default address will cause a board to be
@@ -48,7 +49,7 @@ class TestNoSetUp(BaseTest):
 
 
 class TestClassMethods(BaseTest):
-    _LOG_FILENAME = 'tb-class_method.log'
+    _LOG_FILENAME = 'tb-class-method.log'
 
     def __init__(self, name):
         super(TestClassMethods, self).__init__(
@@ -60,6 +61,7 @@ class TestClassMethods(BaseTest):
         tb._write(tb.COMMAND_SET_I2C_ADD, [tb._I2C_ID_THUNDERBORG])
         tb.close_streams()
 
+    #@unittest.skip("Temporarily skipped")
     def test_find_board(self):
         """
         Test that the ThunderBorg.find_board() method finds a board.
@@ -70,6 +72,7 @@ class TestClassMethods(BaseTest):
             found, ThunderBorg._I2C_ID_THUNDERBORG)
         self.assertEqual(found, ThunderBorg._I2C_ID_THUNDERBORG, msg)
 
+    #@unittest.skip("Temporarily skipped")
     def test_set_i2c_address_without_current_address(self):
         """
         Test that the ThunderBorg.set_i2c_address() can set a different
@@ -83,6 +86,7 @@ class TestClassMethods(BaseTest):
         msg = "Found address '{}', should be '{}'.".format(found, new_addr)
         self.assertEqual(found, new_addr, msg)
 
+    #@unittest.skip("Temporarily skipped")
     def test_set_i2c_address_with_current_address(self):
         """
         Test that the ThunderBorg.set_i2c_address() can set a different

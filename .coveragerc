@@ -9,9 +9,9 @@ omit =
     *tborg3*
 
 [report]
-    show_missing = True
-    skip_covered = True
-    precision = 3
+show_missing = True
+skip_covered = True
+precision = 3
 
 # Regexes for lines to exclude from consideration
 exclude_lines =
@@ -19,5 +19,5 @@ exclude_lines =
     pragma: no cover
 
 [html]
-    title = ThunderBorg Motor Controller API
-    directory = docs/htmlcov
+title = ThunderBorg Motor Controller API
+directory = docs/htmlcov

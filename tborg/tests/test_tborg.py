@@ -6,7 +6,11 @@ from __future__ import absolute_import
 import os
 import logging
 import unittest
-from unittest.mock import patch
+
+try:
+    from unittest.mock import patch
+except:
+    from mock import patch
 
 from tborg import ConfigLogger, ThunderBorgException, ThunderBorg
 

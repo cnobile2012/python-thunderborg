@@ -16,6 +16,7 @@ not os.path.isdir(LOG_PATH) and os.mkdir(LOG_PATH, 0o0775)
 
 
 class BaseTest(unittest.TestCase):
+    LOGGER_NAME = 'thunder-borg'
 
     def __init__(self, name, filename=None):
         super(BaseTest, self).__init__(name)
@@ -31,7 +32,7 @@ class TestNoSetUp(BaseTest):
         super(TestNoSetUp, self).__init__(
             name, filename=self._LOG_FILENAME)
 
-    @patch.object(ThunderBorg, '_I2C_ID_THUNDERBORG', 0x20)
+    @patch.object(ThunderBorg, '_DEFAULT_I2C_ADDRESS', 0x20)
     #@unittest.skip("Temporarily skipped")
     def test_find_address_with_invalid_default_address(self):
         """
@@ -43,7 +44,7 @@ class TestNoSetUp(BaseTest):
                          auto_set_addr=True)
         boards = ThunderBorg.find_board()
         msg = "Boards found: {}".format(boards)
-        self.assertEquals(tb._I2C_ID_THUNDERBORG, 0x20, msg)
+        self.assertEquals(tb._DEFAULT_I2C_ADDRESS, 0x20, msg)
         self.assertTrue(len(boards) > 0, msg)
 
 

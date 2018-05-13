@@ -50,6 +50,7 @@ class ThunderBorg(object):
     _DEF_LOG_LEVEL = logging.WARNING
     _DEVICE_PREFIX = '/dev/i2c-{}'
     _DEFAULT_BUS_NUM = 1 # Rev. 2 boards
+    _DEFAULT_I2C_ADDRESS = 0x15
     _POSSIBLE_BUSS = [0, 1]
     _I2C_ID_THUNDERBORG = 0x15
     _I2C_SLAVE = 0x0703
@@ -138,7 +139,7 @@ class ThunderBorg(object):
 
     def __init__(self,
                  bus_num=_DEFAULT_BUS_NUM,
-                 address=_I2C_ID_THUNDERBORG,
+                 address=_DEFAULT_I2C_ADDRESS,
                  logger_name='',
                  log_level=_DEF_LOG_LEVEL,
                  auto_set_addr=False,
@@ -172,7 +173,7 @@ class ThunderBorg(object):
 
         if not static_init:
             self._i2c_read, self._i2c_write = ThunderBorg._initialize_board(
-                bus_num, auto_set_addr)
+                bus_num, address, auto_set_addr)
 
     __init__.__doc__ = __init__.__doc__.format(
         _I2C_ID_THUNDERBORG, _DEFAULT_BUS_NUM, _LEVEL_TO_NAME[_DEF_LOG_LEVEL])
@@ -182,7 +183,7 @@ class ThunderBorg(object):
     #
 
     @classmethod
-    def _initialize_board(cls, bus_num, auto_set_addr):
+    def _initialize_board(cls, bus_num, address, auto_set_addr):
         """
         Setup the I2C connections and return the file streams for read
         and write.
@@ -208,7 +209,7 @@ class ThunderBorg(object):
                        "attached, the correct address used, and the I2C "
                        "driver module loaded?")
 
-                if ((auto_set_addr and not cls._auto_set_address(bus_num))
+                if ((auto_set_addr and not cls._auto_set_address(bus_num, tb))
                     or not auto_set_addr):
                     tb._log.error(msg)
 
@@ -220,7 +221,7 @@ class ThunderBorg(object):
         Try to initialize a board on a given bus and address.
         """
         tb._log.debug("Loading ThunderBorg on bus number %d, address 0x%02X",
-                      self._DEFAULT_BUS_NUM, address)
+                      cls._DEFAULT_BUS_NUM, address)
         found_chip = False
 
         if cls._init_bus(bus_num, address, tb):
@@ -279,9 +280,10 @@ class ThunderBorg(object):
                 msg = "Found ThunderBorg on bus '%d' at address 0x%02X."
                 tb._log.info(msg, bus_num, address)
             else:
-                msg = ("Found a device at 0x%02X, but it is not a "
-                       "ThunderBorg (ID 0x%02X instead of 0x%02X).")
-                tb._log.info(msg, address, recv[1], cls._I2C_ID_THUNDERBORG)
+                msg = ("Found a device at 0x%02X on bus number %d, but it is "
+                       "not a ThunderBorg (ID 0x%02X instead of 0x%02X).")
+                tb._log.info(msg, address, bus_num, recv[1],
+                             cls._I2C_ID_THUNDERBORG)
         else:
             msg = ("Wrong number of bytes received, found '%d', should be "
                    "'%d' at address 0x%02X.")

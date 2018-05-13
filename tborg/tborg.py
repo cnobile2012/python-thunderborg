@@ -17,6 +17,8 @@ SOFTWARE.
 """
 from __future__ import absolute_import
 
+__docformat__ = "restructuredtext en"
+
 import io
 import fcntl
 import types
@@ -352,7 +354,8 @@ class ThunderBorg(object):
 
         :param new_addr: New address to set a ThunderBorg board to.
         :type new_addr: int
-        :param cur_addr: The current address of a ThunderBorg board.
+        :param cur_addr: The current address of a ThunderBorg board. The
+                         default of `-1` will scan the entire range.
         :type cur_addr: int
         :param bun_num: The bus number where the address range will be
                         found. Default is set to 1.

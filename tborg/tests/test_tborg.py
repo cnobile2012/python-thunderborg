@@ -39,6 +39,7 @@ class TestNoSetUp(BaseTest):
         Test that an invalid default address will cause a board to be
         initialized if the `auto_set_addr` argument is `True`.
         """
+        default_address = 0x15
         tb = ThunderBorg(logger_name=self.LOGGER_NAME,
                          log_level=logging.DEBUG,
                          auto_set_addr=True)
@@ -46,6 +47,7 @@ class TestNoSetUp(BaseTest):
         msg = "Boards found: {}".format(boards)
         self.assertEquals(tb._DEFAULT_I2C_ADDRESS, 0x20, msg)
         self.assertTrue(len(boards) > 0, msg)
+        self.assertEqual(boards[0], default_address, msg)
 
 
 class TestClassMethods(BaseTest):
@@ -55,6 +57,9 @@ class TestClassMethods(BaseTest):
         super(TestClassMethods, self).__init__(
             name, filename=self._LOG_FILENAME)
 
+    def tearDown(self):
+        ThunderBorg.set_i2c_address(ThunderBorg._DEFAULT_I2C_ADDRESS)
+
     #@unittest.skip("Temporarily skipped")
     def test_find_board(self):
         """
@@ -62,9 +67,9 @@ class TestClassMethods(BaseTest):
         """
         found = ThunderBorg.find_board()
         found = found[0] if found else None
-        msg = "Found address '{}', should be address '{}'.".format(
-            found, ThunderBorg._I2C_ID_THUNDERBORG)
-        self.assertEqual(found, ThunderBorg._I2C_ID_THUNDERBORG, msg)
+        msg = "Found address '0x{:02X}', should be address '0x{:02X}'.".format(
+            found, ThunderBorg._DEFAULT_I2C_ADDRESS)
+        self.assertEqual(found, ThunderBorg._DEFAULT_I2C_ADDRESS, msg)
 
     #@unittest.skip("Temporarily skipped")
     def test_set_i2c_address_without_current_address(self):
@@ -88,7 +93,7 @@ class TestClassMethods(BaseTest):
         """
         # Set a new address
         new_addr = 0x70
-        cur_addr = ThunderBorg._I2C_ID_THUNDERBORG
+        cur_addr = ThunderBorg._DEFAULT_I2C_ADDRESS
         ThunderBorg.set_i2c_address(new_addr, cur_addr=cur_addr)
         found = ThunderBorg.find_board()
         found = found[0] if found else None

@@ -1,12 +1,12 @@
 [run]
 source = tborg
-
 omit =
     *tests*
+    *mock*
     # Virtualenv Python 2
-    *tborg2*
+    */tborg2/*
     # Virtualenv Python 3
-    *tborg3*
+    */tborg3/*
 
 [report]
 show_missing = True

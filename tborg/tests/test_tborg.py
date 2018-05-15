@@ -100,8 +100,9 @@ class TestClassMethods(BaseTest):
         cur_addr = ThunderBorg._DEFAULT_I2C_ADDRESS
         ThunderBorg.set_i2c_address(new_addr, cur_addr=cur_addr)
         found = ThunderBorg.find_board()
-        found = found[0] if found else None
-        msg = "Found address '{}', should be '{}'.".format(found, new_addr)
+        found = found[0] if found else 0
+        msg = "Found address '0x{:02X}', should be '0x{:02X}'.".format(
+            found, new_addr)
         self.assertEqual(found, new_addr, msg)
 
 

@@ -106,9 +106,6 @@ class TestClassMethods(BaseTest):
         self.assertEqual(found, new_addr, msg)
 
 
-
-
-
 class TestThunderBorg(BaseTest):
     _LOG_FILENAME = 'tb-instance.log'
 
@@ -117,12 +114,99 @@ class TestThunderBorg(BaseTest):
             name, filename=self._LOG_FILENAME)
 
     def setUp(self):
-        self._log.debug("Processing")
         self._tb = ThunderBorg()
 
     def tearDown(self):
         self._tb.halt_motors()
-        self.close_streams()
+        self._tb.close_streams()
+
+    def isclose(self, a, b, rel_tol, abs_tol):
+        return abs(a-b) <= max( rel_tol * max(abs(a), abs(b)), abs_tol)
+
+    #@unittest.skip("Temporarily skipped")
+    def test_set_and_get_motor_one(self):
+        """
+        Test that motor one responds to commands.
+        """
+        # Test forward
+        speed = 0.5
+        self._tb.set_motor_one(speed)
+        rcvd_speed = self._tb.get_motor_one()
+        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
+        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+        # Test reverse
+        speed = -0.5
+        self._tb.set_motor_one(speed)
+        rcvd_speed = self._tb.get_motor_one()
+        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
+        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+
+    #@unittest.skip("Temporarily skipped")
+    def test_set_and_get_motor_two(self):
+        """
+        Test that motor two responds to commands.
+        """
+        # Test forward
+        speed = 0.5
+        self._tb.set_motor_two(speed)
+        rcvd_speed = self._tb.get_motor_two()
+        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
+        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+        # Test reverse
+        speed = -0.5
+        self._tb.set_motor_two(speed)
+        rcvd_speed = self._tb.get_motor_two()
+        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
+        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+
+    #@unittest.skip("Temporarily skipped")
+    def test_set_both_motors(self):
+        """
+        Test that motors one and two responds to commands.
+        """
+        # Test forward
+        speed = 0.5
+        self._tb.set_both_motors(speed)
+        rcvd_speed = self._tb.get_motor_one()
+        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
+        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+        rcvd_speed = self._tb.get_motor_two()
+        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
+        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+        # Test reverse
+        speed = -0.5
+        self._tb.set_both_motors(speed)
+        rcvd_speed = self._tb.get_motor_one()
+        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
+        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+        rcvd_speed = self._tb.get_motor_two()
+        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
+        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+
+    #@unittest.skip("Temporarily skipped")
+    def test_halt_motors(self):
+        """
+        Test that halting the motors works properly.
+        """
+        # Start motors and check that the board says they are moving.
+        speed = 0.5
+        self._tb.set_both_motors(speed)
+        rcvd_speed = self._tb.get_motor_one()
+        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
+        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+        rcvd_speed = self._tb.get_motor_two()
+        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
+        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+        # Halt the motors.
+        self._tb.halt_motors()
+        # Check that the board says they are not moving.
+        speed = 0.0
+        rcvd_speed = self._tb.get_motor_one()
+        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
+        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+        rcvd_speed = self._tb.get_motor_two()
+        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
+        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
 
 
 

@@ -296,7 +296,7 @@ class ThunderBorg(object):
     @classmethod
     def _auto_set_address(cls, bus_num, tb):
         found_chip = False
-        boards = cls.find_board()
+        boards = cls.find_board(tb=tb, close=False)
         msg = "Found ThunderBorg(s) on bus '%d' at address %s."
         hex_boards = ', '.join(['0x%02X' % b for b in boards])
         tb._log.warning(msg, bus_num, hex_boards)
@@ -307,7 +307,7 @@ class ThunderBorg(object):
         return found_chip
 
     @classmethod
-    def find_board(cls, bus_num=_DEFAULT_BUS_NUM):
+    def find_board(cls, bus_num=_DEFAULT_BUS_NUM, tb=None, close=True):
         """
         Scans the I<B2>C bus for ThunderBorg boards and returns a list of
         all usable addresses.
@@ -319,18 +319,22 @@ class ThunderBorg(object):
         :param bus_num: The bus number where the address will be scanned.
                         Default bus number is 1.
         :type bus_num: int
+        :param tb: Use a pre-existing ThunderBorg instance. Default is `None`.
+        :type tb: ThunderBorg instance
+        :param close: Default is `True` to close the stream before exiting.
+        :type close: bool
         :raises KeyboardInterrupt: Keyboard interrupt.
         :raises IOError: An error happened on a stream.
         """
         found = []
-        tb = ThunderBorg(log_level=logging.INFO, static_init=True)
+        if not tb: tb = ThunderBorg(log_level=logging.INFO, static_init=True)
         tb._log.info("Scanning I2C bus number %d.", bus_num)
 
         for address in range(0x03, 0x77, 1):
             if cls._is_thunder_borg_board(bus_num, address, tb):
                 found.append(address)
 
-        tb.close_streams()
+        if close: tb.close_streams()
         size = len(found)
 
         if size == 0:
@@ -493,7 +497,7 @@ class ThunderBorg(object):
         """
         assert hasattr(self, '_i2c_read'), (
             "Programming error, the read stream has not been initialized")
-        assert hasattr(self._i2c_write, 'read'), (
+        assert hasattr(self._i2c_read, 'read'), (
             "Programming error, the read stream object is not a stream.")
 
         for i in range(retry_count):

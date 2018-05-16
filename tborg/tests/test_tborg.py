@@ -70,8 +70,8 @@ class TestClassMethods(BaseTest):
         Test that the ThunderBorg.find_board() method finds a board.
         """
         found = ThunderBorg.find_board()
-        found = found[0] if found else None
-        msg = "Found address '0x{:02X}', should be address '0x{:02X}'.".format(
+        found = found[0] if found else 0
+        msg = "Found address '0x{:02X}', should be '0x{:02X}'.".format(
             found, ThunderBorg._DEFAULT_I2C_ADDRESS)
         self.assertEqual(found, ThunderBorg._DEFAULT_I2C_ADDRESS, msg)
 
@@ -85,8 +85,9 @@ class TestClassMethods(BaseTest):
         new_addr = 0x70
         ThunderBorg.set_i2c_address(new_addr)
         found = ThunderBorg.find_board()
-        found = found[0] if found else None
-        msg = "Found address '{}', should be '{}'.".format(found, new_addr)
+        found = found[0] if found else 0
+        msg = "Found address '0x{:02X}', should be '0x{:02X}'.".format(
+            found, new_addr)
         self.assertEqual(found, new_addr, msg)
 
     #@unittest.skip("Temporarily skipped")
@@ -207,6 +208,58 @@ class TestThunderBorg(BaseTest):
         rcvd_speed = self._tb.get_motor_two()
         msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
         self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+
+    #@unittest.skip("Temporarily skipped")
+    def test_set_led_one(self):
+        """
+        Test that the RBG colors set are the same as the one's returned.
+        """
+        state = self._tb.get_led_state()
+        msg = "Current state: {}".format(state)
+        self.assertFalse(state, msg)
+        rgb_list = [(0, 0, 0), (1, 1, 1), (1.0, 0.5, 0.0), (0.2, 0.0, 0.2)]
+        msg = "rgb: {}, ret_rgb: {}"
+
+        for rgb in rgb_list:
+            self._tb.set_led_one(*rgb)
+            ret_rgb = self._tb.get_led_one()
+            self.assertEqual(rgb, ret_rgb, msg.format(rgb, ret_rgb))
+
+    #@unittest.skip("Temporarily skipped")
+    def test_set_led_two(self):
+        """
+        Test that the RBG colors set are the same as the one's returned.
+        """
+        state = self._tb.get_led_state()
+        msg = "Current state: {}".format(state)
+        self.assertFalse(state, msg)
+        rgb_list = [(0, 0, 0), (1, 1, 1), (1.0, 0.5, 0.0), (0.2, 0.0, 0.2)]
+        msg = "rgb: {}, ret_rgb: {}"
+
+        for rgb in rgb_list:
+            self._tb.set_led_two(*rgb)
+            ret_rgb = self._tb.get_led_two()
+            self.assertEqual(rgb, ret_rgb, msg.format(rgb, ret_rgb))
+
+    #@unittest.skip("Temporarily skipped")
+    def test_set_both_leds(self):
+        """
+        Test that the RBG colors set are the same as the one's returned.
+        """
+        state = self._tb.get_led_state()
+        msg = "Current state: {}".format(state)
+        self.assertFalse(state, msg)
+        rgb_list = [(0, 0, 0), (1, 1, 1), (1.0, 0.5, 0.0), (0.2, 0.0, 0.2)]
+        msg = "rgb: {}, ret_rgb: {}"
+
+        for rgb in rgb_list:
+            self._tb.set_both_leds(*rgb)
+            ret_rgb = self._tb.get_led_one()
+            self.assertEqual(rgb, ret_rgb, msg.format(rgb, ret_rgb))
+            ret_rgb = self._tb.get_led_two()
+            self.assertEqual(rgb, ret_rgb, msg.format(rgb, ret_rgb))
+
+
 
 
 

@@ -796,7 +796,7 @@ class ThunderBorg(object):
 
           If in the battery monitoring state the configured state is
           disabled. The battery monitoring state sweeps the full range
-          between red (7V) and green (35V) is swept.
+          between red (7V) and green (35V).
 
         :param state: If `True` (enabled) LEDs will show the current
                       battery level, else if `False` (disabled) the LEDs

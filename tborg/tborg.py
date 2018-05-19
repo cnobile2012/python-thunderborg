@@ -800,7 +800,8 @@ class ThunderBorg(object):
 
         :param state: If `True` (enabled) LEDs will show the current
                       battery level, else if `False` (disabled) the LEDs
-                      will be used. `Confused? So am I`
+                      will can be controlled with the `set_led_*` and the
+                      `set_both_leds` methods.
         :type state: bool
         :raises KeyboardInterrupt: Keyboard interrupt.
         :raises IOError: An error happened on a stream.

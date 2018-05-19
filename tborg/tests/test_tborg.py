@@ -259,7 +259,12 @@ class TestThunderBorg(BaseTest):
             ret_rgb = self._tb.get_led_two()
             self.assertEqual(rgb, ret_rgb, msg.format(rgb, ret_rgb))
 
-
+    #@unittest.skip("Temporarily skipped")
+    def test_set_and_get_led_state(self):
+        """
+        """
+        state = self._tb.get_led_state()
+        print("Led state:", state)
 
 
 

@@ -788,9 +788,8 @@ class ThunderBorg(object):
 
     def set_led_state(self, state):
         """
-        Change the state of the LEDs from showing the configured state
-        (set with `set_led_one` and/or `set_led_two`) to the battery
-        monitoring state.
+        Change from the default LEDs state (set with `set_led_one` and/or
+        `set_led_two`) to the battery monitoring state.
 
         .. note::
 
@@ -800,7 +799,7 @@ class ThunderBorg(object):
 
         :param state: If `True` (enabled) LEDs will show the current
                       battery level, else if `False` (disabled) the LEDs
-                      will can be controlled with the `set_led_*` and the
+                      will be controlled with the `set_led_*` and the
                       `set_both_leds` methods.
         :type state: bool
         :raises KeyboardInterrupt: Keyboard interrupt.
@@ -814,16 +813,16 @@ class ThunderBorg(object):
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
         except IOError as e:
-            msg = "Failed to send LEDs battery monitoring state, {}".format(e)
+            msg = "Failed to send LEDs state change, {}".format(e)
             self._log.error(msg)
             raise ThunderBorgException(msg)
 
     def get_led_state(self):
         """
-        Get the state of the LEDs between the configured and battery
+        Get the state of the LEDs between the default and the battery
         monitoring state.
 
-        :rtype: Return `False` for the configured state and `True` for
+        :rtype: Return `False` for the default state and `True` for
                 the battery monitoring state.
         :raises KeyboardInterrupt: Keyboard interrupt.
         :raises IOError: An error happened on a stream.
@@ -835,7 +834,7 @@ class ThunderBorg(object):
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
         except IOError as e:
-            msg = "Failed reading LED battery monitoring state, {}".format(e)
+            msg = "Failed reading LED state, {}".format(e)
             self._log.error(msg)
             raise ThunderBorgException(msg)
 
@@ -843,9 +842,11 @@ class ThunderBorg(object):
 
     def set_comms_failsafe(self, state):
         """
-        Set the state of the communication failsafe. If the failsafe state
-        is on the motors will be turned off unless the board receives a
-        command at least once every 1/4th of a second.
+        Set the state of the motor failsafe. The default failsafe state
+        of `False` will cause the motors to continuously run without a
+        keepalive signal. If set to `True` the motors will shutdown after
+        1/4 of a second unless it is sent the speed command every 1/4 of a
+        second.
 
         :param state: If set to `True` failsafe is enabled, else if set to
                       `False` failsafe is disabled. Default is disables

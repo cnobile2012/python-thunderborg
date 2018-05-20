@@ -6,6 +6,7 @@ from __future__ import absolute_import
 import os
 import logging
 import unittest
+import time
 
 try:
     from unittest.mock import patch
@@ -17,6 +18,10 @@ from tborg import ConfigLogger, ThunderBorgException, ThunderBorg
 LOG_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                          '..', '..', 'logs'))
 not os.path.isdir(LOG_PATH) and os.mkdir(LOG_PATH, 0o0775)
+
+
+#def isclose(a, b, rel_tol, abs_tol):
+#    return abs(a-b) <= max( rel_tol * max(abs(a), abs(b)), abs_tol)
 
 
 class BaseTest(unittest.TestCase):
@@ -119,10 +124,17 @@ class TestThunderBorg(BaseTest):
 
     def tearDown(self):
         self._tb.halt_motors()
+        self._tb.set_comms_failsafe(False)
+        self._tb.set_led_state(False)
+        self._tb.set_led_one(0.0, 0.0, 0.0)
+        self._tb.set_led_two(0.0, 0.0, 0.0)
         self._tb.close_streams()
 
-    def isclose(self, a, b, rel_tol, abs_tol):
-        return abs(a-b) <= max( rel_tol * max(abs(a), abs(b)), abs_tol)
+    def validate_tuples(self, t0, t1):
+        msg = "rgb0: {}, rgb1: {}"
+
+        for x, y in zip(t0, t1):
+            self.assertAlmostEqual(x, y, delta=0.01, msg=msg.format(x, y))
 
     #@unittest.skip("Temporarily skipped")
     def test_set_and_get_motor_one(self):
@@ -134,13 +146,13 @@ class TestThunderBorg(BaseTest):
         self._tb.set_motor_one(speed)
         rcvd_speed = self._tb.get_motor_one()
         msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
-        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+        self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
         # Test reverse
         speed = -0.5
         self._tb.set_motor_one(speed)
         rcvd_speed = self._tb.get_motor_one()
         msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
-        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+        self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
 
     #@unittest.skip("Temporarily skipped")
     def test_set_and_get_motor_two(self):
@@ -152,13 +164,13 @@ class TestThunderBorg(BaseTest):
         self._tb.set_motor_two(speed)
         rcvd_speed = self._tb.get_motor_two()
         msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
-        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+        self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
         # Test reverse
         speed = -0.5
         self._tb.set_motor_two(speed)
         rcvd_speed = self._tb.get_motor_two()
         msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
-        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+        self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
 
     #@unittest.skip("Temporarily skipped")
     def test_set_both_motors(self):
@@ -170,19 +182,19 @@ class TestThunderBorg(BaseTest):
         self._tb.set_both_motors(speed)
         rcvd_speed = self._tb.get_motor_one()
         msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
-        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+        self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
         rcvd_speed = self._tb.get_motor_two()
         msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
-        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+        self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
         # Test reverse
         speed = -0.5
         self._tb.set_both_motors(speed)
         rcvd_speed = self._tb.get_motor_one()
         msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
-        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+        self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
         rcvd_speed = self._tb.get_motor_two()
         msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
-        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+        self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
 
     #@unittest.skip("Temporarily skipped")
     def test_halt_motors(self):
@@ -194,20 +206,20 @@ class TestThunderBorg(BaseTest):
         self._tb.set_both_motors(speed)
         rcvd_speed = self._tb.get_motor_one()
         msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
-        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+        self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
         rcvd_speed = self._tb.get_motor_two()
         msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
-        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+        self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
         # Halt the motors.
         self._tb.halt_motors()
         # Check that the board says they are not moving.
         speed = 0.0
         rcvd_speed = self._tb.get_motor_one()
         msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
-        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+        self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
         rcvd_speed = self._tb.get_motor_two()
         msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
-        self.assertTrue(self.isclose(speed, rcvd_speed, 0.02, 0.02), msg)
+        self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
 
     #@unittest.skip("Temporarily skipped")
     def test_set_led_one(self):
@@ -215,7 +227,7 @@ class TestThunderBorg(BaseTest):
         Test that the RBG colors set are the same as the one's returned.
         """
         state = self._tb.get_led_state()
-        msg = "Current state: {}".format(state)
+        msg = "Default state should be False: {}".format(state)
         self.assertFalse(state, msg)
         rgb_list = [(0, 0, 0), (1, 1, 1), (1.0, 0.5, 0.0), (0.2, 0.0, 0.2)]
         msg = "rgb: {}, ret_rgb: {}"
@@ -223,7 +235,7 @@ class TestThunderBorg(BaseTest):
         for rgb in rgb_list:
             self._tb.set_led_one(*rgb)
             ret_rgb = self._tb.get_led_one()
-            self.assertEqual(rgb, ret_rgb, msg.format(rgb, ret_rgb))
+            self.validate_tuples(ret_rgb, rgb)
 
     #@unittest.skip("Temporarily skipped")
     def test_set_led_two(self):
@@ -231,7 +243,7 @@ class TestThunderBorg(BaseTest):
         Test that the RBG colors set are the same as the one's returned.
         """
         state = self._tb.get_led_state()
-        msg = "Current state: {}".format(state)
+        msg = "Default state should be False: {}".format(state)
         self.assertFalse(state, msg)
         rgb_list = [(0, 0, 0), (1, 1, 1), (1.0, 0.5, 0.0), (0.2, 0.0, 0.2)]
         msg = "rgb: {}, ret_rgb: {}"
@@ -239,7 +251,7 @@ class TestThunderBorg(BaseTest):
         for rgb in rgb_list:
             self._tb.set_led_two(*rgb)
             ret_rgb = self._tb.get_led_two()
-            self.assertEqual(rgb, ret_rgb, msg.format(rgb, ret_rgb))
+            self.validate_tuples(ret_rgb, rgb)
 
     #@unittest.skip("Temporarily skipped")
     def test_set_both_leds(self):
@@ -247,7 +259,7 @@ class TestThunderBorg(BaseTest):
         Test that the RBG colors set are the same as the one's returned.
         """
         state = self._tb.get_led_state()
-        msg = "Current state: {}".format(state)
+        msg = "Default state should be False: {}".format(state)
         self.assertFalse(state, msg)
         rgb_list = [(0, 0, 0), (1, 1, 1), (1.0, 0.5, 0.0), (0.2, 0.0, 0.2)]
         msg = "rgb: {}, ret_rgb: {}"
@@ -255,16 +267,56 @@ class TestThunderBorg(BaseTest):
         for rgb in rgb_list:
             self._tb.set_both_leds(*rgb)
             ret_rgb = self._tb.get_led_one()
-            self.assertEqual(rgb, ret_rgb, msg.format(rgb, ret_rgb))
+            self.validate_tuples(ret_rgb, rgb)
             ret_rgb = self._tb.get_led_two()
-            self.assertEqual(rgb, ret_rgb, msg.format(rgb, ret_rgb))
+            self.validate_tuples(ret_rgb, rgb)
 
     #@unittest.skip("Temporarily skipped")
     def test_set_and_get_led_state(self):
         """
+        Test that the LED state changes.
         """
         state = self._tb.get_led_state()
-        print("Led state:", state)
+        msg = "Default state should be False: {}".format(state)
+        self.assertFalse(state, msg)
+        # Change the state of the LEDs to monitor the batteries.
+        self._tb.set_led_state(True)
+        state = self._tb.get_led_state()
+        msg = "Battery monitoring state should be True".format(state)
+        self.assertTrue(state, msg)
+
+    #@unittest.skip("Temporarily skipped")
+    def test_set_and_get_comms_failsafe(self):
+        """
+        Test that the failsafe changes states.
+        """
+        failsafe = self._tb.get_comms_failsafe()
+        msg = "Default failsafe should be False: {}".format(failsafe)
+        self.assertFalse(failsafe, msg)
+        # Test that motors run continuously.
+        speed = 0.2
+        self._tb.set_both_motors(speed)
+        sleep = 1 # Seconds
+        time.sleep(sleep)
+        msg = "Motors should run for {} second.".format(sleep)
+        m0_speed = self._tb.get_motor_one()
+        m1_speed = self._tb.get_motor_two()
+        self.assertEqual(m0_speed, speed, msg)
+        self.assertEqual(m1_speed, speed, msg)
+        # Turn on failsafe
+        self._tb.set_comms_failsafe(True)
+        failsafe = self._tb.get_comms_failsafe()
+        msg = "Failsafe should be True: {}".format(failsafe)
+        self.assertTrue(failsafe, msg)
+        # Start up motors
+        self._tb.set_both_motors(speed)
+        time.sleep(sleep)
+        msg = ("Motors should run for 1/4 of a second with sleep of {} "
+               "second(s).").format(sleep)
+        m0_speed = self._tb.get_motor_one()
+        m1_speed = self._tb.get_motor_two()
+        self.assertNotEqual(m0_speed, speed, msg)
+        self.assertNotEqual(m1_speed, speed, msg)
 
 
 

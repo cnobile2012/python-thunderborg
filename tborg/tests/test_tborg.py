@@ -294,15 +294,15 @@ class TestThunderBorg(BaseTest):
         msg = "Default failsafe should be False: {}".format(failsafe)
         self.assertFalse(failsafe, msg)
         # Test that motors run continuously.
-        speed = 0.2
+        speed = 0.5
         self._tb.set_both_motors(speed)
         sleep = 1 # Seconds
         time.sleep(sleep)
         msg = "Motors should run for {} second.".format(sleep)
         m0_speed = self._tb.get_motor_one()
         m1_speed = self._tb.get_motor_two()
-        self.assertEqual(m0_speed, speed, msg)
-        self.assertEqual(m1_speed, speed, msg)
+        self.assertAlmostEqual(m0_speed, speed, delta=0.1, msg=msg)
+        self.assertAlmostEqual(m1_speed, speed, delta=0.1, msg=msg)
         # Turn on failsafe
         self._tb.set_comms_failsafe(True)
         failsafe = self._tb.get_comms_failsafe()
@@ -315,9 +315,23 @@ class TestThunderBorg(BaseTest):
                "second(s).").format(sleep)
         m0_speed = self._tb.get_motor_one()
         m1_speed = self._tb.get_motor_two()
-        self.assertNotEqual(m0_speed, speed, msg)
-        self.assertNotEqual(m1_speed, speed, msg)
+        self.assertNotAlmostEqual(m0_speed, speed, delta=0.1, msg=msg)
+        self.assertNotAlmostEqual(m1_speed, speed, delta=0.1, msg=msg)
+        # Send keepalive
+        msg = "Motors are running for {} seconds"
+        interval = 0.25
+        sleep = 1.5 # Seconds
 
-
+        for itr in range(6):
+            self._tb.set_motor_one(0.5)
+            self._tb.set_motor_two(0.5)
+            time.sleep(interval)
+            m0_speed = self._tb.get_motor_one()
+            m1_speed = self._tb.get_motor_two()
+            t = (itr + 1) * interval
+            self.assertAlmostEqual(m0_speed, speed, delta=0.1,
+                                   msg=msg.format(t))
+            self.assertAlmostEqual(m1_speed, speed,  delta=0.1,
+                                   msg=msg.format(t))
 
 

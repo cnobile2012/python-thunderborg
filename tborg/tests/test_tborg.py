@@ -303,6 +303,7 @@ class TestThunderBorg(BaseTest):
         m1_speed = self._tb.get_motor_two()
         self.assertAlmostEqual(m0_speed, speed, delta=0.1, msg=msg)
         self.assertAlmostEqual(m1_speed, speed, delta=0.1, msg=msg)
+        self._tb.halt_motors()
         # Turn on failsafe
         self._tb.set_comms_failsafe(True)
         failsafe = self._tb.get_comms_failsafe()
@@ -334,4 +335,74 @@ class TestThunderBorg(BaseTest):
             self.assertAlmostEqual(m1_speed, speed,  delta=0.1,
                                    msg=msg.format(t))
 
+    #@unittest.skip("Temporarily skipped")
+    def test_get_drive_fault_one(self):
+        """
+        Test that `get_drive_fault_one` returns data.
+        """
+        fault = self._tb.get_drive_fault_one()
+        msg = "Fault value should be False, found: {}"
+        self.assertTrue(fault, msg.format(fault))
+        # Run motor one for a second.
+        speed = 0.5
+        sleep = 1 # Seconds
+        self._tb.set_motor_one(speed)
+        self._tb.halt_motors()
+        # Test that fault is cleared.
+        fault = self._tb.get_drive_fault_one()
+        self.assertFalse(fault, msg.format(fault))
 
+    #@unittest.skip("Temporarily skipped")
+    def test_get_drive_fault_two(self):
+        """
+        Test that `get_drive_fault_two` returns data.
+        """
+        fault = self._tb.get_drive_fault_two()
+        msg = "Fault value should be False, found: {}"
+        self.assertTrue(fault, msg.format(fault))
+        # Run motor one for a second.
+        speed = 0.5
+        sleep = 1 # Seconds
+        self._tb.set_motor_two(speed)
+        self._tb.halt_motors()
+        # Test that fault is cleared.
+        fault = self._tb.get_drive_fault_two()
+        self.assertFalse(fault, msg.format(fault))
+
+    #@unittest.skip("Temporarily skipped")
+    def test_get_battery_voltage(self):
+        """
+        Test that the batter voltage is in range.
+        """
+        vmin = ThunderBorg._BATTERY_MIN_DEFAULT
+        vmax = ThunderBorg._BATTERY_MAX_DEFAULT
+        voltage = self._tb.get_battery_voltage()
+        msg = ("Voltage should be in the range of {0:02f}V to {0:02f}V, "
+               "found {0:02f}V").format(vmin, vmax, voltage)
+        self.assertTrue(vmin <= voltage <= vmax, msg)
+
+    #@unittest.skip("Temporarily skipped")
+    def test_set_get_battery_monitoring_limits(self):
+        """
+        Test that setting and getting the battery monitoring limits
+        functions properly.
+        """
+        minimum, maximum = self._tb.get_battery_monitoring_limits()
+        voltage = self._tb.get_battery_voltage()
+        print(voltage, minimum, maximum)
+        self.assertTrue(False)
+
+    #@unittest.skip("Temporarily skipped")
+    def test_write_external_led_word(self):
+        """
+        Test that writing binary data with the `write_external_led_word`
+        method sets the LED correctly.
+        """
+        pass
+
+    #@unittest.skip("Temporarily skipped")
+    def test_set_external_led_colors(self):
+        """
+        Test that setting external LEDs works correctly.
+        """
+        pass

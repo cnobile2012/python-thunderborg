@@ -164,7 +164,7 @@ class ThunderBorg(object):
         :param static_init: If called by a public class method.
         :type static_init: bool
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         # Setup logging
         if logger_name == '':
@@ -324,7 +324,7 @@ class ThunderBorg(object):
         :param close: Default is `True` to close the stream before exiting.
         :type close: bool
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         found = []
         if not tb: tb = ThunderBorg(log_level=logging.INFO, static_init=True)
@@ -364,7 +364,7 @@ class ThunderBorg(object):
         :param bun_num: The bus number where the address range will be
                         found. Default is set to 1.
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         tb = ThunderBorg(log_level=logging.INFO, static_init=True)
 
@@ -555,7 +555,7 @@ class ThunderBorg(object):
                       A level of 1.0 is 100% forward.
         :type level: float
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         self._set_motor(level, self.COMMAND_SET_A_FWD, self.COMMAND_SET_A_REV)
 
@@ -570,7 +570,7 @@ class ThunderBorg(object):
                       A level of 1.0 is 100% forward.
         :type level: float
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         self._set_motor(level, self.COMMAND_SET_B_FWD, self.COMMAND_SET_B_REV)
 
@@ -585,7 +585,7 @@ class ThunderBorg(object):
                       A level of 1.0 is 100% forward.
         :type level: float
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         self._set_motor(level, self.COMMAND_SET_ALL_FWD,
                         self.COMMAND_SET_ALL_REV)
@@ -620,7 +620,7 @@ class ThunderBorg(object):
 
         :rtype: The motor drive level.
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         return self._get_motor(self.COMMAND_GET_A)
 
@@ -630,7 +630,7 @@ class ThunderBorg(object):
 
         :rtype: The motor drive level.
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         return self._get_motor(self.COMMAND_GET_B)
 
@@ -640,7 +640,7 @@ class ThunderBorg(object):
         when needing to come to an abrupt halt.
 
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         try:
             self._write(self.COMMAND_ALL_OFF, [0])
@@ -687,7 +687,7 @@ class ThunderBorg(object):
         :param b: Range is between 0.0 and 1.0.
         :type b: float
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         self._set_led(self.COMMAND_SET_LED1, r, g, b)
 
@@ -709,7 +709,7 @@ class ThunderBorg(object):
         :param b: Range is between 0.0 and 1.0.
         :type b: float
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         self._set_led(self.COMMAND_SET_LED2, r, g, b)
 
@@ -731,7 +731,7 @@ class ThunderBorg(object):
         :param b: Range is between 0.0 and 1.0.
         :type b: float
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         self._set_led(self.COMMAND_SET_LEDS, r, g, b)
 
@@ -765,7 +765,7 @@ class ThunderBorg(object):
 
         :rtype: Return a tuple of the RGB color for LED number one.
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         return self._get_led(self.COMMAND_GET_LED1)
 
@@ -782,7 +782,7 @@ class ThunderBorg(object):
 
         :rtype: Return a tuple of the RGB color for LED number two.
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         return self._get_led(self.COMMAND_GET_LED2)
 
@@ -803,7 +803,7 @@ class ThunderBorg(object):
                       `set_both_leds` methods.
         :type state: bool
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         level = self.COMMAND_VALUE_ON if state else self.COMMAND_VALUE_OFF
 
@@ -825,7 +825,7 @@ class ThunderBorg(object):
         :rtype: Return `False` for the default state and `True` for
                 the battery monitoring state.
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         try:
             recv = self._read(self.COMMAND_GET_LED_BATT_MON,
@@ -853,7 +853,7 @@ class ThunderBorg(object):
                       when powered on.
         :type state: bool
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         level = self.COMMAND_VALUE_ON if state else self.COMMAND_VALUE_OFF
 
@@ -873,7 +873,7 @@ class ThunderBorg(object):
 
         :rtype: Return the failsafe state.
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         try:
             recv = self._read(self.COMMAND_GET_FAILSAFE, self._I2C_READ_LEN)
@@ -933,10 +933,10 @@ class ThunderBorg(object):
           5. Note that the fault state may be true at power up, this is
              normal and should clear when both motors have been driven.
 
-        :rtype: Return a `False` if there are not problems else a `True` if
+        :rtype: Return a `False` if there are no problems else a `True` if
                 a fault has been detected.
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         return self._get_drive_fault(self.COMMAND_GET_DRIVE_A_FAULT)
 
@@ -972,10 +972,10 @@ class ThunderBorg(object):
           5. Note that the fault state may be true at power up, this is
              normal and should clear when both motors have been driven.
 
-        :rtype: Return a `False` if there are not problems else a `True` if
+        :rtype: Return a `False` if there are no problems else a `True` if
                 a fault has been detected.
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         return self._get_drive_fault(self.COMMAND_GET_DRIVE_B_FAULT)
 
@@ -986,7 +986,7 @@ class ThunderBorg(object):
         :rtype: Return a voltage value based on the 3.3 V rail as a
                 reference.
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         try:
             recv = self._read(self.COMMAND_GET_BATT_VOLT, self._I2C_READ_LEN)
@@ -1015,11 +1015,11 @@ class ThunderBorg(object):
              is powered.
 
         :param minimum: Value between 0.0 and 36.3 Volts.
-        :type minimun: int
+        :type minimun: float
         :param maximum: Value between 0.0 and 36.3 Volts.
-        :type maximun: int
+        :type maximun: float
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         level_min = float(minimum) / self._VOLTAGE_PIN_MAX
         level_max = float(maximum) / self._VOLTAGE_PIN_MAX
@@ -1050,7 +1050,7 @@ class ThunderBorg(object):
         :rtype: Return a tuple of `(minimum, maximum)`. The values are
                 between 0.0 and 36.3 V.
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         try:
             recv = self._read(self.COMMAND_GET_BATT_LIMITS, self._I2C_READ_LEN)
@@ -1087,7 +1087,7 @@ class ThunderBorg(object):
         :param b3: Byte three
         :type b3: int
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         b0 = max(0, min(self._PWM_MAX, int(b0)))
         b1 = max(0, min(self._PWM_MAX, int(b1)))
@@ -1100,7 +1100,8 @@ class ThunderBorg(object):
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
         except IOError as e:
-            msg = "Failed sending word for the external LEDs, {}".format(e)
+            msg = ("Failed sending binary word for the external LEDs, {}"
+                   ).format(e)
             self._log.error(msg)
             raise ThunderBorgException(msg)
 
@@ -1121,7 +1122,7 @@ class ThunderBorg(object):
         :param colors: The RGB colors for setting the LEDs.
         :type colors: list
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises IOError: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream.
         """
         # Send the start marker
         self.write_external_led_word(0, 0, 0, 0)

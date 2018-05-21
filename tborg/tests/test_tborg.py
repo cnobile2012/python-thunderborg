@@ -128,10 +128,12 @@ class TestThunderBorg(BaseTest):
         self._tb.set_led_state(False)
         self._tb.set_led_one(0.0, 0.0, 0.0)
         self._tb.set_led_two(0.0, 0.0, 0.0)
+        self._tb.set_battery_monitoring_limits(7.0, 36.3)
+        self._tb.write_external_led_word(0, 0, 0, 0)
         self._tb.close_streams()
 
     def validate_tuples(self, t0, t1):
-        msg = "rgb0: {}, rgb1: {}"
+        msg = "rgb0: {:0.2f}, rgb1: {:0.2f}"
 
         for x, y in zip(t0, t1):
             self.assertAlmostEqual(x, y, delta=0.01, msg=msg.format(x, y))
@@ -222,7 +224,7 @@ class TestThunderBorg(BaseTest):
         self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
 
     #@unittest.skip("Temporarily skipped")
-    def test_set_led_one(self):
+    def test_set_get_led_one(self):
         """
         Test that the RBG colors set are the same as the one's returned.
         """
@@ -230,7 +232,6 @@ class TestThunderBorg(BaseTest):
         msg = "Default state should be False: {}".format(state)
         self.assertFalse(state, msg)
         rgb_list = [(0, 0, 0), (1, 1, 1), (1.0, 0.5, 0.0), (0.2, 0.0, 0.2)]
-        msg = "rgb: {}, ret_rgb: {}"
 
         for rgb in rgb_list:
             self._tb.set_led_one(*rgb)
@@ -238,7 +239,7 @@ class TestThunderBorg(BaseTest):
             self.validate_tuples(ret_rgb, rgb)
 
     #@unittest.skip("Temporarily skipped")
-    def test_set_led_two(self):
+    def test_set_get_led_two(self):
         """
         Test that the RBG colors set are the same as the one's returned.
         """
@@ -246,7 +247,6 @@ class TestThunderBorg(BaseTest):
         msg = "Default state should be False: {}".format(state)
         self.assertFalse(state, msg)
         rgb_list = [(0, 0, 0), (1, 1, 1), (1.0, 0.5, 0.0), (0.2, 0.0, 0.2)]
-        msg = "rgb: {}, ret_rgb: {}"
 
         for rgb in rgb_list:
             self._tb.set_led_two(*rgb)
@@ -262,7 +262,6 @@ class TestThunderBorg(BaseTest):
         msg = "Default state should be False: {}".format(state)
         self.assertFalse(state, msg)
         rgb_list = [(0, 0, 0), (1, 1, 1), (1.0, 0.5, 0.0), (0.2, 0.0, 0.2)]
-        msg = "rgb: {}, ret_rgb: {}"
 
         for rgb in rgb_list:
             self._tb.set_both_leds(*rgb)
@@ -342,7 +341,7 @@ class TestThunderBorg(BaseTest):
         """
         fault = self._tb.get_drive_fault_one()
         msg = "Fault value should be False, found: {}"
-        self.assertTrue(fault, msg.format(fault))
+        self.assertFalse(fault, msg.format(fault))
         # Run motor one for a second.
         speed = 0.5
         sleep = 1 # Seconds
@@ -359,7 +358,7 @@ class TestThunderBorg(BaseTest):
         """
         fault = self._tb.get_drive_fault_two()
         msg = "Fault value should be False, found: {}"
-        self.assertTrue(fault, msg.format(fault))
+        self.assertFalse(fault, msg.format(fault))
         # Run motor one for a second.
         speed = 0.5
         sleep = 1 # Seconds
@@ -372,13 +371,13 @@ class TestThunderBorg(BaseTest):
     #@unittest.skip("Temporarily skipped")
     def test_get_battery_voltage(self):
         """
-        Test that the batter voltage is in range.
+        Test that the battery voltage is in range.
         """
         vmin = ThunderBorg._BATTERY_MIN_DEFAULT
         vmax = ThunderBorg._BATTERY_MAX_DEFAULT
         voltage = self._tb.get_battery_voltage()
-        msg = ("Voltage should be in the range of {0:02f}V to {0:02f}V, "
-               "found {0:02f}V").format(vmin, vmax, voltage)
+        msg = ("Voltage should be in the range of {:0.02f} to {:0.02f}, "
+               "found {:0.02f} volts").format(vmin, vmax, voltage)
         self.assertTrue(vmin <= voltage <= vmax, msg)
 
     #@unittest.skip("Temporarily skipped")
@@ -386,23 +385,46 @@ class TestThunderBorg(BaseTest):
         """
         Test that setting and getting the battery monitoring limits
         functions properly.
-        """
-        minimum, maximum = self._tb.get_battery_monitoring_limits()
-        voltage = self._tb.get_battery_voltage()
-        print(voltage, minimum, maximum)
-        self.assertTrue(False)
 
-    #@unittest.skip("Temporarily skipped")
+        .. note::
+
+          Set limits based on a fully charged LiIon battery pack. This
+          could be anywhere between 15.4 and 16.8 volts maximum depending
+          on the type of batteries used. The minimum should never be less
+          than 3 volts per cell or in a four pack 12 volts.
+        """
+        vmin = 12.0
+        vmax = 16.8
+        self._tb.set_battery_monitoring_limits(vmin, vmax)
+        voltage = self._tb.get_battery_voltage()
+        minimum, maximum = self._tb.get_battery_monitoring_limits()
+        msg = ("Found minimum {:0.2f} and maximum {:0.2f} volts, should be "
+               "minimum {:0.2f} and maximum {:0.2f} volts, actual voltage "
+               "{:0.2f}").format(minimum, maximum, vmin, vmax, voltage)
+        self.assertAlmostEqual(minimum, vmin, delta=0.1, msg=msg)
+        self.assertAlmostEqual(maximum, vmax, delta=0.1, msg=msg)
+        # Check that the actual voltage is within the above ranges.
+        self.assertTrue(vmin <= voltage <= vmax, msg)
+
+    @unittest.skip("Temporarily skipped")
     def test_write_external_led_word(self):
         """
         Test that writing binary data with the `write_external_led_word`
         method sets the LED correctly.
         """
-        pass
+        # Check that both LEDs are off.
+        self._tb.write_external_led_word(0, 0, 0, 0)
+        # Turn on both LEDs.
+        color = (255, 64, 1, 0)
+        self._tb.write_external_led_word(*color)
 
-    #@unittest.skip("Temporarily skipped")
+        #self.validate_tuples(led2, off)
+
+    @unittest.skip("Temporarily skipped")
     def test_set_external_led_colors(self):
         """
         Test that setting external LEDs works correctly.
         """
-        pass
+        # Set a single LED to yellow.
+        yellow = [[1.0, 1.0, 0.0]]
+        self._tb.set_external_led_colors(yellow)

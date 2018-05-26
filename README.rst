@@ -18,7 +18,7 @@ Overview
 This API for the `ThunderBorg <https://shop.piborg.org/collections/our-boards/products/thunderborg>`_
 board has additional features that the original API does not have.
 
-1. Python 2.7.x and 3.4 and greater are supported in the same code.
+1. Python 2.7.x and 3.4 and greater are supported in the same code base.
 
 2. Built in logging to a log file of your choice--**no print statements**.
 
@@ -26,7 +26,7 @@ board has additional features that the original API does not have.
 
 4. API initialization is done during class instantiation.
 
-5. TBD
+5. Flag to initialize the first board that is found if default is not present.
 
 
 .. warning::
@@ -38,15 +38,19 @@ board has additional features that the original API does not have.
 Provides
 ========
 
-1. TBD
+1. An API (Application Programming Interface) for the ThunderBorg motor
+   controller boards.
 
 2. TBD
 
 3. TBD
 
+`Installation README <INSTALL.rst>`_
+
+`Testing README <tborg/tests/README.rst>`_
 
 Feel free to contact me at: carl dot nobile at gmail.com
 
 Complete Documentation can be found on
 `Read the Docs <https://readthedocs.org/>`_ at:
-`Thunder Borg <http://thunderborg.readthedocs.io/en/latest/>`_
+`Thunder Borg <http://python-thunderborg.readthedocs.io/en/latest/>`_

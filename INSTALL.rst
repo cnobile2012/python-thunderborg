@@ -29,7 +29,7 @@ writing any new code using Python 3.4 or higher. The Python 2.x versions
 are quickly coming to their end of life as you can see here at the
 `Python Clock <https://pythonclock.org/>`_.
 
-.. code::
+.. code-block:: bash
 
    $ sudo apt install build-essential python3-dev
 
@@ -42,20 +42,20 @@ version of Python. The virtualenvwrapper package is a wrapper around
 virtualenv that provides easy to use tools for virtualenv and will install
 virtualenv for you.
 
-.. code::
+.. code-block:: bash
 
     $ sudo easy_install3 pip
     $ sudo -H pip3 install virtualenvwrapper
 
 Configure `.bashrc` to auto load the `virtualenvwrapper` package.
 
-.. code::
+.. code-block:: bash
 
     $ nano .bashrc
 
 Then add the following line to the botton of the `.bashrc` file.
 
-.. code::
+.. code-block:: bash
 
     # Setup the Python virtual environment.
     VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
@@ -63,7 +63,7 @@ Then add the following line to the botton of the `.bashrc` file.
 
 Create a virtual environment for your project.
 
-.. code::
+.. code-block:: bash
 
     $ cd /path/to/your/project
     $ mkvirtualenv -p python3 your_project
@@ -71,7 +71,7 @@ Create a virtual environment for your project.
 After the initial creation of the VE you can use these commands to activate
 and deactivate a VE.
 
-.. code::
+.. code-block:: bash
 
     $ workon your_project
     $ deactivate
@@ -83,7 +83,7 @@ depends on. Many of them will be in the pip repository at
 To install `python-thunderborg` enter the following on the command line.
 Be sure your virtual environment is activated before doing this.
 
-.. code::
+.. code-block:: bash
 
     $ pip install git+https://github.com/cnobile2012/python-thunderborg.git
 

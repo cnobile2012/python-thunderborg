@@ -46,9 +46,10 @@ Provides
 
 3. TBD
 
-`Installation <INSTALL.rst>`_
 
-`Testing <tborg/tests/README.rst>`_
+`Installation Guide <INSTALL.rst>`_
+
+`Testing Guide <tborg/tests/README.rst>`_
 
 Feel free to contact me at: carl dot nobile at gmail.com
 

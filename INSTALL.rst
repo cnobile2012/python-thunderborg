@@ -90,4 +90,4 @@ Be sure your virtual environment is activated before doing this.
 Eventually you will be able to install `python-thunderborg` from PyPi
 also.
 
-`README <README.rst>`_
+`Return to the Package README <README.rst>`_

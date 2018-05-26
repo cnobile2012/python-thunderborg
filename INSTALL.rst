@@ -29,9 +29,9 @@ writing any new code using Python 3.4 or higher. The Python 2.x versions
 are quickly coming to their end of life as you can see here at the
 `Python Clock <https://pythonclock.org/>`_.
 
-``bash
+```bash
 $ sudo apt install build-essential python3-dev
-``
+```
 
 Install the Python virtual environment. The `pip` utility can be used to
 install packages for either `python2` or `python3` there is no need to
@@ -41,24 +41,24 @@ version of Python. The virtualenvwrapper package is a wrapper around
 virtualenv that provides easy to use tools for virtualenv and will install
 virtualenv for you.
 
-``bash
+```bash
 $ sudo easy_install3 pip
 $ sudo -H pip3 install virtualenvwrapper
-``
+```
 
 Configure `.bashrc` to auto load the `virtualenvwrapper` package.
 
-``bash
+```bash
 $ nano .bashrc
-``
+```
 
 Then add the following line to the botton of the `.bashrc` file.
 
-``bash
+```bash
 # Setup the Python virtual environment.
 VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
 source /usr/local/bin/virtualenvwrapper.sh
-``
+```
 
 Create a virtual environment for your project.
 
@@ -70,10 +70,10 @@ $ mkvirtualenv -p python3 your_project
 After the initial creation of the VE you can use these commands to activate
 and deactivate a VE.
 
-``bash
+```bash
 $ workon your_project
 $ deactivate
-``
+```
 
 Next you will need to install all the Python packages that your project
 depends on. Many of them will be in the pip repository at
@@ -82,9 +82,11 @@ depends on. Many of them will be in the pip repository at
 To install `python-thunderborg` enter the following on the command line.
 Be sure your virtual environment is activated before doing this.
 
-``
-pip install git+https://github.com/cnobile2012/python-thunderborg.git
-``
+```bash
+$ pip install git+https://github.com/cnobile2012/python-thunderborg.git
+```
 
 Eventually you will be able to install `python-thunderborg` from PyPi
 also.
+
+`README <README.rst>`_

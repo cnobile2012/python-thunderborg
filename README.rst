@@ -45,9 +45,9 @@ Provides
 
 3. TBD
 
-`Installation README <INSTALL.rst>`_
+`Installation <INSTALL.rst>`_
 
-`Testing README <tborg/tests/README.rst>`_
+`Testing <tborg/tests/README.rst>`_
 
 Feel free to contact me at: carl dot nobile at gmail.com
 

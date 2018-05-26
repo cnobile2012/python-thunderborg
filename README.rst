@@ -30,6 +30,7 @@ board has additional features that the original API does not have.
 
 
 .. warning::
+
    This version of the **ThunderBorg API** is a complete rewrite of the
    version provided by `PiBorg <https://www.piborg.org/monsterborg/install>`_
    It is functionally compatible, but not signature compatible. In other

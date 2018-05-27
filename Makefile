@@ -7,11 +7,13 @@ include include.mk
 PREFIX		= $(shell pwd)
 PACKAGE_DIR	= $(shell echo $${PWD\#\#*/})
 DOCS_DIR	= $(PREFIX)/docs
+LOGS_DIR	= $(PREFIX)/logs
 TODAY		= $(shell date +"%Y-%m-%d_%H%M")
 RM_REGEX	= '(^.*.pyc$$)|(^.*.wsgic$$)|(^.*~$$)|(.*\#$$)|(^.*,cover$$)'
 RM_CMD		= find $(PREFIX) -regextype posix-egrep -regex $(RM_REGEX) \
                   -exec rm {} \;
 PIP_ARGS	=
+PATH		=
 
 #----------------------------------------------------------------------
 all	: tar
@@ -19,7 +21,7 @@ all	: tar
 .PHONY	: tests
 tests	: clean
 	@nosetests --with-coverage --cover-erase --cover-inclusive \
-                   --cover-html --cover-html-dir=$(DOCS_DIR)/htmlcov
+                   --cover-html --cover-html-dir=$(DOCS_DIR)/htmlcov $(PATH)
 
 .PHONY	: sphinx
 sphinx	: clean
@@ -31,11 +33,15 @@ build	: clean
 
 .PHONY	: upload
 upload	: clobber
-	python setup.py sdist upload -r pypi
+	python setup.py sdist
+	python setup.py bdist_wheel --universal
+	twine upload --repository pypi dist/*
 
 .PHONY	: upload-test
 upload-test: clobber
-	python setup.py sdist upload -r pypitest
+	python setup.py sdist
+	python setup.py bdist_wheel --universal
+	twine upload --repository testpypi dist/*
 
 .PHONY	: install-dev
 install-dev:
@@ -55,10 +61,9 @@ tar	: clean
 
 clean	:
 	$(shell $(RM_CMD))
-	@rm -rf *.egg-info
-	@rm -rf python-thunderborg-1.0
-	@rm -rf dist
 
 clobber	: clean
-	@(cd $(DOCS_DIR); make clobber)
-	@rm logs/*.log
+	@rm -rf dist build *.egg-info
+#	@rm -rf $(LOGS_DIR)/*.log
+	@rm -rf $(DOCS_DIR)/htmlcov
+	@rm -rf $(DOCS_DIR)/build

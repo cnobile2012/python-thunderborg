@@ -15,7 +15,8 @@ The MIT License (MIT)
 Overview
 ========
 
-This API for the `ThunderBorg <https://shop.piborg.org/collections/our-boards/products/thunderborg>`_
+This API for the
+`ThunderBorg <https://www.piborg.org/motor-control-1135/thunderborg>`_
 board has additional features that the original API does not have.
 
 1. Python 2.7.x and 3.4 and greater are supported in the same code base.
@@ -32,7 +33,8 @@ board has additional features that the original API does not have.
 .. warning::
 
    This version of the **ThunderBorg API** is a complete rewrite of the
-   version provided by `PiBorg <https://www.piborg.org/monsterborg/install>`_
+   version provided on the
+   `PiBorg forums <http://forum.piborg.org/thunderborg/examples>`_.
    It is functionally compatible, but not signature compatible. In other
    words the class and method calls are completely different.
 

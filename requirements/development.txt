@@ -7,8 +7,17 @@ sphinx_rtd_theme
 
 # Test coverage
 coverage
+wheel
+twine
 mock
 nose
 
 # Utils
 ipython
+
+# FTDI
+#pyftdi
+#pylibftdi
+
+# Adafruit
+#git+https://github.com/adafruit/Adafruit_Python_GPIO.git

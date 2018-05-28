@@ -12,8 +12,8 @@ TODAY		= $(shell date +"%Y-%m-%d_%H%M")
 RM_REGEX	= '(^.*.pyc$$)|(^.*.wsgic$$)|(^.*~$$)|(.*\#$$)|(^.*,cover$$)'
 RM_CMD		= find $(PREFIX) -regextype posix-egrep -regex $(RM_REGEX) \
                   -exec rm {} \;
-PIP_ARGS	=
-PATH		=
+PIP_ARGS	= # Pass var for pip install.
+#PATH		= # Pass var for test paths.
 
 #----------------------------------------------------------------------
 all	: tar
@@ -55,7 +55,7 @@ install-prd:
 .PHONY	: tar
 tar	: clean
 	@(cd ..; tar -czvf $(PACKAGE_DIR).tar.gz --exclude=".git" \
-          --exclude="logs/*.log" --exclude="dist/*" $(PACKAGE_DIR))
+          --exclude="$(LOGS_DIR)/*.log" --exclude="dist/*" $(PACKAGE_DIR))
 
 #----------------------------------------------------------------------
 

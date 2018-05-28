@@ -8,6 +8,8 @@
 logs
 old
 docs/htmlcov
+docs/source/install.rst
+docs/source/testing.rst
 
 # C extensions
 *.so

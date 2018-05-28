@@ -33,9 +33,9 @@ to Python version 2.x where appropriate if needed.
 
    $ sudo apt install build-essential python3-dev
 
-Install the Python virtual environment. The `pip` utility can be used to
-install packages for either `python2` or `python3` there is no need to
-install `pip` for both python versions. This is also true for the virtual
+Install the Python virtual environment. The ``pip`` utility can be used to
+install packages for either ``python2`` or ``python3`` there is no need to
+install ``pip`` for both python versions. This is also true for the virtual
 environment package which can create virtual environments for either
 version of Python. The virtualenvwrapper package is a wrapper around
 virtualenv that provides easy to use tools for virtualenv and will install
@@ -46,13 +46,13 @@ virtualenv for you.
     $ sudo easy_install3 pip
     $ sudo -H pip3 install virtualenvwrapper
 
-Configure `.bashrc` to auto load the `virtualenvwrapper` package.
+Configure ``.bashrc`` to auto load the ``virtualenvwrapper`` package.
 
 .. code-block:: console
 
     $ nano .bashrc
 
-Then add the following line to the botton of the `.bashrc` file.
+Then add the following line to the botton of the ``.bashrc`` file.
 
 .. code-block:: bash
 
@@ -79,12 +79,12 @@ Next you will need to install all the Python packages that your project
 depends on. Many of them will be in the pip repository at
 `PyPi Repository <https://pypi.org/>`_.
 
-To install `python-thunderborg` enter the following on the command line.
+To install ``python-thunderborg`` enter the following on the command line.
 Be sure your virtual environment is activated before doing this.
 
 .. code-block:: console
 
     $ pip install git+https://github.com/cnobile2012/python-thunderborg.git
 
-Eventually you will be able to install `python-thunderborg` from PyPi
+Eventually you will be able to install ``python-thunderborg`` from PyPi
 also.

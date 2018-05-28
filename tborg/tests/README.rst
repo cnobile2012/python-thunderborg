@@ -30,9 +30,9 @@ OSs, but I am sure they have some equivalent packages.
    $ sudo apt install build-essential python3-dev git
 
 
-Install the Python virtual environment. The `pip` utility can be used to
-install packages for either `python2` or `python3` there is no need to
-install `pip` for both python versions. This is also true for the virtual
+Install the Python virtual environment. The ``pip`` utility can be used to
+install packages for either ``python2`` or ``python3`` there is no need to
+install ``pip`` for both python versions. This is also true for the virtual
 environment package which can create virtual environments for either
 version of Python. The virtualenvwrapper package is a wrapper around
 virtualenv that provides easy to use tools for virtualenv and will install
@@ -43,7 +43,7 @@ virtualenv for you.
     $ sudo easy_install3 pip
     $ sudo -H pip3 install virtualenvwrapper
 
-Configure `.bashrc` to auto load the `virtualenvwrapper` package.
+Configure ``.bashrc`` to auto load the ``virtualenvwrapper`` package.
 
 .. code-block:: console
 
@@ -57,7 +57,7 @@ Then add the following line to the botton of the `.bashrc` file.
     VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
     source /usr/local/bin/virtualenvwrapper.sh
 
-Download `python-thunderborg`. First **cd** into the path where you want
+Download ``python-thunderborg``. First **cd** into the path where you want
 to put the package. If you have a forked package then change the path to
 your path in the below command.
 
@@ -72,7 +72,7 @@ Create a virtual environment for `python-thunderborg`.
     $ cd /path/to/python-thunderborg
     $ mkvirtualenv tborg3 # and/or mkvirtualenv -p python2 tborg2
 
-Next we install the packages required for developing `python-thunderborg`.
+Next we install the packages required for developing ``python-thunderborg``.
 
 .. code-block:: console
 
@@ -89,8 +89,8 @@ and deactivate a VE.
 Running Tests
 =============
 
-The `Makefile` in the project's root should be used to run the tests as it
-will automatically clean up old coverage reports and HTML documents.
+The ``Makefile`` in the project's root should be used to run the tests as
+it will automatically clean up old coverage reports and HTML documents.
 
 .. code-block:: console
 
@@ -99,6 +99,6 @@ will automatically clean up old coverage reports and HTML documents.
     $ make tests PATH=tborg/tests/test_tborg.py:TestClassMethods.test_set_i2c_address_without_current_address
 
 * The 1st example will run all tests.
-* The 2st example will run tests for a specific class in the
+* The 2nd example will run tests for a specific class in the
   ``test_tborg.py`` module.
-* The 3nd example will run a specific test in the TestClassMethods.
+* The 3rd example will run a specific test in the TestClassMethods.

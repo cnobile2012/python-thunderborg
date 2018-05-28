@@ -20,6 +20,9 @@ Contents
    install
    configuration
 
+
+   testing
+
 Indices and tables
 ==================
 

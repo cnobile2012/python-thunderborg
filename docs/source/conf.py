@@ -23,9 +23,10 @@ import re
 import datetime
 # sys.path.insert(0, os.path.abspath('.'))
 
-install_file = 'INSTALL.rst'
-not os.path.exists(install_file.lower()) and os.symlink(
-    os.path.join('..', '..', install_file), install_file.lower())
+not os.path.exists('install.rst') and os.symlink(
+    os.path.join('..', '..', 'INSTALL.rst'), 'install.rst')
+not os.path.exists('testing.rst')  and os.symlink(
+    os.path.join('..', '..', 'tborg', 'tests', 'README.rst'), 'testing.rst')
 
 def version_info():
     regex = r'^(?m){}[\s]*=[\s]*(?P<ver>\d*)$'

@@ -120,7 +120,8 @@ class TestThunderBorg(BaseTest):
             name, filename=self._LOG_FILENAME)
 
     def setUp(self):
-        self._tb = ThunderBorg()
+        self._tb = ThunderBorg(logger_name=self._LOG_FILENAME,
+                               log_level=logging.DEBUG)
 
     def tearDown(self):
         self._tb.halt_motors()

@@ -40,7 +40,7 @@ _LEVEL_TO_NAME = {
 class ThunderBorgException(Exception):
     pass
 
-
+        
 class ThunderBorg(object):
     """
     This module is designed to communicate with the ThunderBorg board.
@@ -149,9 +149,9 @@ class ThunderBorg(object):
         """
         Setup logging and initialize the ThunderBorg motor driver board.
 
-        :param bus_num: The I2C bus number, defaults to {1:d}.
+        :param bus_num: The I²C bus number, defaults to {1:d}.
         :type bus_num: int
-        :param address: The I2C address to use, defaults to 0x{0:02X}.
+        :param address: The I²C address to use, defaults to 0x{0:02X}.
         :type address: int
         :param logger_name: The name of the logger to log to, defaults to
                             the root logger.
@@ -174,48 +174,42 @@ class ThunderBorg(object):
         self._log.setLevel(log_level)
 
         if not static_init:
-            self._i2c_read, self._i2c_write = ThunderBorg._initialize_board(
-                bus_num, address, auto_set_addr)
+            self._initialize_board(bus_num, address, auto_set_addr)
 
     __init__.__doc__ = __init__.__doc__.format(
         _I2C_ID_THUNDERBORG, _DEFAULT_BUS_NUM, _LEVEL_TO_NAME[_DEF_LOG_LEVEL])
 
-    #
-    # Class Methods
-    #
-
-    @classmethod
-    def _initialize_board(cls, bus_num, address, auto_set_addr):
+    def _initialize_board(self, bus_num, address, auto_set_addr):
         """
-        Setup the I2C connections and return the file streams for read
+        Setup the I²C connections and return the file streams for read
         and write.
         """
-        tb = ThunderBorg(log_level=logging.INFO, static_init=True)
-        tb._i2c_read = tb._i2c_write = None
-
-        if not cls._is_thunder_borg_board(bus_num, address, tb):
+        if not self._is_thunder_borg_board(bus_num, address, self):
             err_msg = "ThunderBorg not found on bus %s at address 0x%02X"
-            tb._log.error(err_msg, bus_num, address)
-            buss = [bus for bus in cls._POSSIBLE_BUSS
+            self._log.error(err_msg, bus_num, address)
+            buss = [bus for bus in self._POSSIBLE_BUSS
                     if not auto_set_addr and bus != bus_num]
             found_chip = False
 
             for bus in buss:
-                found_chip = cls._is_thunder_borg_board(bus, address, tb)
+                found_chip = self._is_thunder_borg_board(bus, address, self)
 
                 if not found_chip:
-                    tb._log.error(err_msg, bus, address)
+                    self._log.error(err_msg, bus, address)
 
             if not found_chip:
                 msg = ("ThunderBorg could not be found; is it properly "
                        "attached, the correct address used, and the I2C "
                        "driver module loaded?")
 
-                if ((auto_set_addr and not cls._auto_set_address(bus_num, tb))
+                if ((auto_set_addr
+                     and not self._auto_set_address(bus_num, self))
                     or not auto_set_addr):
-                    tb._log.error(msg)
+                    self._log.error(msg)
 
-        return tb._i2c_read, tb._i2c_write
+    #
+    # Class Methods
+    #
 
     @classmethod
     def _is_thunder_borg_board(cls, bus_num, address, tb):
@@ -307,9 +301,10 @@ class ThunderBorg(object):
         return found_chip
 
     @classmethod
-    def find_board(cls, bus_num=_DEFAULT_BUS_NUM, tb=None, close=True):
+    def find_board(cls, bus_num=_DEFAULT_BUS_NUM, tb=None, close=True,
+                   logger_name=''):
         """
-        Scans the I<B2>C bus for ThunderBorg boards and returns a list of
+        Scans the I²C bus for ThunderBorg boards and returns a list of
         all usable addresses.
 
         .. note::
@@ -327,7 +322,8 @@ class ThunderBorg(object):
         :raises ThunderBorgException: An error happened on a stream.
         """
         found = []
-        if not tb: tb = ThunderBorg(log_level=logging.INFO, static_init=True)
+        if not tb: tb = ThunderBorg(logger_name=logger_name,
+                                    log_level=logging.INFO, static_init=True)
         tb._log.info("Scanning I2C bus number %d.", bus_num)
 
         for address in range(0x03, 0x77, 1):
@@ -345,15 +341,16 @@ class ThunderBorg(object):
         return found
 
     @classmethod
-    def set_i2c_address(cls, new_addr, cur_addr=-1, bus_num=_DEFAULT_BUS_NUM):
+    def set_i2c_address(cls, new_addr, cur_addr=-1, bus_num=_DEFAULT_BUS_NUM,
+                        logger_name=''):
         """
-        Scans the I<B2>C bus for the first ThunderBorg and sets it to a
-        new I<B2>C address. If cur_addr is supplied it will change the
+        Scans the I²C bus for the first ThunderBorg and sets it to a
+        new I²C address. If cur_addr is supplied it will change the
         address of the board at that address rather than scanning the bus.
-        The bus_num if supplied determines which I<B2>C bus to scan using
+        The bus_num if supplied determines which I²C bus to scan using
         0 for Rev 1 or 1 for Rev 2 boards. If bum_bus is not supplied it
         defaults to 1.
-        Warning, this new I<B2>C address will still be used after
+        Warning, this new I²C address will still be used after
         resetting the power on the device.
 
         :param new_addr: New address to set a ThunderBorg board to.
@@ -366,26 +363,27 @@ class ThunderBorg(object):
         :raises KeyboardInterrupt: Keyboard interrupt.
         :raises ThunderBorgException: An error happened on a stream.
         """
-        tb = ThunderBorg(log_level=logging.INFO, static_init=True)
+        tb = ThunderBorg(log_level=logging.INFO, logger_name=logger_name,
+                         static_init=True)
 
         if not (0x03 <= new_addr <= 0x77):
-            msg = ("Error, I<B2>C addresses must be in the range "
+            msg = ("Error, I2C addresses must be in the range "
                    "of 0x03 to 0x77")
             tb._log.error(msg)
             raise ThunderBorgException(msg)
 
         if cur_addr < 0x00:
-            found = cls.find_board(bus_num=bus_num)
+            found = cls.find_board(bus_num=bus_num, tb=tb)
 
             if len(found) < 1:
                 msg = ("No ThunderBorg boards found, cannot set a new "
-                       "I<B2>C address!")
+                       "I2C address!")
                 tb._log.info(msg)
                 raise ThunderBorgException(msg)
 
             cur_addr = found[0]
 
-        msg = "Changing I<B2>C address from 0x%02X to 0x%02X on bus number %d."
+        msg = "Changing I2C address from 0x%02X to 0x%02X on bus number %d."
         tb._log.info(msg, cur_addr, new_addr, bus_num)
 
         if cls._init_bus(bus_num, cur_addr, tb):
@@ -424,11 +422,11 @@ class ThunderBorg(object):
                         else:
                             if cls._check_board_chip(recv, bus_num,
                                                      new_addr, tb):
-                                msg = ("New I<B2>C address of 0x{:02X} set "
+                                msg = ("New I2C address of 0x{:02X} set "
                                        "successfully.").format(new_addr)
                                 tb._log.info(msg)
                             else:
-                                msg = "Failed to set new I<B2>C address..."
+                                msg = "Failed to set new I2C address..."
                                 tb._log.error(msg)
 
                 tb.close_streams()
@@ -456,7 +454,7 @@ class ThunderBorg(object):
 
         :param command: Command to send to the `ThunderBorg`.
         :type command: int
-        :param data: The data to be sent to the I2C bus.
+        :param data: The data to be sent to the I²C bus.
         :type data: list
         :raises ThunderBorgException: If the 'data' argument is the wrong
                                       type.

@@ -77,7 +77,10 @@ and deactivate a VE.
 
 Next you will need to install all the Python packages that your project
 depends on. Many of them will be in the pip repository at
-`PyPi Repository <https://pypi.org/>`_.
+`PyPi Repository <https://pypi.org/>`_. I recommend installing
+``ipython``, it's a much better command line interface than the one you
+get from ``Python`` itself.
+
 
 To install ``python-thunderborg`` enter the following on the command line.
 Be sure your virtual environment is activated before doing this.
@@ -85,6 +88,7 @@ Be sure your virtual environment is activated before doing this.
 .. code-block:: console
 
     $ pip install git+https://github.com/cnobile2012/python-thunderborg.git
+    $ pip install ipython
 
 Eventually you will be able to install ``python-thunderborg`` from PyPi
 also.

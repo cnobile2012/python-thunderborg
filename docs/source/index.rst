@@ -19,8 +19,7 @@ Contents
 
    install
    configuration
-
-
+   usage
    testing
 
 Indices and tables

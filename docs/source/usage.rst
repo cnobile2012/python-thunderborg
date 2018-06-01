@@ -2,8 +2,19 @@
 Usage
 *****
 
-To get started lets use the command line interface ``ipython``. You will
-need to import and instantiate the ``ThunderBorg`` class.
+To get started let's use the command line interface ``ipython``. You will
+need to import and instantiate the ``ThunderBorg`` class. First we need to
+start ``ipython``. You can exit ``ipython`` by pressing ``Ctl d`` then
+press the ``Enter`` key.
+
+.. code-block:: console
+
+    $ ipython
+    Python 3.5.2 (default, Sep 14 2017, 22:51:06)
+    Type 'copyright', 'credits' or 'license' for more information
+    IPython 6.4.0 -- An enhanced Interactive Python. Type '?' for help.
+
+    In [1]:
 
 .. code-block:: ipython
 
@@ -20,7 +31,19 @@ ThunderBorg board attached, duh. The second issue is a bit more subtle.
 Log messages are going to the screen. How do we get them in a file for
 later use.
 
-Well do the import again, but this time with the ``ConfigLogger`` class.
+We'll do the import again, but this time with the ``ConfigLogger`` class,
+but first we need to create a directory to put the log files in then
+restart ``ipython``.
+
+.. code-block:: console
+
+    $ mkdir logs
+    $ ipython
+    Python 3.5.2 (default, Sep 14 2017, 22:51:06)
+    Type 'copyright', 'credits' or 'license' for more information
+    IPython 6.4.0 -- An enhanced Interactive Python. Type '?' for help.
+
+    In [1]:
 
 .. code-block:: ipython
 
@@ -37,17 +60,16 @@ Well do the import again, but this time with the ``ConfigLogger`` class.
     In [5]: tb = ThunderBorg(logger_name='thunder-borg',
                              log_level=logging.DEBUG)
 
-Okay, so that seemed to work, let's see.
+Okay, so that seemed to work, let's look at the log file.
 
 .. code-block:: console
 
     $ cat logs/thunderborg.log
 
-    2018-05-30 21:46:40,598 DEBUG thunderborg _is_thunder_borg_board [line:220] Loading ThunderBorg on bus number 1, address 0x15
-    2018-05-30 21:46:40,606 ERROR thunderborg _initialize_board [line:189] ThunderBorg not found on bus 1 at address 0x15
-    2018-05-30 21:46:40,607 DEBUG thunderborg _is_thunder_borg_board [line:220] Loading ThunderBorg on bus number 1, address 0x15
-    2018-05-30 21:46:40,615 ERROR thunderborg _initialize_board [line:198] ThunderBorg not found on bus 0 at address 0x15
-    2018-05-30 21:46:40,615 ERROR thunderborg _initialize_board [line:208] ThunderBorg could not be found; is it properly attached, the correct address used, and the I2C driver module loaded?
+    2018-06-01 01:26:05,073 DEBUG thunder-borg _is_thunder_borg_board [line:220] Loading ThunderBorg on bus number 1, address 0x15
+    2018-06-01 01:26:05,076 INFO thunder-borg _check_board_chip [line:277] Found ThunderBorg on bus '1' at address 0x15.
 
+That looks better.
 
+Now lets get a motor turning.
 

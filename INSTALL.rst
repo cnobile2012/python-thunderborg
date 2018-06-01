@@ -9,7 +9,7 @@ Python virtual environments are used regularly by seasoned Python
 programmers however, beginners may not know about this feature rich
 tool. Virtualenv is a tool which allows the creation of isolated python
 environments. So what do we get from isolated environments? Lets say you
-are developing a project that needs virsion 1 of some library. You install
+are developing a project that needs version 1 of some library. You install
 it globally on the RPI. A while later you start work on another project
 that requires the same library, but version 2 this time. If you install
 version 2 globally, as you did before, it will invalidate the first
@@ -24,10 +24,14 @@ are quickly coming to their end of life as you can see here at
 Building a Development Environment
 ==================================
 
+First you will need to log into your Raspberry Pi with ssh. There are many
+good tutorials online that explain how to do this.
+
 As the `pi` user on your Raspberry Pi you will need to install a few
-system packages. I'm assuming you have installed Raspian Stretch. There
-will be a few system packages that may need to be installed first. Change
-to Python version 2.x where appropriate if needed.
+system packages. I'm assuming you have installed Raspian Stretch.
+
+Change the below packages to the Python 2.x versions where
+appropriate.
 
 .. code-block:: console
 
@@ -37,22 +41,23 @@ Install the Python virtual environment. The ``pip`` utility can be used to
 install packages for either ``python2`` or ``python3`` there is no need to
 install ``pip`` for both python versions. This is also true for the virtual
 environment package which can create virtual environments for either
-version of Python. The virtualenvwrapper package is a wrapper around
-virtualenv that provides easy to use tools for virtualenv and will install
-virtualenv for you.
+version of Python. The ``virtualenvwrapper`` package is a wrapper around
+``virtualenv`` that provides easy to use tools for ``virtualenv`` and will
+install ``virtualenv`` for you.
 
 .. code-block:: console
 
     $ sudo easy_install3 pip
     $ sudo -H pip3 install virtualenvwrapper
 
-Configure ``.bashrc`` to auto load the ``virtualenvwrapper`` package.
+Configure ``.bashrc`` in the ``pi`` user directory to auto load the
+``virtualenvwrapper`` package.
 
 .. code-block:: console
 
     $ nano .bashrc
 
-Then add the following line to the botton of the ``.bashrc`` file.
+Then add the following lines to the bottom of the ``.bashrc`` file.
 
 .. code-block:: bash
 
@@ -60,12 +65,13 @@ Then add the following line to the botton of the ``.bashrc`` file.
     VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
     source /usr/local/bin/virtualenvwrapper.sh
 
-Create a virtual environment for your project.
+Create a virtual environment for your project. The project name can be
+whatever you want, but it might be a good idea to keep it short.
 
 .. code-block:: console
 
     $ cd /path/to/your/project
-    $ mkvirtualenv -p python3 your_project
+    $ mkvirtualenv your_project # mkvirtualenv -p python2 your_project
 
 After the initial creation of the VE you can use these commands to activate
 and deactivate a VE.

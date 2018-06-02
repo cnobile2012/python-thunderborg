@@ -71,5 +71,16 @@ Okay, so that seemed to work, let's look at the log file.
 
 That looks better.
 
-Now lets get a motor turning.
+Now lets get the motors turning. Start up ``ipython`` again then reenter
+the commands above, then add the command below and both motors should be
+running. When they run for as long as you would like execute the final
+command to halt the motors.
 
+.. code-block:: ipython
+
+    In [6]: tb.set_both_motors(0.5)
+
+    In [7]: tb.halt_motors()
+
+And that's it. Look through the API documentation for all the commands
+available.

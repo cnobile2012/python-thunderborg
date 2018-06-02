@@ -43,7 +43,8 @@ class ThunderBorgException(Exception):
         
 class ThunderBorg(object):
     """
-    This module is designed to communicate with the ThunderBorg board.
+    This module is designed to communicate with the ThunderBorg motor
+    controller board.
     """
     #.. autoclass: tborg.ThunderBorg
     #   :members:
@@ -548,7 +549,7 @@ class ThunderBorg(object):
 
         :param level: Valid levels are from -1.0 to +1.0.
                       A level of 0.0 is full stop.
-                      A level of 0.75 is 75% foward.
+                      A level of 0.75 is 75% forward.
                       A level of -0.25 is 25% reverse.
                       A level of 1.0 is 100% forward.
         :type level: float
@@ -563,7 +564,7 @@ class ThunderBorg(object):
 
         :param level: Valid levels are from -1.0 to +1.0.
                       A level of 0.0 is full stop.
-                      A level of 0.75 is 75% foward.
+                      A level of 0.75 is 75% forward.
                       A level of -0.25 is 25% reverse.
                       A level of 1.0 is 100% forward.
         :type level: float
@@ -578,7 +579,7 @@ class ThunderBorg(object):
 
         :param level: Valid levels are from -1.0 to +1.0.
                       A level of 0.0 is full stop.
-                      A level of 0.75 is 75% foward.
+                      A level of 0.75 is 75% forward.
                       A level of -0.25 is 25% reverse.
                       A level of 1.0 is 100% forward.
         :type level: float
@@ -624,7 +625,7 @@ class ThunderBorg(object):
 
     def get_motor_two(self):
         """
-        Get the drive level of motor one.
+        Get the drive level of motor two.
 
         :rtype: The motor drive level.
         :raises KeyboardInterrupt: Keyboard interrupt.
@@ -635,7 +636,8 @@ class ThunderBorg(object):
     def halt_motors(self):
         """
         Halt both motors. Should be used when ending a program or
-        when needing to come to an abrupt halt.
+        when needing to come to an abrupt halt. Executing
+        ``set_both_motors(0)`` essentially does the same thing.
 
         :raises KeyboardInterrupt: Keyboard interrupt.
         :raises ThunderBorgException: An error happened on a stream.
@@ -673,10 +675,10 @@ class ThunderBorg(object):
 
         .. note::
 
-          (0, 0, 0)       LED off
-          (1, 1, 1)       LED full white
-          (1.0, 0.5, 0.0) LED bright orange
-          (0.2, 0.0, 0.2) LED dull violet
+          1. (0, 0, 0)       LED off
+          2. (1, 1, 1)       LED full white
+          3. (1.0, 0.5, 0.0) LED bright orange
+          4. (0.2, 0.0, 0.2) LED dull violet
 
         :param r: Range is between 0.0 and 1.0.
         :type r: float
@@ -695,10 +697,10 @@ class ThunderBorg(object):
 
         .. note::
 
-          (0, 0, 0)       LED off
-          (1, 1, 1)       LED full white
-          (1.0, 0.5, 0.0) LED bright orange
-          (0.2, 0.0, 0.2) LED dull violet
+          1. (0, 0, 0)       LED off
+          2. (1, 1, 1)       LED full white
+          3. (1.0, 0.5, 0.0) LED bright orange
+          4. (0.2, 0.0, 0.2) LED dull violet
 
         :param r: Range is between 0.0 and 1.0.
         :type r: float
@@ -717,10 +719,10 @@ class ThunderBorg(object):
 
         .. note::
 
-          (0, 0, 0)       LED off
-          (1, 1, 1)       LED full white
-          (1.0, 0.5, 0.0) LED bright orange
-          (0.2, 0.0, 0.2) LED dull violet
+          1. (0, 0, 0)       LED off
+          2. (1, 1, 1)       LED full white
+          3. (1.0, 0.5, 0.0) LED bright orange
+          4. (0.2, 0.0, 0.2) LED dull violet
 
         :param r: Range is between 0.0 and 1.0.
         :type r: float
@@ -756,10 +758,10 @@ class ThunderBorg(object):
 
         .. note::
 
-          (0, 0, 0)       LED off
-          (1, 1, 1)       LED full white
-          (1.0, 0.5, 0.0) LED bright orange
-          (0.2, 0.0, 0.2) LED dull violet
+          1. (0, 0, 0)       LED off
+          2. (1, 1, 1)       LED full white
+          3. (1.0, 0.5, 0.0) LED bright orange
+          4. (0.2, 0.0, 0.2) LED dull violet
 
         :rtype: Return a tuple of the RGB color for LED number one.
         :raises KeyboardInterrupt: Keyboard interrupt.
@@ -773,10 +775,10 @@ class ThunderBorg(object):
 
         .. note::
 
-          (0, 0, 0)       LED off
-          (1, 1, 1)       LED full white
-          (1.0, 0.5, 0.0) LED bright orange
-          (0.2, 0.0, 0.2) LED dull violet
+          1. (0, 0, 0)       LED off
+          2. (1, 1, 1)       LED full white
+          3. (1.0, 0.5, 0.0) LED bright orange
+          4. (0.2, 0.0, 0.2) LED dull violet
 
         :rtype: Return a tuple of the RGB color for LED number two.
         :raises KeyboardInterrupt: Keyboard interrupt.
@@ -910,18 +912,21 @@ class ThunderBorg(object):
              (not enough power), and may be cleared by setting a lower
              drive power.
           2. If a fault is persistent (repeatably occurs when trying to
-             control the board) it may indicate a wiring issue such as:
-             a. The supply is not powerful enough for the motors. The
-                board has a bare minimum requirement of 6V to operate
-                correctly. The recommended minimum supply of 7.2V should
-                be sufficient for smaller motors.
-             b. The + and - connections for the motor are connected to
-                each other.
-             c. Either + or - is connected to ground (GND, also known as
-                0V or earth).
-             d. Either + or - is connected to the power supply (V+,
-                directly to the battery or power pack).
-             e. One of the motors may be damaged.
+             control the board) it may indicate a wiring issue such as
+             indicated below.
+
+            a. The supply is not powerful enough for the motors. The
+               board has a bare minimum requirement of 6V to operate
+               correctly. The recommended minimum supply of 7.2V should
+               be sufficient for smaller motors.
+            b. The + and - connections for the motor are connected to
+               each other.
+            c. Either + or - is connected to ground (GND, also known as
+               0V or earth).
+            d. Either + or - is connected to the power supply (V+,
+               directly to the battery or power pack).
+            e. One of the motors may be damaged.
+
           3. Faults will self-clear, they do not need to be reset, however
              some faults require both motors to be moving at less than
              100% to clear.
@@ -949,18 +954,21 @@ class ThunderBorg(object):
              (not enough power), and may be cleared by setting a lower
              drive power.
           2. If a fault is persistent (repeatably occurs when trying to
-             control the board) it may indicate a wiring issue such as:
-             a. The supply is not powerful enough for the motors. The
-                board has a bare minimum requirement of 6V to operate
-                correctly. The recommended minimum supply of 7.2V should
-                be sufficient for smaller motors.
-             b. The + and - connections for the motor are connected to
-                each other.
-             c. Either + or - is connected to ground (GND, also known as
-                0V or earth).
-             d. Either + or - is connected to the power supply (V+,
-                directly to the battery or power pack).
-             e. One of the motors may be damaged.
+             control the board) it may indicate a wiring issue such as
+             indicated below.
+
+            a. The supply is not powerful enough for the motors. The
+               board has a bare minimum requirement of 6V to operate
+               correctly. The recommended minimum supply of 7.2V should
+               be sufficient for smaller motors.
+            b. The + and - connections for the motor are connected to
+               each other.
+            c. Either + or - is connected to ground (GND, also known as
+               0V or earth).
+            d. Either + or - is connected to the power supply (V+,
+               directly to the battery or power pack).
+            e. One of the motors may be damaged.
+
           3. Faults will self-clear, they do not need to be reset, however
              some faults require both motors to be moving at less than
              100% to clear.
@@ -1013,9 +1021,9 @@ class ThunderBorg(object):
              is powered.
 
         :param minimum: Value between 0.0 and 36.3 Volts.
-        :type minimun: float
+        :type minimum: float
         :param maximum: Value between 0.0 and 36.3 Volts.
-        :type maximun: float
+        :type maximum: float
         :raises KeyboardInterrupt: Keyboard interrupt.
         :raises ThunderBorgException: An error happened on a stream.
         """
@@ -1068,13 +1076,13 @@ class ThunderBorg(object):
 
     def write_external_led_word(self, b0, b1, b2, b3):
         """
-        Write low level serial LED 32 bit word to devices similar to
-        SK9822 and APA102C.
+        Write low level serial LED 32 bit word to set multiple LED devices
+        like SK9822 and APA102C.
 
         .. note::
 
           Bytes are written MSB (Most Significant Byte) first, starting at
-          b0. e.g. Executing `tb.write_extermnal_led_word(255, 64, 1, 0)`
+          b0. e.g. Executing ``tb.write_external_led_word(255, 64, 1, 0)``
           would send 11111111 01000000 00000001 00000000 to the LEDs.
 
         :param b0: Byte zero
@@ -1106,18 +1114,17 @@ class ThunderBorg(object):
 
     def set_external_led_colors(self, colors):
         """
-        Takes a set of RGB values to set multiple LEDs of devices similar
-        to SK9822 and APA102C.
+        Takes a set of RGB values to set multiple LED devices like
+        SK9822 and APA102C.
 
         .. note::
 
-          Each call will set all of the LEDs.
-          e.g. Executing `tb.set_external_led_colors([[1.0, 1.0, 0.0]])`
-          will set a single LED to full yellow while executing
-          `tb.set_external_led_colors([[1.0, 0.0, 0.0],
-                                       [0.5, 0.0, 0.0],
-                                       [0.0, 0.0, 0.0]])`
-          will set LED 1 to full red, LED 2 to half red, and LED 3 to off.
+          1. Each call will set all of the LEDs.
+
+          2. Executing ``tb.set_external_led_colors([[1.0, 1.0, 0.0]])``
+             will set a single LED to full yellow.
+          3. Executing ``tb.set_external_led_colors([[1.0, 0.0, 0.0], [0.5, 0.0, 0.0], [0.0, 0.0, 0.0]])`` will set LED 1 to full red, LED 2 to half red,
+             and LED 3 to off.
 
         :param colors: The RGB colors for setting the LEDs.
         :type colors: list

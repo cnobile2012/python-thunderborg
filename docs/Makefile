@@ -12,6 +12,11 @@ BUILDDIR      = build
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
+.PHONY	: sphinx-apidoc
+sphinx-apidoc:
+	sphinx-apidoc -o source/ -H python-thunderborg -A 'Carl J. Nobile' -V 1.0 \
+         -R 1.0.0 ../tborg
+
 .PHONY: help Makefile
 
 # Catch-all target: route all unknown targets to Sphinx using the new

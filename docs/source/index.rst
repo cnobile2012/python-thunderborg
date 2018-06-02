@@ -21,6 +21,7 @@ Contents
    configuration
    usage
    testing
+   modules
 
 Indices and tables
 ==================

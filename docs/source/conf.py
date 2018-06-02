@@ -21,7 +21,8 @@ import os
 import sys
 import re
 import datetime
-# sys.path.insert(0, os.path.abspath('.'))
+
+sys.path.insert(0, os.path.abspath('../..'))
 
 not os.path.exists('install.rst') and os.symlink(
     os.path.join('..', '..', 'INSTALL.rst'), 'install.rst')

@@ -224,7 +224,7 @@ class ThunderBorg(object):
         if cls._init_bus(bus_num, address, tb):
             try:
                 recv = tb._read(cls.COMMAND_GET_ID, cls._I2C_READ_LEN)
-            except KeyboardInterrupt as e:
+            except KeyboardInterrupt as e: # pragma: no cover
                 tb.close_streams()
                 tb._log.warning("Keyboard interrupt, %s", e)
                 raise e
@@ -469,7 +469,8 @@ class ThunderBorg(object):
 
         data.insert(0, command)
 
-        if six.PY2:
+        if six.PY2: # pragma: no cover
+            #  Either one or the other can be tested at a given time.
             data = ''.join([chr(byte) for byte in data])
         else:
             data = bytes(data)
@@ -505,7 +506,8 @@ class ThunderBorg(object):
 
             # Split string/bytes
             # b'\x99\x15\x00\x00\x00\x00' [153, 21, 0, 0, 0, 0]
-            if six.PY2:
+            if six.PY2: # pragma: no cover
+                # Either one or the other can be tested at a given time.
                 data = [ord(bt) for bt in recv]
             else:
                 data = [bt for bt in recv]
@@ -513,7 +515,7 @@ class ThunderBorg(object):
             if command == data[0]:
                 break
 
-        if len(data) <= 0:
+        if len(data) <= 0: # pragma: no cover
             msg = "I2C read for command '{}' failed.".format(command)
             self._log.error(msg)
             raise ThunderBorgException(msg)
@@ -877,10 +879,10 @@ class ThunderBorg(object):
         """
         try:
             recv = self._read(self.COMMAND_GET_FAILSAFE, self._I2C_READ_LEN)
-        except KeyboardInterrupt as e:
+        except KeyboardInterrupt as e: # pragma: no cover
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
-        except IOError as e:
+        except IOError as e: # pragma: no cover
             msg = "Failed reading communications failsafe state, {}".format(e)
             self._log.error(msg)
             raise ThunderBorgException(msg)

@@ -165,7 +165,8 @@ class ThunderBorg(object):
         :param static_init: If called by a public class method.
         :type static_init: bool
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises ThunderBorgException: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream or an
+                                      invalid address or bus was provided.
         """
         # Setup logging
         if logger_name == '':
@@ -182,8 +183,9 @@ class ThunderBorg(object):
 
     def _initialize_board(self, bus_num, address, auto_set_addr):
         """
-        Setup the I²C connections and return the file streams for read
-        and write.
+        Setup the I²C connections and file streams for read and write. If
+        the default board cannot be found search for a board and if
+        ``auto_set_addr`` is ``True`` configure the found board.
         """
         if not self._is_thunder_borg_board(bus_num, address, self):
             err_msg = "ThunderBorg not found on bus %s at address 0x%02X"
@@ -198,15 +200,15 @@ class ThunderBorg(object):
                 if not found_chip:
                     self._log.error(err_msg, bus, address)
 
-            if not found_chip:
+            if (not found_chip
+                and (not auto_set_addr or
+                     (auto_set_addr
+                      and not self._auto_set_address(bus_num, self)))):
                 msg = ("ThunderBorg could not be found; is it properly "
                        "attached, the correct address used, and the I2C "
                        "driver module loaded?")
-
-                if ((auto_set_addr
-                     and not self._auto_set_address(bus_num, self))
-                    or not auto_set_addr):
-                    self._log.error(msg)
+                self._log.critical(msg)
+                raise ThunderBorgException(msg)
 
     #
     # Class Methods
@@ -281,7 +283,7 @@ class ThunderBorg(object):
                        "not a ThunderBorg (ID 0x%02X instead of 0x%02X).")
                 tb._log.info(msg, address, bus_num, recv[1],
                              cls._I2C_ID_THUNDERBORG)
-        else:
+        else: # pragma: no cover
             msg = ("Wrong number of bytes received, found '%d', should be "
                    "'%d' at address 0x%02X.")
             tb._log.error(msg, length, cls._I2C_READ_LEN, address)

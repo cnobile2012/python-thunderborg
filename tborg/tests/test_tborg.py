@@ -140,6 +140,30 @@ class TestThunderBorg(BaseTest):
             self.assertAlmostEqual(x, y, delta=0.01, msg=msg.format(x, y))
 
     #@unittest.skip("Temporarily skipped")
+    def test_config_with_invalid_address(self):
+        """
+        Test that an invalid address creates the expected error message.
+        """
+        with self.assertRaises(ThunderBorgException) as cm:
+            ThunderBorg(address=0x70,
+                        logger_name=self._LOG_FILENAME,
+                        log_level=logging.DEBUG)
+
+    #@unittest.skip("Temporarily skipped")
+    @patch.object(ThunderBorg, '_I2C_ID_THUNDERBORG', 0x20)
+    def test_set_i2c_address_with_invalid_address(self):
+        """
+        Test that an invalid address causes 
+        """
+        with self.assertRaises(ThunderBorgException) as cm:
+            ThunderBorg(logger_name=self._LOG_FILENAME,
+                        log_level=logging.DEBUG)
+
+
+
+
+
+    #@unittest.skip("Temporarily skipped")
     def test_set_and_get_motor_one(self):
         """
         Test that motor one responds to commands.

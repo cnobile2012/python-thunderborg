@@ -40,7 +40,7 @@ _LEVEL_TO_NAME = {
 class ThunderBorgException(Exception):
     pass
 
-        
+
 class ThunderBorg(object):
     """
     This module is designed to communicate with the ThunderBorg motor
@@ -312,7 +312,7 @@ class ThunderBorg(object):
 
         .. note::
 
-          Rev 1 boards use bus number 0 and rev 2 boards use bus number 1.
+           Rev 1 boards use bus number 0 and rev 2 boards use bus number 1.
 
         :param bus_num: The bus number where the address will be scanned.
                         Default bus number is 1.
@@ -690,10 +690,10 @@ class ThunderBorg(object):
 
         .. note::
 
-          1. (0, 0, 0)       LED off
-          2. (1, 1, 1)       LED full white
-          3. (1.0, 0.5, 0.0) LED bright orange
-          4. (0.2, 0.0, 0.2) LED dull violet
+           1. (0, 0, 0)       LED off
+           2. (1, 1, 1)       LED full white
+           3. (1.0, 0.5, 0.0) LED bright orange
+           4. (0.2, 0.0, 0.2) LED dull violet
 
         :param r: Range is between 0.0 and 1.0.
         :type r: float
@@ -712,10 +712,10 @@ class ThunderBorg(object):
 
         .. note::
 
-          1. (0, 0, 0)       LED off
-          2. (1, 1, 1)       LED full white
-          3. (1.0, 0.5, 0.0) LED bright orange
-          4. (0.2, 0.0, 0.2) LED dull violet
+           1. (0, 0, 0)       LED off
+           2. (1, 1, 1)       LED full white
+           3. (1.0, 0.5, 0.0) LED bright orange
+           4. (0.2, 0.0, 0.2) LED dull violet
 
         :param r: Range is between 0.0 and 1.0.
         :type r: float
@@ -734,10 +734,10 @@ class ThunderBorg(object):
 
         .. note::
 
-          1. (0, 0, 0)       LED off
-          2. (1, 1, 1)       LED full white
-          3. (1.0, 0.5, 0.0) LED bright orange
-          4. (0.2, 0.0, 0.2) LED dull violet
+           1. (0, 0, 0)       LED off
+           2. (1, 1, 1)       LED full white
+           3. (1.0, 0.5, 0.0) LED bright orange
+           4. (0.2, 0.0, 0.2) LED dull violet
 
         :param r: Range is between 0.0 and 1.0.
         :type r: float
@@ -773,10 +773,10 @@ class ThunderBorg(object):
 
         .. note::
 
-          1. (0, 0, 0)       LED off
-          2. (1, 1, 1)       LED full white
-          3. (1.0, 0.5, 0.0) LED bright orange
-          4. (0.2, 0.0, 0.2) LED dull violet
+           1. (0, 0, 0)       LED off
+           2. (1, 1, 1)       LED full white
+           3. (1.0, 0.5, 0.0) LED bright orange
+           4. (0.2, 0.0, 0.2) LED dull violet
 
         :rtype: Return a tuple of the RGB color for LED number one.
         :raises KeyboardInterrupt: Keyboard interrupt.
@@ -790,10 +790,10 @@ class ThunderBorg(object):
 
         .. note::
 
-          1. (0, 0, 0)       LED off
-          2. (1, 1, 1)       LED full white
-          3. (1.0, 0.5, 0.0) LED bright orange
-          4. (0.2, 0.0, 0.2) LED dull violet
+           1. (0, 0, 0)       LED off
+           2. (1, 1, 1)       LED full white
+           3. (1.0, 0.5, 0.0) LED bright orange
+           4. (0.2, 0.0, 0.2) LED dull violet
 
         :rtype: Return a tuple of the RGB color for LED number two.
         :raises KeyboardInterrupt: Keyboard interrupt.
@@ -808,9 +808,9 @@ class ThunderBorg(object):
 
         .. note::
 
-          If in the battery monitoring state the configured state is
-          disabled. The battery monitoring state sweeps the full range
-          between red (7V) and green (35V).
+           If in the battery monitoring state the configured state is
+           disabled. The battery monitoring state sweeps the full range
+           between red (7V) and green (35V).
 
         :param state: If `True` (enabled) LEDs will show the current
                       battery level, else if `False` (disabled) the LEDs
@@ -923,33 +923,33 @@ class ThunderBorg(object):
 
         .. note::
 
-          1. Faults may indicate power problems, such as under-voltage
-             (not enough power), and may be cleared by setting a lower
-             drive power.
-          2. If a fault is persistent (repeatably occurs when trying to
-             control the board) it may indicate a wiring issue such as
-             indicated below.
+           1. Faults may indicate power problems, such as under-voltage
+              (not enough power), and may be cleared by setting a lower
+              drive power.
+           2. If a fault is persistent (repeatably occurs when trying to
+              control the board) it may indicate a wiring issue such as
+              indicated below.
 
-            a. The supply is not powerful enough for the motors. The
-               board has a bare minimum requirement of 6V to operate
-               correctly. The recommended minimum supply of 7.2V should
-               be sufficient for smaller motors.
-            b. The + and - connections for the motor are connected to
-               each other.
-            c. Either + or - is connected to ground (GND, also known as
-               0V or earth).
-            d. Either + or - is connected to the power supply (V+,
-               directly to the battery or power pack).
-            e. One of the motors may be damaged.
+             a. The supply is not powerful enough for the motors. The
+                board has a bare minimum requirement of 6V to operate
+                correctly. The recommended minimum supply of 7.2V should
+                be sufficient for smaller motors.
+             b. The + and - connections for the motor are connected to
+                each other.
+             c. Either + or - is connected to ground (GND, also known as
+                0V or earth).
+             d. Either + or - is connected to the power supply (V+,
+                directly to the battery or power pack).
+             e. One of the motors may be damaged.
 
-          3. Faults will self-clear, they do not need to be reset, however
-             some faults require both motors to be moving at less than
-             100% to clear.
-          4. The easiest way to run a check is to put both motors at a low
-             power setting that is high enough for them to rotate easily.
-             e.g. 30%
-          5. Note that the fault state may be true at power up, this is
-             normal and should clear when both motors have been driven.
+           3. Faults will self-clear, they do not need to be reset, however
+              some faults require both motors to be moving at less than
+              100% to clear.
+           4. The easiest way to run a check is to put both motors at a low
+              power setting that is high enough for them to rotate easily.
+              e.g. 30%
+           5. Note that the fault state may be true at power up, this is
+              normal and should clear when both motors have been driven.
 
         :rtype: Return a `False` if there are no problems else a `True` if
                 a fault has been detected.
@@ -965,33 +965,33 @@ class ThunderBorg(object):
 
         .. note::
 
-          1. Faults may indicate power problems, such as under-voltage
-             (not enough power), and may be cleared by setting a lower
-             drive power.
-          2. If a fault is persistent (repeatably occurs when trying to
-             control the board) it may indicate a wiring issue such as
-             indicated below.
+           1. Faults may indicate power problems, such as under-voltage
+              (not enough power), and may be cleared by setting a lower
+              drive power.
+           2. If a fault is persistent (repeatably occurs when trying to
+              control the board) it may indicate a wiring issue such as
+              indicated below.
 
-            a. The supply is not powerful enough for the motors. The
-               board has a bare minimum requirement of 6V to operate
-               correctly. The recommended minimum supply of 7.2V should
-               be sufficient for smaller motors.
-            b. The + and - connections for the motor are connected to
-               each other.
-            c. Either + or - is connected to ground (GND, also known as
-               0V or earth).
-            d. Either + or - is connected to the power supply (V+,
-               directly to the battery or power pack).
-            e. One of the motors may be damaged.
+             a. The supply is not powerful enough for the motors. The
+                board has a bare minimum requirement of 6V to operate
+                correctly. The recommended minimum supply of 7.2V should
+                be sufficient for smaller motors.
+             b. The + and - connections for the motor are connected to
+                each other.
+             c. Either + or - is connected to ground (GND, also known as
+                0V or earth).
+             d. Either + or - is connected to the power supply (V+,
+                directly to the battery or power pack).
+             e. One of the motors may be damaged.
 
-          3. Faults will self-clear, they do not need to be reset, however
-             some faults require both motors to be moving at less than
-             100% to clear.
-          4. The easiest way to run a check is to put both motors at a low
-             power setting that is high enough for them to rotate easily.
-             e.g. 30%
-          5. Note that the fault state may be true at power up, this is
-             normal and should clear when both motors have been driven.
+           3. Faults will self-clear, they do not need to be reset, however
+              some faults require both motors to be moving at less than
+              100% to clear.
+           4. The easiest way to run a check is to put both motors at a low
+              power setting that is high enough for them to rotate easily.
+              e.g. 30%
+           5. Note that the fault state may be true at power up, this is
+              normal and should clear when both motors have been driven.
 
         :rtype: Return a `False` if there are no problems else a `True` if
                 a fault has been detected.
@@ -1030,10 +1030,10 @@ class ThunderBorg(object):
 
         .. note::
 
-          1. The colors shown, range from full red at minimum or below,
-             yellow half way, and full green at maximum or higher.
-          2. These values are stored in EEPROM and reloaded when the board
-             is powered.
+           1. The colors shown, range from full red at minimum or below,
+              yellow half way, and full green at maximum or higher.
+           2. These values are stored in EEPROM and reloaded when the board
+              is powered.
 
         :param minimum: Value between 0.0 and 36.3 Volts.
         :type minimum: float
@@ -1065,8 +1065,8 @@ class ThunderBorg(object):
 
         .. note::
 
-          The colors shown, range from full red at minimum or below,
-          yellow half way, and full green at maximum or higher.
+           The colors shown, range from full red at minimum or below,
+           yellow half way, and full green at maximum or higher.
 
         :rtype: Return a tuple of `(minimum, maximum)`. The values are
                 between 0.0 and 36.3 V.
@@ -1096,9 +1096,9 @@ class ThunderBorg(object):
 
         .. note::
 
-          Bytes are written MSB (Most Significant Byte) first, starting at
-          b0. e.g. Executing ``tb.write_external_led_word(255, 64, 1, 0)``
-          would send 11111111 01000000 00000001 00000000 to the LEDs.
+           Bytes are written MSB (Most Significant Byte) first, starting at
+           b0. e.g. Executing ``tb.write_external_led_word(255, 64, 1, 0)``
+           would send 11111111 01000000 00000001 00000000 to the LEDs.
 
         :param b0: Byte zero
         :type b0: int
@@ -1134,12 +1134,12 @@ class ThunderBorg(object):
 
         .. note::
 
-          1. Each call will set all of the LEDs.
+           1. Each call will set all of the LEDs.
 
-          2. Executing ``tb.set_external_led_colors([[1.0, 1.0, 0.0]])``
-             will set a single LED to full yellow.
-          3. Executing ``tb.set_external_led_colors([[1.0, 0.0, 0.0], [0.5, 0.0, 0.0], [0.0, 0.0, 0.0]])`` will set LED 1 to full red, LED 2 to half red,
-             and LED 3 to off.
+           2. Executing ``tb.set_external_led_colors([[1.0, 1.0, 0.0]])``
+              will set a single LED to full yellow.
+           3. Executing ``tb.set_external_led_colors([[1.0, 0.0, 0.0], [0.5, 0.0, 0.0], [0.0, 0.0, 0.0]])`` will set LED 1 to full red, LED 2 to half red,
+              and LED 3 to off.
 
         :param colors: The RGB colors for setting the LEDs.
         :type colors: list

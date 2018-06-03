@@ -82,5 +82,5 @@ command to halt the motors.
 
     In [7]: tb.halt_motors()
 
-And that's it. Look through the API documentation for all the commands
-available.
+And that's it. Look through the `API documentation <tborg.html>`_ for all
+the commands available.

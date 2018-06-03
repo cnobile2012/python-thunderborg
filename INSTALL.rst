@@ -14,15 +14,16 @@ it globally on the RPI. A while later you start work on another project
 that requires the same library, but version 2 this time. If you install
 version 2 globally, as you did before, it will invalidate the first
 project you were working on. This is where virtual environments comes to
-the rescue, every project is in it's own isolated environment.
+the rescue, every project is in it's own isolated environment and you no
+longer need to install python packages as sudo (root) user.
 
 Although this API will work with Python version 2.7.x I strongly recommend
 writing any new code using Python 3.4 or higher. The Python 2.x versions
 are quickly coming to their end of life as you can see here at
 `Python Clock <https://pythonclock.org/>`_.
 
-Building a Development Environment
-==================================
+Building a Development Environment for Your Projects
+====================================================
 
 First you will need to log into your Raspberry Pi with ssh. There are many
 good tutorials online that explain how to do this.
@@ -45,6 +46,12 @@ version of Python. The ``virtualenvwrapper`` package is a wrapper around
 ``virtualenv`` that provides easy to use tools for ``virtualenv`` and will
 install ``virtualenv`` for you.
 
+.. note::
+
+   A directory is created in the user's home directory named
+   ``.virtualenvs``. In there you'll be able to find all your projects and
+   the packages you have installed for each of them.
+
 .. code-block:: console
 
     $ sudo easy_install3 pip
@@ -65,8 +72,9 @@ Then add the following lines to the bottom of the ``.bashrc`` file.
     VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
     source /usr/local/bin/virtualenvwrapper.sh
 
-Create a virtual environment for your project. The project name can be
-whatever you want, but it might be a good idea to keep it short.
+Create a VE (Virtual Environment) for your project. The VE name can be
+whatever you want and does not need to match the actual project's name,
+but it might be a good idea to keep it short so that you can remember it.
 
 .. code-block:: console
 
@@ -84,7 +92,7 @@ and deactivate a VE.
 Next you will need to install all the Python packages that your project
 depends on. Many of them will be in the pip repository at
 `PyPi Repository <https://pypi.org/>`_. I recommend installing
-``ipython``, it's a much better command line interface than the one you
+``ipython``, it has a much better command line interface than the one you
 get from ``Python`` itself.
 
 

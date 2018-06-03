@@ -132,6 +132,17 @@ class TestClassMethods(BaseTest):
         self.assertEqual(found, new_addr, msg)
 
     #@unittest.skip("Temporarily skipped")
+    def test_set_i2c_address_with_address_range_invalid(self):
+        """
+        Test that an exception is raised  when the address is out of
+        range.
+        """
+        new_addr = 0x78
+
+        with self.assertRaises(ThunderBorgException) as cm:
+            ThunderBorg.set_i2c_address(new_addr)
+
+    #@unittest.skip("Temporarily skipped")
     def test_config_with_auto_set_address(self):
         """
         Test that ``auto_set_addr`` if set to ``True`` causes the API to

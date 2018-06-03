@@ -299,7 +299,7 @@ class ThunderBorg(object):
         tb._log.warning(msg, bus_num, hex_boards)
 
         if boards:
-            found_chip = cls._is_thunder_borg_board(bus_num, boards[0])
+            found_chip = cls._is_thunder_borg_board(bus_num, boards[0], tb)
 
         return found_chip
 
@@ -326,7 +326,8 @@ class ThunderBorg(object):
         """
         found = []
         if not tb: tb = ThunderBorg(logger_name=logger_name,
-                                    log_level=logging.INFO, static_init=True)
+                                    log_level=logging.INFO,
+                                    static_init=True)
         tb._log.info("Scanning I2C bus number %d.", bus_num)
 
         for address in range(0x03, 0x77, 1):
@@ -335,7 +336,7 @@ class ThunderBorg(object):
 
         if close: tb.close_streams()
 
-        if len(found) == 0:
+        if len(found) == 0: # pragma: no cover
             msg = ("No ThunderBorg boards found, is the bus number '%d' "
                    "correct? (should be 0 for Rev 1 and 1 for Rev 2)")
             tb._log.error(msg, bus_num)
@@ -363,7 +364,8 @@ class ThunderBorg(object):
         :param bun_num: The bus number where the address range will be
                         found. Default is set to 1.
         :raises KeyboardInterrupt: Keyboard interrupt.
-        :raises ThunderBorgException: An error happened on a stream.
+        :raises ThunderBorgException: An error happened on a stream or
+                                      failed to set the new address.
         """
         tb = ThunderBorg(log_level=logging.INFO, logger_name=logger_name,
                          static_init=True)
@@ -377,7 +379,7 @@ class ThunderBorg(object):
         if cur_addr < 0x00:
             found = cls.find_board(bus_num=bus_num, tb=tb)
 
-            if len(found) < 1:
+            if len(found) < 1: # pragma: no cover
                 msg = ("No ThunderBorg boards found, cannot set a new "
                        "I2C address!")
                 tb._log.info(msg)
@@ -418,8 +420,9 @@ class ThunderBorg(object):
                             raise e
                         except IOError as e: # pragma: no cover
                             tb.close_streams()
-                            msg = "Missing ThunderBorg at address 0x%02X."
-                            tb._log.error(msg, new_addr)
+                            msg = ("Missing ThunderBorg at address 0x{:02X}."
+                                   ).format(new_addr)
+                            tb._log.error(msg)
                             raise ThunderBorgException(msg)
                         else:
                             if cls._check_board_chip(recv, bus_num,
@@ -427,9 +430,11 @@ class ThunderBorg(object):
                                 msg = ("New I2C address of 0x{:02X} set "
                                        "successfully.").format(new_addr)
                                 tb._log.info(msg)
-                            else:
-                                msg = "Failed to set new I2C address..."
+                            else: # pragma: no cover
+                                msg = ("Failed to set address to 0x{:02X}"
+                                       ).format(new_addr)
                                 tb._log.error(msg)
+                                raise ThunderBorgException(msg)
 
                 tb.close_streams()
 
@@ -471,7 +476,7 @@ class ThunderBorg(object):
         data.insert(0, command)
 
         if six.PY2: # pragma: no cover
-            #  Either one or the other can be tested at a given time.
+            #  Either PY2 or PY3 can be tested at a given time.
             data = ''.join([chr(byte) for byte in data])
         else:
             data = bytes(data)
@@ -508,7 +513,7 @@ class ThunderBorg(object):
             # Split string/bytes
             # b'\x99\x15\x00\x00\x00\x00' [153, 21, 0, 0, 0, 0]
             if six.PY2: # pragma: no cover
-                # Either one or the other can be tested at a given time.
+                # Either PY2 or PY3 can be tested at a given time.
                 data = [ord(bt) for bt in recv]
             else:
                 data = [bt for bt in recv]
@@ -593,6 +598,11 @@ class ThunderBorg(object):
                         self.COMMAND_SET_ALL_REV)
 
     def _get_motor(self, command):
+        """
+        Base motor speed retrival method.
+
+        :param command: 
+        """
         motor = 1 if command == self.COMMAND_GET_A else 2
 
         try:
@@ -610,9 +620,11 @@ class ThunderBorg(object):
 
         if direction == self.COMMAND_VALUE_REV:
             level = -level
-        elif direction != self.COMMAND_VALUE_FWD:
-            self._log.error("Invalid command while getting drive level "
-                            "for motor %d", motor)
+        elif direction != self.COMMAND_VALUE_FWD: # pragma: no cover
+            msg = ("Invalid command '{:02d}' while getting drive level "
+                   "for motor {:d}.").format(direction, motor)
+            self._log.error(msg)
+            raise ThunderBorgException(msg)
 
         return level
 

@@ -18,7 +18,6 @@ Contents
    :maxdepth: 2
 
    install
-   configuration
    usage
    testing
    modules

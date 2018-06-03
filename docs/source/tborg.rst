@@ -8,12 +8,6 @@ Subpackages
 
     tborg.tests
 
-Submodules
-----------
-
-Module contents
----------------
-
 .. automodule:: tborg
     :members:
     :undoc-members:

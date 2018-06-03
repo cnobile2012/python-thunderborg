@@ -92,9 +92,13 @@ Running Tests
 The ``Makefile`` in the project's root should be used to run the tests as
 it will automatically clean up old coverage reports and HTML documents.
 
-After tests are done running they will dump to the screan a basic coverage
+After tests are done running they will dump to the screen a basic coverage
 report. You can also point your browser to a more complete HTML report in
 ``docs/htmlcov/index.html``.
+
+There are three log files in the ``logs`` directory that are created
+during the tests one for each test class. They may have minimal use if all
+the tests pass, but will be invaluable if any fail.
 
 .. code-block:: console
 

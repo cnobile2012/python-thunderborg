@@ -41,8 +41,8 @@ class TestNoSetUp(BaseTest):
         super(TestNoSetUp, self).__init__(
             name, filename=self._LOG_FILENAME)
 
-    @patch.object(ThunderBorg, '_DEFAULT_I2C_ADDRESS', 0x20)
     #@unittest.skip("Temporarily skipped")
+    @patch.object(ThunderBorg, '_DEFAULT_I2C_ADDRESS', 0x20)
     def test_find_address_with_invalid_default_address(self):
         """
         Test that an invalid default address will cause a board to be
@@ -57,6 +57,26 @@ class TestNoSetUp(BaseTest):
         self.assertEquals(tb._DEFAULT_I2C_ADDRESS, 0x20, msg)
         self.assertTrue(len(boards) > 0, msg)
         self.assertEqual(boards[0], default_address, msg)
+
+    #@unittest.skip("Temporarily skipped")
+    def test_config_with_invalid_address(self):
+        """
+        Test that an invalid address creates the expected exception.
+        """
+        with self.assertRaises(ThunderBorgException) as cm:
+            ThunderBorg(address=0x70,
+                        logger_name=self._LOG_FILENAME,
+                        log_level=logging.DEBUG)
+
+    #@unittest.skip("Temporarily skipped")
+    @patch.object(ThunderBorg, '_I2C_ID_THUNDERBORG', 0x20)
+    def test_config_with_invalid_board_id(self):
+        """
+        Test that an invalid board ID causes the expected exception.
+        """
+        with self.assertRaises(ThunderBorgException) as cm:
+            ThunderBorg(logger_name=self._LOG_FILENAME,
+                        log_level=logging.DEBUG)
 
 
 class TestClassMethods(BaseTest):
@@ -111,6 +131,21 @@ class TestClassMethods(BaseTest):
             found, new_addr)
         self.assertEqual(found, new_addr, msg)
 
+    #@unittest.skip("Temporarily skipped")
+    def test_config_with_auto_set_address(self):
+        """
+        Test that ``auto_set_addr`` if set to ``True`` causes the API to
+        find the first valid board and configure itself to that board.
+        """
+        # First change the board address so it cannot be found at the
+        # default address.
+        new_addr = 0x70
+        ThunderBorg.set_i2c_address(new_addr)
+        # Now instantiate ThunderBorg.
+        tb = ThunderBorg(logger_name=self._LOG_FILENAME,
+                         log_level=logging.DEBUG,
+                         auto_set_addr=True)
+
 
 class TestThunderBorg(BaseTest):
     _LOG_FILENAME = 'tb-instance.log'
@@ -138,30 +173,6 @@ class TestThunderBorg(BaseTest):
 
         for x, y in zip(t0, t1):
             self.assertAlmostEqual(x, y, delta=0.01, msg=msg.format(x, y))
-
-    #@unittest.skip("Temporarily skipped")
-    def test_config_with_invalid_address(self):
-        """
-        Test that an invalid address creates the expected error message.
-        """
-        with self.assertRaises(ThunderBorgException) as cm:
-            ThunderBorg(address=0x70,
-                        logger_name=self._LOG_FILENAME,
-                        log_level=logging.DEBUG)
-
-    #@unittest.skip("Temporarily skipped")
-    @patch.object(ThunderBorg, '_I2C_ID_THUNDERBORG', 0x20)
-    def test_set_i2c_address_with_invalid_address(self):
-        """
-        Test that an invalid address causes 
-        """
-        with self.assertRaises(ThunderBorgException) as cm:
-            ThunderBorg(logger_name=self._LOG_FILENAME,
-                        log_level=logging.DEBUG)
-
-
-
-
 
     #@unittest.skip("Temporarily skipped")
     def test_set_and_get_motor_one(self):

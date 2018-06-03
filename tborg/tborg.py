@@ -334,9 +334,8 @@ class ThunderBorg(object):
                 found.append(address)
 
         if close: tb.close_streams()
-        size = len(found)
 
-        if size == 0:
+        if len(found) == 0:
             msg = ("No ThunderBorg boards found, is the bus number '%d' "
                    "correct? (should be 0 for Rev 1 and 1 for Rev 2)")
             tb._log.error(msg, bus_num)

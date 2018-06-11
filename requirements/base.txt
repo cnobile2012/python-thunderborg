@@ -1,3 +1,6 @@
 # Base requirements for all environments.
 
 six
+pygame
+
+#PyOpenGL

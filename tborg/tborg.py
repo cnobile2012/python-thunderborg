@@ -52,8 +52,10 @@ class ThunderBorg(object):
     # sudo i2cdetect -y 1
     _DEF_LOG_LEVEL = logging.WARNING
     _DEVICE_PREFIX = '/dev/i2c-{}'
-    _DEFAULT_BUS_NUM = 1 # Rev. 2 boards
-    _DEFAULT_I2C_ADDRESS = 0x15
+    DEFAULT_BUS_NUM = 1 # Rev. 2 boards
+    """Default I²C bus number."""
+    DEFAULT_I2C_ADDRESS = 0x15
+    """Default I²C address of the ThunderBorg board."""
     _POSSIBLE_BUSS = [0, 1]
     _I2C_ID_THUNDERBORG = 0x15
     _I2C_SLAVE = 0x0703
@@ -128,21 +130,21 @@ class ThunderBorg(object):
     COMMAND_GET_ID = 0x99
     """Get the board identifier"""
     COMMAND_SET_I2C_ADD = 0xAA
-    """Set a new I2C address"""
+    """Set a new I²C address"""
     COMMAND_VALUE_FWD = 1
-    """I2C value representing forward"""
+    """I²C value representing forward"""
     COMMAND_VALUE_REV = 2
-    """I2C value representing reverse"""
+    """I²C value representing reverse"""
     COMMAND_VALUE_OFF = 0
-    """I2C value representing off"""
+    """I²C value representing off"""
     COMMAND_VALUE_ON = 1
-    """I2C value representing on"""
+    """I²C value representing on"""
     COMMAND_ANALOG_MAX = 0x3FF
     """Maximum value for analog readings"""
 
     def __init__(self,
-                 bus_num=_DEFAULT_BUS_NUM,
-                 address=_DEFAULT_I2C_ADDRESS,
+                 bus_num=DEFAULT_BUS_NUM,
+                 address=DEFAULT_I2C_ADDRESS,
                  logger_name='',
                  log_level=_DEF_LOG_LEVEL,
                  auto_set_addr=False,
@@ -179,7 +181,7 @@ class ThunderBorg(object):
             self._initialize_board(bus_num, address, auto_set_addr)
 
     __init__.__doc__ = __init__.__doc__.format(
-        _I2C_ID_THUNDERBORG, _DEFAULT_BUS_NUM, _LEVEL_TO_NAME[_DEF_LOG_LEVEL])
+        _I2C_ID_THUNDERBORG, DEFAULT_BUS_NUM, _LEVEL_TO_NAME[_DEF_LOG_LEVEL])
 
     def _initialize_board(self, bus_num, address, auto_set_addr):
         """
@@ -220,7 +222,7 @@ class ThunderBorg(object):
         Try to initialize a board on a given bus and address.
         """
         tb._log.debug("Loading ThunderBorg on bus number %d, address 0x%02X",
-                      cls._DEFAULT_BUS_NUM, address)
+                      cls.DEFAULT_BUS_NUM, address)
         found_chip = False
 
         if cls._init_bus(bus_num, address, tb):
@@ -304,7 +306,7 @@ class ThunderBorg(object):
         return found_chip
 
     @classmethod
-    def find_board(cls, bus_num=_DEFAULT_BUS_NUM, tb=None, close=True,
+    def find_board(cls, bus_num=DEFAULT_BUS_NUM, tb=None, close=True,
                    logger_name=''):
         """
         Scans the I²C bus for ThunderBorg boards and returns a list of
@@ -344,7 +346,7 @@ class ThunderBorg(object):
         return found
 
     @classmethod
-    def set_i2c_address(cls, new_addr, cur_addr=-1, bus_num=_DEFAULT_BUS_NUM,
+    def set_i2c_address(cls, new_addr, cur_addr=-1, bus_num=DEFAULT_BUS_NUM,
                         logger_name=''):
         """
         Scans the I²C bus for the first ThunderBorg and sets it to a
@@ -858,14 +860,14 @@ class ThunderBorg(object):
     def set_comms_failsafe(self, state):
         """
         Set the state of the motor failsafe. The default failsafe state
-        of `False` will cause the motors to continuously run without a
-        keepalive signal. If set to `True` the motors will shutdown after
-        1/4 of a second unless it is sent the speed command every 1/4 of a
-        second.
+        of ``False`` will cause the motors to continuously run without a
+        keepalive signal. If set to ``True`` the motors will shutdown
+        after 1/4 of a second unless it is sent the speed command every
+        1/4 of a second.
 
-        :param state: If set to `True` failsafe is enabled, else if set to
-                      `False` failsafe is disabled. Default is disables
-                      when powered on.
+        :param state: If set to ``True`` failsafe is enabled, else if set
+                      to ``False`` failsafe is disabled. Default is
+                      disables when powered on.
         :type state: bool
         :raises KeyboardInterrupt: Keyboard interrupt.
         :raises ThunderBorgException: An error happened on a stream.

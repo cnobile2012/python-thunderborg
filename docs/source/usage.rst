@@ -60,7 +60,12 @@ restart ``ipython``.
     In [5]: tb = ThunderBorg(logger_name='thunder-borg',
                              log_level=logging.DEBUG)
 
-Okay, so that seemed to work, let's look at the log file.
+Okay, so that seemed to work, let's look at the log file. By-the-way the
+``ConfigLogger`` sets up a logger for the API to use. It can set up
+multiple loggers. The only connection between the logger and the API is
+the ``logger_name``. So the API needs to know which logger to use. That's
+why you see it in both the ``ConfigLogger.config()`` and the
+``ThunderBorg.__init__``.
 
 .. code-block:: console
 

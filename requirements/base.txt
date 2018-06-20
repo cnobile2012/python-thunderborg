@@ -1,4 +1,7 @@
 # Base requirements for all environments.
+#
+# Needs sudo apt install libsdl1.2-dev for pygame.
+#
 
 six
 pygame

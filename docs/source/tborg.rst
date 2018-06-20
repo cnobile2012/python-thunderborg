@@ -6,6 +6,7 @@ Subpackages
 
 .. toctree::
 
+    tborg.examples
     tborg.tests
 
 .. automodule:: tborg

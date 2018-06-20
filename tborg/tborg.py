@@ -803,7 +803,7 @@ class ThunderBorg(object):
         """
         return self._get_led(self.COMMAND_GET_LED2)
 
-    def set_led_state(self, state):
+    def set_led_battery_state(self, state):
         """
         Change from the default LEDs state (set with `set_led_one` and/or
         `set_led_two`) to the battery monitoring state.
@@ -834,7 +834,7 @@ class ThunderBorg(object):
             self._log.error(msg)
             raise ThunderBorgException(msg)
 
-    def get_led_state(self):
+    def get_led_battery_state(self):
         """
         Get the state of the LEDs between the default and the battery
         monitoring state.

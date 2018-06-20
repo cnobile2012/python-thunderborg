@@ -4,6 +4,7 @@
 #
 """
 Joystick Controllers
+--------------------
 
 by Carl J. Nobile
 
@@ -19,39 +20,81 @@ from __future__ import absolute_import
 
 __docformat__ = "restructuredtext en"
 
+import logging
+import time
+
 import pygame
 
-"""
-https://gist.github.com/claymcleod/028386b860b75e4f5472
-https://github.com/hthiery/python-ps4
-https://approxeng.github.io/approxeng.input/index.html
-https://stackoverflow.com/questions/46557583/how-to-identify-which-button-is-being-pressed-on-ps4-controller-using-pygame
-http://blog.mclemon.io/python-using-a-dualshock-4-with-pygame
-"""
+from tborg import ConfigLogger
 
-class Controller(object):
 
-    def __init__(self):
+class PYGameController(object):
+    """
+    Initializes the attached controller.
+    """
+    _LOG_PATH = 'logs'
+    _LOG_FILE = 'controller.log'
+    _LOGGER_NAME = 'controller'
+    _SLEEP_TIME = 0.1
+
+    def __init__(self, log_level=logging.INFO):
         """
-        Initialize the JoyStick.
+        Initialize logging 
+        """
+        cl = ConfigLogger(log_path=self._LOG_PATH)
+        cl.config(logger_name=self._LOGGER_NAME,
+                  filename=self._LOG_FILE,
+                  level=logging.DEBUG)
+        self._log = logging(self._LOGGER_NAME)
+        self.__controller_initialized = False
+
+    @property
+    def is_ctrl_init(self):
+        return self.__controller_initialized
+
+    def init_ctrl(self):
+        """
+        Wait until the controller is connected then initialize pygame.
         """
         pygame.init()
-        pygame.joystick.init()
-        self.controller = pygame.joystick.Joystick(0)
-        self.controller.init()
+
+        while True:
+            try:
+                pygame.joystick.init()
+            except pygame.error as e:
+                pygame.joystick.quit()
+                self._log.error("PYGame error: %s", e)
+                time.sleep(self._SLEEP_TIME)
+            except KeyboardInterrupt:
+                self._log.warn("User aborted with CTRL C.")
+            else:
+                if pygame.joystick.get_count() < 1:
+                    pygame.joystick.quit()
+                    time.sleep(self._SLEEP_TIME)
+                else:
+                    self.joystick = pygame.joystick.Joystick(0)
+                    self.joystick.init()
+                    self._initialize_variables()
+                    self._log.info("Found joystick.")
+                    self.__controller_initialized = True
+                    break
+
+    def _initialize_variables(self):
         self.axis_data = {
-            axis: 0.0 for axis in range(self.controller.get_numaxes())
+            axis: 0.0 for axis in range(self.joystick.get_numaxes())
             }
         self.ball_data = {
-            ball: 0.0 for ball in range(self.controller.get_numballs())
+            ball: 0.0 for ball in range(self.joystick.get_numballs())
             }
         self.button_data = {
-            but: False for but in range(self.controller.get_numbuttons())
+            but: False for but in range(self.joystick.get_numbuttons())
             }
         self.hat_data = {
-            hat: (0, 0) for hat in range(self.controller.get_numhats())
+            hat: (0, 0) for hat in range(self.joystick.get_numhats())
             }
-        # Buttons
+        self.__quit = False
+        self.rotate_turn_button = 
+        # Buttons Event Types
         self.SQUARE = 0
         self.CROSS = 1
         self.CIRCLE = 2
@@ -67,13 +110,13 @@ class Controller(object):
         self.PSB = 12
         self.PADB = 13
 
-        # Axis
+        # Axis Event Types
         self.LF_LR = 0
         self.LF_UP = 1
         self.RT_LR = 2
-        self.RT_UD = 3 if not self.is_ps4() else 5
+        self.RT_UD = 5 if self.is_ps4() else 3
 
-        # Create HAT variables.
+        # Create HAT variables. Hat Event Types (HAT0, HAT1, ...)
         for i in range(len(self.hat_data)):
             exec('self.HAT{0} = {0}'.format(i))
 
@@ -92,28 +135,35 @@ class Controller(object):
     def __set_hat(self, event):
         self.hat_data[event.hat] = event.value
 
+    def set_quit(self, event=None):
+        self.__quit = True
+
     __METHODS = {
         pygame.JOYAXISMOTION: __set_axis,
         pygame.JOYBALLMOTION: __set_ball,
         pygame.JOYBUTTONDOWN: __set_button_down,
         pygame.JOYBUTTONUP: __set_button_up,
-        pygame.JOYHATMOTION: __set_hat
+        pygame.JOYHATMOTION: __set_hat,
+        pygame.QUIT: set_quit
         }
 
-    def listen(self, done=False):
+    def listen(self):
         """
-        Listen to the controller events.
+        Listen to controller events.
         """
-        while not done:
+        assert self.is_ctrl_init, ("The init_ctrl method must be called "
+                                   "before the listen method.")
+
+        while not self.__quit:
             try:
                 for event in pygame.event.get():
                     #print(event.joy) # We only use joystick 0 (zero).
                     self.__METHODS[event.type](self, event)
                     self.process_event(done)
             except KeyboardInterrupt:
-                break
+                self.set_quit()
 
-    def process_event(self, done):
+    def process_event(self):
         """
         Process the current events.
         """
@@ -122,4 +172,11 @@ class Controller(object):
                 process_event.__name__))
 
     def is_ps4(self):
+        """
+        Is a PS4 controller attached?
+
+        .. note::
+            The current way this is determined may not be reliable, but
+            as of now, it's the best way I can find.
+        """
         return len(self.axis_data) == 6

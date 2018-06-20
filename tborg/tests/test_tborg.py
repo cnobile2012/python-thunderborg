@@ -275,7 +275,7 @@ class TestThunderBorg(BaseTest):
         """
         Test that the RBG colors set are the same as the one's returned.
         """
-        state = self._tb.get_led_state()
+        state = self._tb.get_led_battery_state()
         msg = "Default state should be False: {}".format(state)
         self.assertFalse(state, msg)
         rgb_list = [(0, 0, 0), (1, 1, 1), (1.0, 0.5, 0.0), (0.2, 0.0, 0.2)]
@@ -290,7 +290,7 @@ class TestThunderBorg(BaseTest):
         """
         Test that the RBG colors set are the same as the one's returned.
         """
-        state = self._tb.get_led_state()
+        state = self._tb.get_led_battery_state()
         msg = "Default state should be False: {}".format(state)
         self.assertFalse(state, msg)
         rgb_list = [(0, 0, 0), (1, 1, 1), (1.0, 0.5, 0.0), (0.2, 0.0, 0.2)]
@@ -305,7 +305,7 @@ class TestThunderBorg(BaseTest):
         """
         Test that the RBG colors set are the same as the one's returned.
         """
-        state = self._tb.get_led_state()
+        state = self._tb.get_led_battery_state()
         msg = "Default state should be False: {}".format(state)
         self.assertFalse(state, msg)
         rgb_list = [(0, 0, 0), (1, 1, 1), (1.0, 0.5, 0.0), (0.2, 0.0, 0.2)]
@@ -318,16 +318,16 @@ class TestThunderBorg(BaseTest):
             self.validate_tuples(ret_rgb, rgb)
 
     #@unittest.skip("Temporarily skipped")
-    def test_set_and_get_led_state(self):
+    def test_set_and_get_led_battery_state(self):
         """
         Test that the LED state changes.
         """
-        state = self._tb.get_led_state()
+        state = self._tb.get_led_battery_state()
         msg = "Default state should be False: {}".format(state)
         self.assertFalse(state, msg)
         # Change the state of the LEDs to monitor the batteries.
-        self._tb.set_led_state(True)
-        state = self._tb.get_led_state()
+        self._tb.set_led_battery_state(True)
+        state = self._tb.get_led_battery_state()
         msg = "Battery monitoring state should be True".format(state)
         self.assertTrue(state, msg)
 

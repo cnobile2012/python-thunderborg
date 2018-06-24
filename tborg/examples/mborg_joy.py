@@ -39,7 +39,7 @@ class JoyStickControl(PYGameController):
     """
     _LOG_PATH = 'logs'
     _LOG_FILE = 'mborg_joy.log'
-    _LOGGER_NAME = 'mborg-joy'
+    _LOGGER_NAME = 'examples.mborg-joy'
     _VOLTAGE_IN = 1.2 * 10
     _VOLTAGE_OUT = 12.0 * 0.95
     _PROCESS_INTERVAL = 0.02
@@ -59,7 +59,7 @@ class JoyStickControl(PYGameController):
                                address=address,
                                logger_name=self._LOGGER_NAME,
                                log_level=log_level)
-        self._log = logging(self._LOGGER_NAME)
+        self._log = logging.getLogger(self._LOGGER_NAME)
 
     def run(self):
         # Turn on failsafe.
@@ -75,14 +75,14 @@ class JoyStickControl(PYGameController):
     def log_battery_monitoring(self):
         level_min, level_max = self._tb.get_battery_monitoring_limits()
         current_level = self._tb.get_battery_voltage()
-        mid_level = level_min + level_max / 2
+        mid_level = (level_min + level_max) / 2
         buf = six.StringIO()
         buf.write("\nBattery Monitoring Settings\n")
         buf.write("---------------------------\n")
-        buf.write("  Minimum (red)    {:02.2f} V\n".format(level_min))
-        buf.write("  Middle  (yellow) {:02.2f} V\n".format(mid_level))
-        buf.write("  Maximum (green)  {:02.2f} V\n".format(level_max))
-        buf.write("  Current Voltage  {:02.2f} V\n\n".format(current_level))
+        buf.write("Minimum (red)    {:02.2f} V\n".format(level_min))
+        buf.write("Middle  (yellow) {:02.2f} V\n".format(mid_level))
+        buf.write("Maximum (green)  {:02.2f} V\n".format(level_max))
+        buf.write("Current Voltage  {:02.2f} V\n\n".format(current_level))
         self._log.info(buf.getvalue())
         buf.close()
 
@@ -90,9 +90,10 @@ class JoyStickControl(PYGameController):
         self._tb.halt_motors()
         self._tb.set_led_battery_state(False)
         self._tb.set_both_leds(0, 0, 1) # Set to blue
-        self.init_ctrl()
+        self.init_controller()
 
         if not self.is_ctrl_init:
+            selg._log.warn("Could not initialize ")
             self._tb.set_comms_failsafe(False)
             self._tb.set_both_leds(0, 0, 0) # Set LEDs off
             sys.exit()

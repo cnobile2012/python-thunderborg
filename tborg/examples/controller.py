@@ -34,7 +34,7 @@ class PYGameController(object):
     """
     _LOG_PATH = 'logs'
     _LOG_FILE = 'controller.log'
-    _LOGGER_NAME = 'controller'
+    _LOGGER_NAME = 'examples.controller'
     _SLEEP_TIME = 0.1
 
     def __init__(self, log_level=logging.INFO):
@@ -45,14 +45,14 @@ class PYGameController(object):
         cl.config(logger_name=self._LOGGER_NAME,
                   filename=self._LOG_FILE,
                   level=logging.DEBUG)
-        self._log = logging(self._LOGGER_NAME)
+        self._log = logging.getLogger(self._LOGGER_NAME)
         self.__controller_initialized = False
 
     @property
     def is_ctrl_init(self):
         return self.__controller_initialized
 
-    def init_ctrl(self):
+    def init_controller(self):
         """
         Wait until the controller is connected then initialize pygame.
         """

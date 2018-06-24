@@ -93,7 +93,6 @@ class PYGameController(object):
             hat: (0, 0) for hat in range(self.joystick.get_numhats())
             }
         self.__quit = False
-        self.rotate_turn_button = 
         # Buttons Event Types
         self.SQUARE = 0
         self.CROSS = 1
@@ -160,7 +159,8 @@ class PYGameController(object):
                     #print(event.joy) # We only use joystick 0 (zero).
                     self.__METHODS[event.type](self, event)
                     self.process_event(done)
-            except KeyboardInterrupt:
+            except KeyboardInterrupt as e:
+                self._log.warn("Exiting pygame event loop, %s", e)
                 self.set_quit()
 
     def process_event(self):

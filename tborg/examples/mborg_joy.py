@@ -43,8 +43,8 @@ class JoyStickControl(PYGameController):
     _VOLTAGE_IN = 1.2 * 10
     _VOLTAGE_OUT = 12.0 * 0.95
     _PROCESS_INTERVAL = 0.02
-    _MAX_POWER = (1.0 if self._VOLTAGE_OUT > self._VOLTAGE_IN
-                  else self._VOLTAGE_OUT / float(self._VOLTAGE_IN))
+    _MAX_POWER = (1.0 if _VOLTAGE_OUT > _VOLTAGE_IN
+                  else _VOLTAGE_OUT / float(_VOLTAGE_IN))
 
     def __init__(self,
                  bus_num=ThunderBorg.DEFAULT_BUS_NUM,

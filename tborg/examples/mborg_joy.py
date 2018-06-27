@@ -71,6 +71,7 @@ class JoyStickControl(PYGameController):
         # Log and init
         self.log_battery_monitoring()
         self.init_mborg()
+        self.listen()
 
     def log_battery_monitoring(self):
         level_min, level_max = self._tb.get_battery_monitoring_limits()

@@ -62,15 +62,14 @@ class PYGameController(object):
             try:
                 pygame.joystick.init()
             except pygame.error as e:
-                pygame.joystick.quit()
                 self._log.error("PYGame error: %s", e)
-                time.sleep(self._SLEEP_TIME)
+                self._quit_sleep()
             except KeyboardInterrupt:
                 self._log.warn("User aborted with CTRL C.")
+                break
             else:
                 if pygame.joystick.get_count() < 1:
-                    pygame.joystick.quit()
-                    time.sleep(self._SLEEP_TIME)
+                    self._quit_sleep()
                 else:
                     self.joystick = pygame.joystick.Joystick(0)
                     self.joystick.init()
@@ -78,6 +77,13 @@ class PYGameController(object):
                     self._log.info("Found joystick.")
                     self.__controller_initialized = True
                     break
+
+    def _quit_sleep(self):
+        try:
+            pygame.joystick.quit()
+            time.sleep(self._SLEEP_TIME)
+        except KeyboardInterrupt:
+            self._log.warn("User aborted with CTRL C.")
 
     def _initialize_variables(self):
         self.axis_data = {
@@ -158,15 +164,20 @@ class PYGameController(object):
                 for event in pygame.event.get():
                     #print(event.joy) # We only use joystick 0 (zero).
                     self.__METHODS[event.type](self, event)
-                    self.process_event(done)
+                    self.process_event()
             except KeyboardInterrupt as e:
                 self._log.warn("Exiting pygame event loop, %s", e)
                 self.set_quit()
 
     def process_event(self):
         """
-        Process the current events.
+        Process the current events. This method needs to be overridden.
         """
+        #print(self.axis_data)
+        #print(self.ball_data)
+        #print(self.button_data)
+        #print(self.hat_data)
+
         raise NotImplementedError(
             "Programming error: must implement {}".format(
                 process_event.__name__))

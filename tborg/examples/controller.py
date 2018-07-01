@@ -39,7 +39,7 @@ class PYGameController(object):
 
     def __init__(self, log_level=logging.INFO):
         """
-        Initialize logging 
+        Initialize logging
         """
         cl = ConfigLogger(log_path=self._LOG_PATH)
         cl.config(logger_name=self._LOGGER_NAME,
@@ -63,13 +63,13 @@ class PYGameController(object):
                 pygame.joystick.init()
             except pygame.error as e:
                 self._log.error("PYGame error: %s", e)
-                self._quit_sleep()
+                self._quit_sleep() and break
             except KeyboardInterrupt:
                 self._log.warn("User aborted with CTRL C.")
                 break
             else:
                 if pygame.joystick.get_count() < 1:
-                    self._quit_sleep()
+                    self._quit_sleep() and break
                 else:
                     self.joystick = pygame.joystick.Joystick(0)
                     self.joystick.init()
@@ -79,11 +79,16 @@ class PYGameController(object):
                     break
 
     def _quit_sleep(self):
+        error = False
+
         try:
             pygame.joystick.quit()
             time.sleep(self._SLEEP_TIME)
         except KeyboardInterrupt:
             self._log.warn("User aborted with CTRL C.")
+            error = True
+
+        return error
 
     def _initialize_variables(self):
         self.axis_data = {

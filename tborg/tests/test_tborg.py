@@ -33,6 +33,17 @@ class BaseTest(unittest.TestCase):
         cl.config(logger_name=self.LOGGER_NAME, filename=filename,
                   level=logging.DEBUG)
 
+    @classmethod
+    def setUpClass(self):
+        ThunderBorg.DEFAULT_I2C_ADDRESS = 0x15
+        ThunderBorg.set_i2c_address(ThunderBorg.DEFAULT_I2C_ADDRESS)
+        tb = ThunderBorg()
+        tb.halt_motors()
+        tb.set_both_leds(0, 0, 0)
+        tb.set_led_battery_state(False)
+        tb.set_comms_failsafe(False)
+        tb.write_external_led_word(0, 0, 0, 0)
+
 
 class TestNoSetUp(BaseTest):
     _LOG_FILENAME = 'tb-no-setup-method.log'
@@ -42,19 +53,20 @@ class TestNoSetUp(BaseTest):
             name, filename=self._LOG_FILENAME)
 
     #@unittest.skip("Temporarily skipped")
-    @patch.object(ThunderBorg, '_DEFAULT_I2C_ADDRESS', 0x20)
+    @patch.object(ThunderBorg, 'DEFAULT_I2C_ADDRESS', 0x20)
     def test_find_address_with_invalid_default_address(self):
         """
         Test that an invalid default address will cause a board to be
         initialized if the `auto_set_addr` argument is `True`.
         """
         default_address = 0x15
+        # Initialize the board by instantiating ThunderBorg.
         tb = ThunderBorg(logger_name=self.LOGGER_NAME,
                          log_level=logging.DEBUG,
                          auto_set_addr=True)
         boards = ThunderBorg.find_board()
         msg = "Boards found: {}".format(boards)
-        self.assertEquals(tb._DEFAULT_I2C_ADDRESS, 0x20, msg)
+        self.assertEquals(ThunderBorg.DEFAULT_I2C_ADDRESS, 0x20, msg)
         self.assertTrue(len(boards) > 0, msg)
         self.assertEqual(boards[0], default_address, msg)
 
@@ -87,7 +99,7 @@ class TestClassMethods(BaseTest):
             name, filename=self._LOG_FILENAME)
 
     def tearDown(self):
-        ThunderBorg.set_i2c_address(ThunderBorg._DEFAULT_I2C_ADDRESS)
+        ThunderBorg.set_i2c_address(ThunderBorg.DEFAULT_I2C_ADDRESS)
 
     #@unittest.skip("Temporarily skipped")
     def test_find_board(self):
@@ -97,8 +109,8 @@ class TestClassMethods(BaseTest):
         found = ThunderBorg.find_board()
         found = found[0] if found else 0
         msg = "Found address '0x{:02X}', should be '0x{:02X}'.".format(
-            found, ThunderBorg._DEFAULT_I2C_ADDRESS)
-        self.assertEqual(found, ThunderBorg._DEFAULT_I2C_ADDRESS, msg)
+            found, ThunderBorg.DEFAULT_I2C_ADDRESS)
+        self.assertEqual(found, ThunderBorg.DEFAULT_I2C_ADDRESS, msg)
 
     #@unittest.skip("Temporarily skipped")
     def test_set_i2c_address_without_current_address(self):
@@ -123,7 +135,7 @@ class TestClassMethods(BaseTest):
         """
         # Set a new address
         new_addr = 0x70
-        cur_addr = ThunderBorg._DEFAULT_I2C_ADDRESS
+        cur_addr = ThunderBorg.DEFAULT_I2C_ADDRESS
         ThunderBorg.set_i2c_address(new_addr, cur_addr=cur_addr)
         found = ThunderBorg.find_board()
         found = found[0] if found else 0
@@ -172,7 +184,7 @@ class TestThunderBorg(BaseTest):
     def tearDown(self):
         self._tb.halt_motors()
         self._tb.set_comms_failsafe(False)
-        self._tb.set_led_state(False)
+        self._tb.set_led_battery_state(False)
         self._tb.set_led_one(0.0, 0.0, 0.0)
         self._tb.set_led_two(0.0, 0.0, 0.0)
         self._tb.set_battery_monitoring_limits(7.0, 36.3)

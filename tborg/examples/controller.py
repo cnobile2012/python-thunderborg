@@ -35,7 +35,8 @@ class PYGameController(object):
     _LOG_PATH = 'logs'
     _LOG_FILE = 'controller.log'
     _LOGGER_NAME = 'examples.controller'
-    _SLEEP_TIME = 0.1
+    _DEFAULT_CTRL_WAIT = 0.1
+    _DEFAULT_EVENT_WAIT = 0.0
 
     def __init__(self, log_level=logging.INFO):
         """
@@ -47,15 +48,25 @@ class PYGameController(object):
                   level=logging.DEBUG)
         self._log = logging.getLogger(self._LOGGER_NAME)
         self.__controller_initialized = False
-        self.set_sleep_time(sleep=self._DEFAULT_SLEEP_TIME)
+        self.__ctrl_wait_time = 0
+        self.ctrl_wait_time = self._DEFAULT_CTRL_WAIT
+        self.event_wait_time = self._DEFAULT_EVENT_WAIT
 
     @property
-    def sleep_time(self):
-        return self.__sleep_time
+    def ctrl_wait_time(self):
+        return self.__ctrl_wait_time
 
-    @sleep_time.setter
-    def sleep_time(self, sleep):
-        self.__sleep_time = sleep
+    @ctrl_wait_time.setter
+    def ctrl_wait_time(self, sleep):
+        self.__ctrl_wait_time = sleep
+
+    @property
+    def event_wait_time(self):
+        return self.__event_wait_time
+
+    @event_wait_time.setter
+    def event_wait_time(self, sleep):
+        self.__event_wait_time = sleep
 
     @property
     def is_ctrl_init(self):
@@ -92,7 +103,7 @@ class PYGameController(object):
 
         try:
             pygame.joystick.quit()
-            time.sleep(self.sleep_time)
+            time.sleep(self.ctrl_wait_time)
         except KeyboardInterrupt:
             self._log.warn("User aborted with CTRL C.")
             error = True
@@ -182,6 +193,8 @@ class PYGameController(object):
             except KeyboardInterrupt as e:
                 self._log.warn("Exiting pygame event loop, %s", e)
                 self.set_quit()
+            else:
+                time.sleep(self.event_wait_time)
 
     def process_event(self):
         """

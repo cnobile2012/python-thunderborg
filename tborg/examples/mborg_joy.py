@@ -92,6 +92,7 @@ class JoyStickControl(PYGameController):
         self._tb.set_led_battery_state(False)
         self._tb.set_both_leds(0, 0, 1) # Set to blue
         self.init_controller()
+        self.event_wait_time = self._PROCESS_INTERVAL
 
         if not self.is_ctrl_init:
             selg._log.warn("Could not initialize ")
@@ -141,8 +142,6 @@ class JoyStickControl(PYGameController):
                 elif not self._led_battery_mode:
                     self._tb.set_led_battery_state(True)
                     self._led_battery_mode = True
-
-            time.sleep(self._PROCESS_INTERVAL)
         except (KeyboardInterrupt, ThunderBorgException) as e:
             self._log.warn("Exiting event processing, %s", e)
             self.set_quit()
@@ -169,7 +168,7 @@ class JoyStickControl(PYGameController):
                          is R2 (6).
         :type slow_but: int
         :param slow_spd: Choose the speed to decrease speed to when the
-                         drive-slow button is heald.
+                         drive-slow button is held.
         :type slow_spd: bool
         """
         tmp_kwargs = kwargs.copy()

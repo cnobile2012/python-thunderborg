@@ -47,6 +47,15 @@ class PYGameController(object):
                   level=logging.DEBUG)
         self._log = logging.getLogger(self._LOGGER_NAME)
         self.__controller_initialized = False
+        self.set_sleep_time(sleep=self._DEFAULT_SLEEP_TIME)
+
+    @property
+    def sleep_time(self):
+        return self.__sleep_time
+
+    @sleep_time.setter
+    def sleep_time(self, sleep):
+        self.__sleep_time = sleep
 
     @property
     def is_ctrl_init(self):
@@ -83,7 +92,7 @@ class PYGameController(object):
 
         try:
             pygame.joystick.quit()
-            time.sleep(self._SLEEP_TIME)
+            time.sleep(self.sleep_time)
         except KeyboardInterrupt:
             self._log.warn("User aborted with CTRL C.")
             error = True

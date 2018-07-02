@@ -63,13 +63,13 @@ class PYGameController(object):
                 pygame.joystick.init()
             except pygame.error as e:
                 self._log.error("PYGame error: %s", e)
-                self._quit_sleep() and break
+                if self._quit_sleep(): break
             except KeyboardInterrupt:
                 self._log.warn("User aborted with CTRL C.")
                 break
             else:
                 if pygame.joystick.get_count() < 1:
-                    self._quit_sleep() and break
+                    if self._quit_sleep(): break
                 else:
                     self.joystick = pygame.joystick.Joystick(0)
                     self.joystick.init()

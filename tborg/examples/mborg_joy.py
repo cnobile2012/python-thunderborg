@@ -42,7 +42,7 @@ class JoyStickControl(PYGameController):
     _LOGGER_NAME = 'examples.mborg-joy'
     _VOLTAGE_IN = 1.2 * 10
     _VOLTAGE_OUT = 12.0 * 0.95
-    _PROCESS_INTERVAL = 0.02
+    _PROCESS_INTERVAL = 0.00
     _MAX_POWER = (1.0 if _VOLTAGE_OUT > _VOLTAGE_IN
                   else _VOLTAGE_OUT / float(_VOLTAGE_IN))
 
@@ -83,7 +83,7 @@ class JoyStickControl(PYGameController):
         buf.write("Minimum (red)    {:02.2f} V\n".format(level_min))
         buf.write("Middle  (yellow) {:02.2f} V\n".format(mid_level))
         buf.write("Maximum (green)  {:02.2f} V\n".format(level_max))
-        buf.write("Current Voltage  {:02.2f} V\n\n".format(current_level))
+        buf.write("Current Voltage  {:02.2f} V\n".format(current_level))
         self._log.info(buf.getvalue())
         buf.close()
 
@@ -104,6 +104,7 @@ class JoyStickControl(PYGameController):
         self._led_battery_mode = True
         self._left_right = 0.0
         self._up_down = 0.0
+        self._log.debug("Finished mborg_joy initialization.")
 
     def process_event(self):
         """
@@ -130,15 +131,16 @@ class JoyStickControl(PYGameController):
             self._tb.set_motor_one(dr * self._MAX_POWER)
             self._tb.set_motor_two(dl * self._MAX_POWER)
 
-            # Set LEDs to perple to indicate motor faults.
+            # Set LEDs to purple to indicate motor faults.
             if (self._tb.get_drive_fault_one()
                 or self._tb.get_drive_fault_two()):
                 if self._led_battery_mode:
                     self._tb.set_led_battery_state(False)
                     self._tb.set_both_leds(1, 0, 1) # Set to purple
-                    self._tb._led_battery_mode = False
+                    self._led_battery_mode = False
                 elif not self._led_battery_mode:
-                    self._tb._led_battery_mode = True
+                    self._tb.set_led_battery_state(True)
+                    self._led_battery_mode = True
 
             time.sleep(self._PROCESS_INTERVAL)
         except (KeyboardInterrupt, ThunderBorgException) as e:
@@ -189,6 +191,6 @@ class JoyStickControl(PYGameController):
         self.drive_slow_speed = slow_spd
 
 
-if __name__ == '__main__':
-    JoyStickControl().run()
-    sys.exit()
+#if __name__ == '__main__':
+#    JoyStickControl().run()
+#    sys.exit()

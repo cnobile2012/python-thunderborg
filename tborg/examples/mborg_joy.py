@@ -116,6 +116,7 @@ class JoyStickControl(PYGameController):
         Process the current events (overrides the base class method).
         """
         try:
+            self._log.debug("Looping process event.")
             # Steering speeds
             if self.button_data.get(self.rotate_turn_button):
                 self._left_right = self.rotate_turn_speed
@@ -148,7 +149,7 @@ class JoyStickControl(PYGameController):
                     self._led_battery_mode = True
         except (KeyboardInterrupt, ThunderBorgException) as e:
             self._log.warn("Exiting event processing, %s", e)
-            self.set_quit()
+            raise e
 
     def set_misc(self, **kwargs):
         """

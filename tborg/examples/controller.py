@@ -25,7 +25,7 @@ import time
 
 import pygame
 
-from tborg import ConfigLogger
+from tborg import ConfigLogger, ThunderBorgException
 
 
 class PYGameController(object):
@@ -192,7 +192,7 @@ class PYGameController(object):
                     #print(event.joy) # We only use joystick 0 (zero).
                     self.__METHODS[event.type](self, event)
                     self.process_event()
-            except KeyboardInterrupt as e:
+            except (KeyboardInterrupt, ThunderBorgException) as e:
                 self._log.warn("Exiting pygame event loop, %s", e)
                 self.set_quit()
             else:

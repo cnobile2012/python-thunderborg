@@ -34,19 +34,19 @@ class PYGameController(object):
     """
     _LOG_PATH = 'logs'
     _LOG_FILE = 'controller.log'
-    _LOGGER_NAME = 'examples.controller'
+    _LOGGER_NAME = 'controller'
     _DEFAULT_CTRL_WAIT = 0.1
     _DEFAULT_EVENT_WAIT = 0.0
 
-    def __init__(self, log_level=logging.INFO):
+    def __init__(self, logger_name=_LOGGER_NAME, log_level=logging.INFO):
         """
         Initialize logging
         """
         cl = ConfigLogger(log_path=self._LOG_PATH)
-        cl.config(logger_name=self._LOGGER_NAME,
+        cl.config(logger_name=logger_name,
                   filename=self._LOG_FILE,
                   level=logging.DEBUG)
-        self._log = logging.getLogger(self._LOGGER_NAME)
+        self._log = logging.getLogger(logger_name)
         self.__controller_initialized = False
         self.__ctrl_wait_time = 0
         self.ctrl_wait_time = self._DEFAULT_CTRL_WAIT

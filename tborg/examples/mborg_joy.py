@@ -39,8 +39,9 @@ class JoyStickControl(PYGameController):
     """
     _LOG_PATH = 'logs'
     _LOG_FILE = 'mborg_joy.log'
+    _BASE_LOGGER_NAME = 'examples'
     _LOGGER_NAME = 'examples.mborg-joy'
-    _CTL_LOGGER_NAME = 'examples.controller'
+    _CTRL_LOGGER_NAME = 'examples.controller'
     _TBORG_LOGGER_NAME = 'examples.tborg'
     _VOLTAGE_IN = 1.2 * 10
     _VOLTAGE_OUT = 12.0 * 0.95
@@ -52,10 +53,8 @@ class JoyStickControl(PYGameController):
                  bus_num=ThunderBorg.DEFAULT_BUS_NUM,
                  address=ThunderBorg.DEFAULT_I2C_ADDRESS,
                  log_level=logging.INFO):
-        super(JoyStickControl, self).__init__(
-            logger_name=self._CTL_LOGGER_NAME, log_level=logging.DEBUG)
         cl = ConfigLogger(log_path=self._LOG_PATH)
-        cl.config(logger_name=self._LOGGER_NAME,
+        cl.config(logger_name=self._BASE_LOGGER_NAME,
                   filename=self._LOG_FILE,
                   level=logging.DEBUG)
         self._tb = ThunderBorg(bus_num=bus_num,
@@ -63,6 +62,8 @@ class JoyStickControl(PYGameController):
                                logger_name=self._TBORG_LOGGER_NAME,
                                log_level=log_level)
         self._log = logging.getLogger(self._LOGGER_NAME)
+        super(JoyStickControl, self).__init__(
+            logger_name=self._CTRL_LOGGER_NAME, log_level=logging.DEBUG)
 
     def run(self):
         # Turn on failsafe.

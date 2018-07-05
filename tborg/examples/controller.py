@@ -42,10 +42,12 @@ class PYGameController(object):
         """
         Initialize logging
         """
-        cl = ConfigLogger(log_path=self._LOG_PATH)
-        cl.config(logger_name=logger_name,
-                  filename=self._LOG_FILE,
-                  level=logging.DEBUG)
+        if not hasattr(self, '_log') or not self._log:
+            cl = ConfigLogger(log_path=self._LOG_PATH)
+            cl.config(logger_name=logger_name,
+                      filename=self._LOG_FILE,
+                      level=log_level)
+
         self._log = logging.getLogger(logger_name)
         self.__controller_initialized = False
         self.__ctrl_wait_time = 0
@@ -94,7 +96,7 @@ class PYGameController(object):
                     self.joystick = pygame.joystick.Joystick(0)
                     self.joystick.init()
                     self._initialize_variables()
-                    self._log.info("Found joystick.")
+                    self._log.info("Found controller.")
                     self.__controller_initialized = True
                     break
 

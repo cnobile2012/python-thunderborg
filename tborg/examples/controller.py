@@ -40,7 +40,8 @@ class PYGameController(object):
 
     def __init__(self, logger_name=_LOGGER_NAME, log_level=logging.INFO):
         """
-        Initialize logging
+        Initialize logging and sets the two wait times to a reasonable
+        default.
         """
         if not hasattr(self, '_log') or not self._log:
             cl = ConfigLogger(log_path=self._LOG_PATH)
@@ -56,22 +57,46 @@ class PYGameController(object):
 
     @property
     def ctrl_wait_time(self):
+        """
+        Property that gets or sets the controller wait time. This wait
+        time is used when looping during the controller detection period.
+
+        :param sleep: The period of time to sleep between checks. Defaults
+                      to {} seconds.
+        :type sleep: float
+        """
         return self.__ctrl_wait_time
 
     @ctrl_wait_time.setter
     def ctrl_wait_time(self, sleep):
         self.__ctrl_wait_time = sleep
+    ctrl_wait_time.__doc__ = ctrl_wait_time.__doc__.format(
+        _DEFAULT_CTRL_WAIT)
 
     @property
     def event_wait_time(self):
+        """
+        Property that gets or sets the event wait time. This wait time is
+        used when looping during the event processing period.
+
+        :param sleep: The period of time to sleep between event
+                      processing. Defaults to {} seconds.
+        :type sleep: float
+        """
         return self.__event_wait_time
 
     @event_wait_time.setter
     def event_wait_time(self, sleep):
         self.__event_wait_time = sleep
+    event_wait_time.__doc__ = event_wait_time.__doc__.format(
+        _DEFAULT_EVENT_WAIT)
 
     @property
     def is_ctrl_init(self):
+        """
+        A property that returns `True` or `False` if the controller is
+        initialized.
+        """
         return self.__controller_initialized
 
     def init_controller(self):
@@ -217,6 +242,6 @@ class PYGameController(object):
 
         .. note::
             The current way this is determined may not be reliable, but
-            as of now, it's the best way I can find.
+            as of now, it's the best way I have find.
         """
         return len(self.axis_data) == 6

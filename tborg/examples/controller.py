@@ -169,9 +169,11 @@ class PYGameController(object):
 
         # Axis Event Types
         self.LF_LR = 0
-        self.LF_UP = 1
-        self.RT_LR = 2
-        self.RT_UD = 5 if self.is_ps4() else 3
+        self.LF_UD = 1
+        self.L2_VR = 2
+        self.RT_LR = 3
+        self.RT_UD = 4 # if self.is_ps4() else 3
+        self.R2_VR = 5
 
         # Create HAT variables. Hat Event Types (HAT0, HAT1, ...)
         for i in range(len(self.hat_data)):

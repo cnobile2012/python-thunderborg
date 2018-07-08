@@ -48,6 +48,7 @@ class JoyStickControl(PYGameController):
     _PROCESS_INTERVAL = 0.00
     _MAX_POWER = (1.0 if _VOLTAGE_OUT > _VOLTAGE_IN
                   else _VOLTAGE_OUT / float(_VOLTAGE_IN))
+    _ROTATE_TURN_SPEED = 0.5
 
     def __init__(self,
                  bus_num=ThunderBorg.DEFAULT_BUS_NUM,
@@ -67,10 +68,11 @@ class JoyStickControl(PYGameController):
 
     def run(self):
         # Turn on failsafe.
-        self._tb.set_comms_failsafe(True)
-        assert self._tb.get_comms_failsafe() == True, (
-            "The failsafe mode could not be turned on."
-            )
+        ## self._tb.set_comms_failsafe(True)
+        ## assert self._tb.get_comms_failsafe() == True, (
+        ##     "The failsafe mode could not be turned on."
+        ##     )
+        self._tb.set_comms_failsafe(False)
 
         # Log and init
         self.log_battery_monitoring()
@@ -107,7 +109,7 @@ class JoyStickControl(PYGameController):
         self.set_misc()
         self._tb.set_led_battery_state(True)
         self._led_battery_mode = True
-        self._left_right = 0.0
+        self._both = 0.0
         self._up_down = 0.0
         self._log.debug("Finished mborg_joy initialization.")
 
@@ -115,27 +117,36 @@ class JoyStickControl(PYGameController):
         """
         Process the current events (overrides the base class method).
         """
+        if self.axis_up_down_invert:
+            self._up_down = -self.axis_data.get(self.LF_UD)
+        else:
+            self._up_down = self.axis_data.get(self.LF_UD)
+
+        if self.axis_left_right_invert:
+            self._left_right = -self.axis_data.get(self.RT_LR)
+        else:
+            self._left_right = self.axis_data.get(self.RT_LR)
+
+        # Steering speeds
+        if self.button_data.get(self.rotate_turn_button):
+            self._left_right *= self.rotate_turn_speed
+
+        motor_one = -self._up_down
+        motor_two = -self._up_down
+
+        if self._left_right > 0.05:
+            motor_one *= 1.0 - (2.0 * self._left_right)
+        elif self._left_right < -0.05:
+            motor_two *= 1.0 + (2.0 * self._left_right)
+
+        # Drive slow button press
+        if self.button_data.get(self.drive_slow_button):
+            motor_one *= self.drive_slow_speed
+            motor_two *= self.drive_slow_speed
+
         try:
-            self._log.debug("Looping process event.")
-            # Steering speeds
-            if self.button_data.get(self.rotate_turn_button):
-                self._left_right = self.rotate_turn_speed
-
-            dl = -self._up_down
-            dr = -self._up_down
-
-            if self._left_right < -0.05:
-                dl *= 1.0 + (2.0 * self._left_right)
-            else:
-                dr *= 1.0 - (2.0 * self._left_right)
-
-            # Button presses
-            if self.button_data.get(self.drive_slow_button):
-                dl *= self.drive_slow_speed
-                dr *= self.drive_slow_speed
-
-            self._tb.set_motor_one(dr * self._MAX_POWER)
-            self._tb.set_motor_two(dl * self._MAX_POWER)
+            self._tb.set_motor_one(motor_one * self._MAX_POWER)
+            self._tb.set_motor_two(motor_two * self._MAX_POWER)
 
             # Set LEDs to purple to indicate motor faults.
             if (self._tb.get_drive_fault_one()
@@ -172,7 +183,7 @@ class JoyStickControl(PYGameController):
         :param slow_but: Choose the button for driving slow. The default
                          is R2 (6).
         :type slow_but: int
-        :param slow_spd: Choose the speed to decrease speed to when the
+        :param slow_spd: Choose the speed to decrease to when the
                          drive-slow button is held.
         :type slow_spd: bool
         """
@@ -180,9 +191,10 @@ class JoyStickControl(PYGameController):
         axis_invert_ud = tmp_kwargs.pop('axis_invert_ud', False)
         axis_invert_lr = tmp_kwargs.pop('axis_invert_lr', False)
         rotate_turn_but = tmp_kwargs.pop('rotate_turn_but', self.R1)
-        rotate_turn_spd = tmp_kwargs.pop('rotate_turn_spd', 0.5)
+        rotate_turn_spd = tmp_kwargs.pop('rotate_turn_spd',
+                                         self._ROTATE_TURN_SPEED)
         slow_but = tmp_kwargs.pop('slow_but', self.R2)
-        slow_spd = tmp_kwargs.pop('slow_spd', 0.5)
+        slow_spd = tmp_kwargs.pop('slow_spd', self._ROTATE_TURN_SPEED)
         assert not kwargs, "Invalid arguments found: {}".format(kwargs)
         # If the robot flips over. These are set on the base controller
         # class.

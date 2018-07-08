@@ -49,6 +49,7 @@ class JoyStickControl(PYGameController):
     _MAX_POWER = (1.0 if _VOLTAGE_OUT > _VOLTAGE_IN
                   else _VOLTAGE_OUT / float(_VOLTAGE_IN))
     _ROTATE_TURN_SPEED = 0.5
+    _SLOW_SPEED = 0.5
 
     def __init__(self,
                  bus_num=ThunderBorg.DEFAULT_BUS_NUM,
@@ -127,8 +128,8 @@ class JoyStickControl(PYGameController):
         else:
             self._left_right = self.axis_data.get(self.RT_LR)
 
-        # Steering speeds
-        if self.button_data.get(self.rotate_turn_button):
+        # Rotate turn button press
+        if not self.button_data.get(self.rotate_turn_button):
             self._left_right *= self.rotate_turn_speed
 
         motor_one = -self._up_down
@@ -194,7 +195,7 @@ class JoyStickControl(PYGameController):
         rotate_turn_spd = tmp_kwargs.pop('rotate_turn_spd',
                                          self._ROTATE_TURN_SPEED)
         slow_but = tmp_kwargs.pop('slow_but', self.R2)
-        slow_spd = tmp_kwargs.pop('slow_spd', self._ROTATE_TURN_SPEED)
+        slow_spd = tmp_kwargs.pop('slow_spd', self._SLOW_SPEED)
         assert not kwargs, "Invalid arguments found: {}".format(kwargs)
         # If the robot flips over. These are set on the base controller
         # class.

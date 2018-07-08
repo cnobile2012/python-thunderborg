@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # mborg/mborg_joy.py
@@ -68,12 +67,15 @@ class JoyStickControl(PYGameController):
             logger_name=self._CTRL_LOGGER_NAME, log_level=logging.DEBUG)
 
     def run(self):
+        """
+        Start the controller listening process.
+        """
         # Turn on failsafe.
-        ## self._tb.set_comms_failsafe(True)
-        ## assert self._tb.get_comms_failsafe() == True, (
-        ##     "The failsafe mode could not be turned on."
-        ##     )
-        self._tb.set_comms_failsafe(False)
+        self._tb.set_comms_failsafe(True)
+        assert self._tb.get_comms_failsafe() == True, (
+            "The failsafe mode could not be turned on."
+            )
+        #self._tb.set_comms_failsafe(False)
 
         # Log and init
         self.log_battery_monitoring()
@@ -81,6 +83,9 @@ class JoyStickControl(PYGameController):
         self.listen()
 
     def log_battery_monitoring(self):
+        """
+        Dump to the log the initial battery values.
+        """
         level_min, level_max = self._tb.get_battery_monitoring_limits()
         current_level = self._tb.get_battery_voltage()
         mid_level = (level_min + level_max) / 2
@@ -95,6 +100,9 @@ class JoyStickControl(PYGameController):
         buf.close()
 
     def init_mborg(self):
+        """
+        Initialize the MonsterBorg joystick controller.
+        """
         self._tb.halt_motors()
         self._tb.set_led_battery_state(False)
         self._tb.set_both_leds(0, 0, 1) # Set to blue
@@ -107,38 +115,35 @@ class JoyStickControl(PYGameController):
             self._tb.set_both_leds(0, 0, 0) # Set LEDs off
             sys.exit()
 
-        self.set_misc()
+        self.set_defaults()
         self._tb.set_led_battery_state(True)
         self._led_battery_mode = True
-        self._both = 0.0
-        self._up_down = 0.0
         self._log.debug("Finished mborg_joy initialization.")
 
     def process_event(self):
         """
         Process the current events (overrides the base class method).
         """
-        if self.axis_up_down_invert:
-            self._up_down = -self.axis_data.get(self.LF_UD)
+        # Invert the controller Y axis to match the motor fwd/rev.
+        # If the Y axis needs to be inverted do that also.
+        if self.axis_y_invert:
+            motor_one = motor_two = self.axis_data.get(self.LF_UD)
         else:
-            self._up_down = self.axis_data.get(self.LF_UD)
+            motor_one = motor_two = -self.axis_data.get(self.LF_UD)
 
-        if self.axis_left_right_invert:
-            self._left_right = -self.axis_data.get(self.RT_LR)
+        if self.axis_x_invert:
+            x = -self.axis_data.get(self.RT_LR)
         else:
-            self._left_right = self.axis_data.get(self.RT_LR)
+            x = self.axis_data.get(self.RT_LR)
 
         # Rotate turn button press
         if not self.button_data.get(self.rotate_turn_button):
-            self._left_right *= self.rotate_turn_speed
+            x *= self.rotate_turn_speed
 
-        motor_one = -self._up_down
-        motor_two = -self._up_down
-
-        if self._left_right > 0.05:
-            motor_one *= 1.0 - (2.0 * self._left_right)
-        elif self._left_right < -0.05:
-            motor_two *= 1.0 + (2.0 * self._left_right)
+        if x > 0.05:
+            motor_one *= 1.0 - (2.0 * x)
+        elif x < -0.05:
+            motor_two *= 1.0 + (2.0 * x)
 
         # Drive slow button press
         if self.button_data.get(self.drive_slow_button):
@@ -163,51 +168,42 @@ class JoyStickControl(PYGameController):
             self._log.warn("Exiting event processing, %s", e)
             raise e
 
-    def set_misc(self, **kwargs):
+    def set_defaults(self, **kwargs):
         """
-        Set some miscellaneous value.
+        Set some default values. This method can be set while running. For
+        example if the robot flips over which could be determined with a
+        sensor the axis invert values can be changed.
 
-        :param axis_invert_ud: If set to `True` the up/down control is
-                               inverted. Default is `False`. Can be used
-                               if the robot flips over.
-        :type axis_invert_ud: bool
-        :param axis_invert_lr: If set to `True` the left/right control is
-                               inverted. Default is `False`. Can be used
-                               if the robot flips over.
-        :type axis_invert_lr: bool
-        :param rotate_turn_but: Choose the button for rotation. The
-                                default is R1 (5).
-        :type rotate_turn_but: int
-        :param rotate_turn_spd: Choose the speed for rotation. The
-                                default is 0.5.
-        :type rotate_turn_spd: float
-        :param slow_but: Choose the button for driving slow. The default
-                         is R2 (6).
-        :type slow_but: int
-        :param slow_spd: Choose the speed to decrease to when the
-                         drive-slow button is held.
-        :type slow_spd: bool
+        :param axis_y_invert: If set to `True` the up/down control is
+                              inverted. Default is `False`. Can be used
+                              if the robot flips over.
+        :type axis_y_invert: bool
+        :param axis_x_invert: If set to `True` the left/right control is
+                              inverted. Default is `False`. Can be used
+                              if the robot flips over.
+        :type axis_x_invert: bool
+        :param rotate_turn_button: Choose the button for rotation. The
+                                   default is R1 (5).
+        :type rotate_turn_button: int
+        :param rotate_turn_speed: Choose the speed for rotation. The
+                                  default is 0.5.
+        :type rotate_turn_speed: float
+        :param drive_slow_button: Choose the button for driving slow. The
+                                  default is R2 (6).
+        :type drive_slow_but: int
+        :param drive_slow_speed: Choose the speed to decrease to when the
+                                 drive-slow button is held.
+        :type drive_slow_speed: bool
         """
         tmp_kwargs = kwargs.copy()
-        axis_invert_ud = tmp_kwargs.pop('axis_invert_ud', False)
-        axis_invert_lr = tmp_kwargs.pop('axis_invert_lr', False)
-        rotate_turn_but = tmp_kwargs.pop('rotate_turn_but', self.R1)
-        rotate_turn_spd = tmp_kwargs.pop('rotate_turn_spd',
-                                         self._ROTATE_TURN_SPEED)
-        slow_but = tmp_kwargs.pop('slow_but', self.R2)
-        slow_spd = tmp_kwargs.pop('slow_spd', self._SLOW_SPEED)
+        self.axis_y_invert = tmp_kwargs.pop('axis_y_invert', False)
+        self.axis_x_invert = tmp_kwargs.pop('axis_x_invert', False)
+        self.rotate_turn_button = tmp_kwargs.pop('rotate_turn_button',
+                                                 self.R1)
+        self.rotate_turn_speed = tmp_kwargs.pop('rotate_turn_speed',
+                                                self._ROTATE_TURN_SPEED)
+        self.drive_slow_button = tmp_kwargs.pop('drive_slow_button',
+                                                self.R2)
+        self.drive_slow_speed = tmp_kwargs.pop('drive_slow_speed',
+                                               self._SLOW_SPEED)
         assert not kwargs, "Invalid arguments found: {}".format(kwargs)
-        # If the robot flips over. These are set on the base controller
-        # class.
-        self.axis_up_down_invert = axis_invert_ud
-        self.axis_left_right_invert = axis_invert_lr
-        # Change the rotate button and speed.
-        self.rotate_turn_button = rotate_turn_but
-        self.rotate_turn_speed = rotate_turn_spd
-        self.drive_slow_button = slow_but
-        self.drive_slow_speed = slow_spd
-
-
-#if __name__ == '__main__':
-#    JoyStickControl().run()
-#    sys.exit()

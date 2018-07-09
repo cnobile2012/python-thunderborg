@@ -1,5 +1,7 @@
 # Import the base requirements
 -r base.txt
+-r pygame.txt
+-r approxeng.txt
 
 # Documentation
 Sphinx
@@ -18,6 +20,8 @@ ipython
 # FTDI
 #pyftdi
 #pylibftdi
+
+#PyOpenGL
 
 # Adafruit
 #git+https://github.com/adafruit/Adafruit_Python_GPIO.git

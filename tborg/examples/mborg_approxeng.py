@@ -69,7 +69,7 @@ class JoyStickControl(object):
         self.__quit = False
         self.__axis_x_invert = False
         self.__axis_y_invert = False
-        self.__quit_hold_time = 15.0
+        self.__quit_hold_time = 9.0
 
     def run(self):
         """
@@ -93,7 +93,7 @@ class JoyStickControl(object):
             self._log.warn("Exiting event processing, %s", e)
             raise e
         finally:
-            self._log.warn("Could not initialize controller.")
+            self._log.warn("Shutting down the Raspberry PI.")
             self._tb.set_comms_failsafe(False)
             self._tb.set_both_leds(0, 0, 0) # Set LEDs off
             os.system("sudo poweroff")

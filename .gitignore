@@ -10,6 +10,7 @@ old
 docs/htmlcov
 docs/source/install.rst
 docs/source/testing.rst
+nohup.out
 
 # C extensions
 *.so

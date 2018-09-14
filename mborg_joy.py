@@ -3,7 +3,8 @@
 import logging
 import sys
 
-from tborg.examples.mborg_joy import JoyStickControl
+from tborg.examples.mborg_approxeng import JoyStickControl
+#from tborg.examples.mborg_joy import JoyStickControl
 
 jtc = JoyStickControl(log_level=logging.DEBUG)
 jtc.run()

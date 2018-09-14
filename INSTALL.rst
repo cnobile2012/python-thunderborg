@@ -36,7 +36,7 @@ appropriate.
 
 .. code-block:: console
 
-   $ sudo apt install build-essential python3-dev
+   $ sudo apt install build-essential python3-dev python3-setuptools
 
 Install the Python virtual environment. The ``pip`` utility can be used to
 install packages for either ``python2`` or ``python3`` there is no need to

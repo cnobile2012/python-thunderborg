@@ -191,9 +191,9 @@ class JoyStickControl(object):
                         # Invert the controller Y axis to match the motor
                         # fwd/rev.
                         if self.axis_y_invert:
-                            motor_one = motor_two = left_y
-                        else:
                             motor_one = motor_two = -left_y
+                        else:
+                            motor_one = motor_two = left_y
 
                         # Set right X axis
                         right_x = axis_map['right_x']

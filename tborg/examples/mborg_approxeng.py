@@ -44,7 +44,6 @@ class JoyStickControl(object):
     _TBORG_LOGGER_NAME = 'examples.tborg'
     _VOLTAGE_IN = 1.2 * 10
     _VOLTAGE_OUT = 12.0 * 0.95
-    _PROCESS_INTERVAL = 0.00
     _MAX_POWER = (1.0 if _VOLTAGE_OUT > _VOLTAGE_IN
                   else _VOLTAGE_OUT / float(_VOLTAGE_IN))
     _ROTATE_TURN_SPEED = 0.5
@@ -93,6 +92,11 @@ class JoyStickControl(object):
         except (KeyboardInterrupt, ThunderBorgException) as e:
             self._log.warn("Exiting event processing, %s", e)
             raise e
+        finally:
+            self._log.warn("Could not initialize controller.")
+            self._tb.set_comms_failsafe(False)
+            self._tb.set_both_leds(0, 0, 0) # Set LEDs off
+            sys.exit()
 
     def log_battery_monitoring(self):
         """
@@ -113,26 +117,13 @@ class JoyStickControl(object):
 
     def init_mborg(self):
         """
-        Initialize the MonsterBorg joystick controller.
+        Initialize motor controller.
         """
         self._tb.halt_motors()
-        self._tb.set_led_battery_state(False)
+        #self._tb.set_led_battery_state(False)
         self._tb.set_both_leds(0, 0, 1) # Set to blue
-
-        #self.init_controller()
-
-        self.event_wait_time = self._PROCESS_INTERVAL
-
-        if not self.is_ctrl_init:
-            selg._log.warn("Could not initialize controller.")
-            self._tb.set_comms_failsafe(False)
-            self._tb.set_both_leds(0, 0, 0) # Set LEDs off
-            sys.exit()
-
-        #self.set_defaults()
         self._tb.set_led_battery_state(True)
         self._led_battery_mode = True
-        self._log.debug("Finished controller initialization.")
 
     @property
     def quit(self):

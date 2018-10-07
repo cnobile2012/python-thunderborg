@@ -23,6 +23,8 @@ import pwd
 import resource
 import stat
 
+from subprocess import check_output
+
 __all__ = ['Daemonize']
 
 
@@ -59,16 +61,19 @@ class Daemonize(object):
         """
         result = False
         user = pwd.getpwuid(os.getuid()).pw_name
+        #prog_name = os.path.basename(__file__)
 
         try:
             self._fd = open(self._lock_file, 'w')
+            pid = check_output(['pidof', self._lock_file])
+            self._fd.write(pid.strip())
             fcntl.flock(self._fd.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
             self._log.info("Successfully created/locked lock file [%s] "
                            "with file descriptor %s",
                            self._lock_file, self._fd)
         except IOError as e:
             self._log.error("Another process has a lock on this file [%s], %s",
-                            self._lock_file, str(e))
+                            self._lock_file, e)
             result = True
         except OSError as e:
             msg = "User [%s] could not create path: %s, %s"
@@ -190,7 +195,11 @@ if __name__ == '__main__':
     sys.path.insert(0, work_path)
     from tborg import ConfigLogger
 
-    lock_file = '/home/cnobile/src/GitHub/thunderborg/logs/daemonize.lock'
+    base_dir = os.path.dirname(os.path.dirname(__file__))
+    log_path = os.path.join(base_dir, '..', 'logs')
+    not os.path.isdir(log_path) and os.mkdir(log_path, 0o0775)
+    lock_file = os.path.abspath(os.path.join(log_path, 'daemonize.lock'))
+    #print(lock_file)
     logger_name = 'daemonize'
     d = None
 
@@ -198,15 +207,15 @@ if __name__ == '__main__':
         logger = ConfigLogger()
         logger.config(logger_name=logger_name, level=logging.DEBUG)
         d = Daemonize(lock_file, logger_name=logger_name)
-        d.set_uid_gid()
 
         if not d.is_file_locked:
             print("Not locked")
-            d.daemonize()
+            #d.daemonize()
 
             while True:
                 time.sleep(1.0)
         else:
+            print("Locked")
             sys.exit(1)
     except Exception as e:
         if d: d.unlock()

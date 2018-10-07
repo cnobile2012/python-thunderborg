@@ -69,6 +69,8 @@ class JoyStickControl(object):
         self.__quit = False
         self.__axis_x_invert = False
         self.__axis_y_invert = False
+        # Longer than 10 secs will never be recognized because the
+        # controller will disconnect before that.
         self.__quit_hold_time = 9.0
 
     def run(self):
@@ -81,8 +83,6 @@ class JoyStickControl(object):
             assert self._tb.get_comms_failsafe() == True, (
                 "The failsafe mode could not be turned on."
                 )
-            #self._tb.set_comms_failsafe(False)
-
             # Log and init
             self.log_battery_monitoring()
             self.init_mborg()
@@ -174,7 +174,7 @@ class JoyStickControl(object):
                         # Set the quit hold time.
                         quit_hold_time = kp_map['quit_hold_time']
 
-                        if (not self.quit
+                        if (not self.quit and self.quit_hold_time != 0
                             and self.quit_hold_time <= math.floor(
                                 quit_hold_time)):
                             self.quit = True

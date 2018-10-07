@@ -6,6 +6,6 @@ import sys
 from tborg.examples.mborg_approxeng import JoyStickControl
 #from tborg.examples.mborg_joy import JoyStickControl
 
-jtc = JoyStickControl(log_level=logging.DEBUG)
-jtc.run()
+jsc = JoyStickControl(log_level=logging.DEBUG)
+jsc.run()
 sys.exit()

@@ -56,7 +56,7 @@ install ``virtualenv`` for you.
 
     $ sudo easy_install3 pip
     # Newer systems no longer have `easy_install` for Python 2 or 3
-    # installed, however, I have found command below to work.
+    # installed, however, I have found the command below to work.
     $ sudo python3 /usr/lib/python3/dist-packages/easy_install.py pip
     $ sudo -H pip3 install virtualenvwrapper
 

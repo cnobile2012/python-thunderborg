@@ -55,6 +55,9 @@ install ``virtualenv`` for you.
 .. code-block:: console
 
     $ sudo easy_install3 pip
+    # Newer systems no longer have ``easy_install`` for Python 2 or 3
+    # installed, however, I have found this to work.
+    $ sudo python3 /usr/lib/python3/dist-packages/easy_install.py pip
     $ sudo -H pip3 install virtualenvwrapper
 
 Configure ``.bashrc`` in the ``pi`` user directory to auto load the

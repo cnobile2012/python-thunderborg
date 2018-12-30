@@ -29,6 +29,10 @@ import time
 
 from approxeng.input.selectbinder import ControllerResource
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
+sys.path.append(BASE_DIR)
+
 from tborg import (
     create_working_dir, ConfigLogger, ThunderBorg, ThunderBorgException)
 from tborg.utils.daemon import Daemon
@@ -36,7 +40,6 @@ from tborg.utils.daemon import Daemon
 create_working_dir()
 
 from tborg import BORG_CUBE, LOG_PATH, RUN_PATH
-
 
 
 class JoyStickControl(Daemon):

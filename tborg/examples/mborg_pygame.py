@@ -27,6 +27,10 @@ import logging
 import pygame
 import six
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
+sys.path.append(BASE_DIR)
+
 from tborg import(
     create_working_dir, ConfigLogger, ThunderBorg, ThunderBorgException)
 
@@ -456,8 +460,7 @@ if __name__ == '__main__': # pragma: no cover
     elif options.stop:
         arg = 'stop'
     else:
-        print("Must choose one of 'start', 'restart' or 'stop'.")
-        sys.exit(-2)
+        arg = 'start'
 
     jsc = JoyStickControl() #debug=options.debug)
     getattr(jsc, arg)()

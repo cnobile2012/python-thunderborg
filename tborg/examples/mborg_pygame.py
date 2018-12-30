@@ -448,8 +448,9 @@ if __name__ == '__main__': # pragma: no cover
         '-S', '--stop', action='store_true', default=False, dest='stop',
         help="Stop the daemon.")
     options = parser.parse_args()
+    arg_value = (options.start ^ options.restart ^ options.stop)
 
-    if not (options.start ^ options.restart ^ options.stop):
+    if not arg_value and arg_value is not False:
         print("Can only set one of 'start', 'restart' or 'stop'.")
         sys.exit(-1)
 

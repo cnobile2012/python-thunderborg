@@ -22,7 +22,41 @@ import logging
 
 from .tborg import ThunderBorg, ThunderBorgException
 
-__all__ = ['ConfigLogger', 'ThunderBorg', 'ThunderBorgException']
+__all__ = ['create_working_dir', 'ConfigLogger', 'ThunderBorg',
+           'ThunderBorgException']
+
+# Some file locations, but can only be imported after create_working_dir()
+# is run.
+BORG_CUBE = None
+LOG_PATH = None
+RUN_PATH = None
+
+
+def create_working_dir():
+    """
+    This function creates a `borg_cube` directory containing a `logs`
+    and `run` directories.
+
+    1. The `logs` directory contains all logs.
+    2. The `run` directory contains all daemon pid/lock files.
+    """
+    global BORG_CUBE
+    global LOG_PATH
+    global RUN_PATH
+    home = os.path.expanduser('~')
+    borg_cube = os.path.join(home, 'borg_cube')
+    logs = os.path.join(borg_cube, 'logs')
+    run = os.path.join(borg_cube, 'run')
+
+    try:
+        os.makedirs(logs, mode=0o777, exist_ok=True)
+        os.makedirs(run, mode=0o777, exist_ok=True)
+    except OSError:
+        pass
+
+    BORG_CUBE = borg_cube
+    LOG_PATH = logs
+    RUN_PATH = run
 
 
 class ConfigLogger(object):
@@ -32,24 +66,16 @@ class ConfigLogger(object):
     _DEFAULT_FORMAT = ("%(asctime)s %(levelname)s %(name)s %(funcName)s "
                        "[line:%(lineno)d] %(message)s")
 
-    def __init__(self, log_path=None, format_str=None):
-        if log_path:
-            self._log_path = log_path.rstrip('/')
-
+    def __init__(self, format_str=None):
         if format_str:
             self._format = format_str
         else:
             self._format = self._DEFAULT_FORMAT
 
-    def config(self, logger_name=None, filename=None, level=logging.WARNING):
+    def config(self, logger_name=None, file_path=None, level=logging.WARNING):
         """
         Config the logger.
         """
-        if filename and hasattr(self, '_log_path') and self._log_path:
-            file_path = os.path.join(self._log_path, filename)
-        else:
-            file_path = None
-
         if logger_name and file_path:
             logger = logging.getLogger(logger_name)
             logger.setLevel(level)

@@ -29,8 +29,10 @@ class BaseTest(unittest.TestCase):
 
     def __init__(self, name, filename=None):
         super(BaseTest, self).__init__(name)
-        cl = ConfigLogger(log_path=LOG_PATH)
-        cl.config(logger_name=self.LOGGER_NAME, filename=filename,
+        full_path = os.path.abspath(os.path.join(LOG_PATH, filename)
+        cl = ConfigLogger()
+        cl.config(logger_name=self.LOGGER_NAME,
+                  file_path=full_path,
                   level=logging.DEBUG)
 
     @classmethod

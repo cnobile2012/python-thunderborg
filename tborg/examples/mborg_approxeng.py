@@ -29,19 +29,26 @@ import time
 
 from approxeng.input.selectbinder import ControllerResource
 
-from tborg import ConfigLogger, ThunderBorg, ThunderBorgException
+from tborg import (
+    create_working_dir, ConfigLogger, ThunderBorg, ThunderBorgException)
+from tborg.utils.daemon import Daemon
+
+create_working_dir()
+
+from tborg import BORG_CUBE, LOG_PATH, RUN_PATH
 
 
-class JoyStickControl(object):
+
+class JoyStickControl(Daemon):
     """
     The ApproxEng.input library is used to control the Thunder Borg.
     """
-    _LOG_PATH = 'logs'
-    _LOG_FILE = 'mborg_joy.log'
+    _LOG_PATH = os.path.join(LOG_PATH, 'mborg_approxeng.log')
     _BASE_LOGGER_NAME = 'examples'
-    _LOGGER_NAME = 'examples.mborg-joy'
+    _LOGGER_NAME = 'examples.mborg-approxeng'
     _CTRL_LOGGER_NAME = 'examples.controller'
     _TBORG_LOGGER_NAME = 'examples.tborg'
+    _PIDFILE = os.path.join(RUN_PATH, 'mborg_approxeng.pid')
     _VOLTAGE_IN = 1.2 * 10
     _VOLTAGE_OUT = 12.0 * 0.95
     _MAX_POWER = (1.0 if _VOLTAGE_OUT > _VOLTAGE_IN
@@ -53,10 +60,12 @@ class JoyStickControl(object):
                  address=ThunderBorg.DEFAULT_I2C_ADDRESS,
                  log_level=logging.INFO, debug=False):
         self._debug = debug
-        cl = ConfigLogger(log_path=self._LOG_PATH)
+        cl = ConfigLogger()
         cl.config(logger_name=self._BASE_LOGGER_NAME,
-                  filename=self._LOG_FILE,
-                  level=logging.DEBUG)
+                  file_path=self._LOG_PATH,
+                  level=log_level)
+        super(JoyStickControl, self).__init__(
+            self._PIDFILE, logger_name=self._LOGGER_NAME)
 
         if not self._debug:
             self._tb = ThunderBorg(bus_num=bus_num,
@@ -70,7 +79,7 @@ class JoyStickControl(object):
         self.__axis_x_invert = False
         self.__axis_y_invert = False
         # Longer than 10 secs will never be recognized because the
-        # controller will disconnect before that.
+        # controller itself will disconnect before that.
         self.__quit_hold_time = 9.0
 
     def run(self):
@@ -288,3 +297,40 @@ class JoyStickControl(object):
                 axis_map['right_x'] = float(axis_value)
 
         return axis_map
+
+
+if __name__ == '__main__': # pragma: no cover
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description=("JoyStick Control Using Approxeng"))
+    parser.add_argument(
+        '-d', '--debug', action='store_true', default=False, dest='debug',
+        help="Run in debug mode (no thunderborg code is run).")
+    parser.add_argument(
+        '-s', '--start', action='store_true', default=False, dest='start',
+        help="Start the daemon.")
+    parser.add_argument(
+        '-r', '--restart', action='store_true', default=False, dest='restart',
+        help="Restart the daemon.")
+    parser.add_argument(
+        '-S', '--stop', action='store_true', default=False, dest='stop',
+        help="Stop the daemon.")
+    options = parser.parse_args()
+
+    if not (options.start ^ options.restart ^ options.stop):
+        print("Can only set one of 'start', 'restart' or 'stop'.")
+        sys.exit(-1)
+
+    if options.start:
+        arg = 'start'
+    elif options.restart:
+        arg = 'restart'
+    elif options.stop:
+        arg = 'stop'
+    else:
+        print("Must choose one of 'start', 'restart' or 'stop'.")
+        sys.exit(-2)
+
+    jsc = JoyStickControl(debug=options.debug)
+    getattr(jsc, arg)()

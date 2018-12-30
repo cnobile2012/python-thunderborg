@@ -21,7 +21,8 @@ all	: tar
 .PHONY	: tests
 tests	: clean
 	@nosetests --with-coverage --cover-erase --cover-inclusive \
-                   --cover-html --cover-html-dir=$(DOCS_DIR)/htmlcov #$(PATH)
+                   --cover-html --cover-html-dir=$(DOCS_DIR)/htmlcov \
+                   --cover-package=$(PREFIX)/tborg #$(PATH)
 
 .PHONY	: sphinx
 sphinx	: clean

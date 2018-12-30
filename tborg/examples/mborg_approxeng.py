@@ -329,8 +329,7 @@ if __name__ == '__main__': # pragma: no cover
     elif options.stop:
         arg = 'stop'
     else:
-        print("Must choose one of 'start', 'restart' or 'stop'.")
-        sys.exit(-2)
+        arg = 'start'
 
     jsc = JoyStickControl(debug=options.debug)
     getattr(jsc, arg)()

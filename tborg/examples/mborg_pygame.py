@@ -180,7 +180,7 @@ class PYGameController(object):
 
         # Create HAT variables. Hat Event Types (HAT0, HAT1, ...)
         for i in range(len(self.hat_data)):
-            exec('self.HAT{0} = {0}'.format(i))
+            setattr(self, 'HAT' + i, i)
 
     def __set_axis(self, event):
         self.axis_data[event.axis] = round(event.value, 3)

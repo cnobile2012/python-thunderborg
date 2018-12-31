@@ -81,7 +81,7 @@ class PYGameController(object):
         used when looping during the event processing period.
 
         :param sleep: The period of time to sleep between event
-                      processing. Defaults to {} seconds.
+                      processing. Defaults to 0.0 seconds.
         :type sleep: float
         """
         return self.__event_wait_time
@@ -89,8 +89,6 @@ class PYGameController(object):
     @event_wait_time.setter
     def event_wait_time(self, sleep):
         self.__event_wait_time = sleep
-    event_wait_time.__doc__ = event_wait_time.__doc__.format(
-        _DEFAULT_EVENT_WAIT)
 
     @property
     def is_ctrl_init(self):

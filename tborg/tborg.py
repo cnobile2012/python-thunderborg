@@ -26,6 +26,7 @@ import time
 import logging
 import six
 
+_LEVEL_TO_NAME = logging._levelNames if sid.PY2 else logging._levelToName
 
 class ThunderBorgException(Exception):
     pass
@@ -171,8 +172,7 @@ class ThunderBorg(object):
             self._initialize_board(bus_num, address, auto_set_addr)
 
     __init__.__doc__ = __init__.__doc__.format(
-        _I2C_ID_THUNDERBORG, DEFAULT_BUS_NUM,
-        logging._levelToName[_DEF_LOG_LEVEL])
+        _I2C_ID_THUNDERBORG, DEFAULT_BUS_NUM, _LEVEL_TO_NAME[_DEF_LOG_LEVEL])
 
     def _initialize_board(self, bus_num, address, auto_set_addr):
         """

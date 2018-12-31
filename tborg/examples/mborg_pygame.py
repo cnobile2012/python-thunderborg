@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# mborg/mborg_pygame.py
+# mborg/examples/mborg_pygame.py
 #
 """
 Joystick Control of MonsterBorg
@@ -33,11 +33,11 @@ sys.path.append(BASE_DIR)
 
 from tborg import(
     create_working_dir, ConfigLogger, ThunderBorg, ThunderBorgException)
+from tborg.utils.daemon import Daemon
 
 create_working_dir()
 
 from tborg import BORG_CUBE, LOG_PATH, RUN_PATH
-from tborg.utils.daemon import Daemon
 
 
 class PYGameController(object):

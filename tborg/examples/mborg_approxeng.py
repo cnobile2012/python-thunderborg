@@ -105,10 +105,13 @@ class JoyStickControl(Daemon):
             self._log.warn("Exiting event processing, %s", e)
             raise e
         finally:
-            self._log.warn("Shutting down the Raspberry PI.")
             self._tb.set_comms_failsafe(False)
             self._tb.set_both_leds(0, 0, 0) # Set LEDs off
-            os.system("sudo poweroff")
+
+            if self._quit: # Only shutdown if asked.
+                self._log.warn("Shutting down the Raspberry PI.")
+                os.system("sudo poweroff")
+
             sys.exit()
 
     def log_battery_monitoring(self):
@@ -242,13 +245,13 @@ class JoyStickControl(Daemon):
                                     self._tb.set_led_battery_state(True)
                                     self._led_battery_mode = True
                         else:
-                            print(("motor_one: {}, motor_two: {}, "
-                                   "quit_hold_time: {}").format(
-                                      motor_one, motor_two, quit_hold_time))
-                            print("quit: {}".format(self.quit))
+                            #print(("motor_one: {}, motor_two: {}, "
+                            #       "quit_hold_time: {}").format(
+                            #          motor_one, motor_two, quit_hold_time))
+                            #print("quit: {}".format(self.quit))
                             time.sleep(0.25)
             except IOError:
-                self._log.warning("Waiting for controller")
+                #self._log.warning("Waiting for controller")
                 time.sleep(1.0)
 
     def _check_presses(self, joystick):

@@ -49,8 +49,8 @@ def create_working_dir():
     run = os.path.join(borg_cube, 'run')
 
     try:
-        os.makedirs(logs, mode=0o777, exist_ok=True)
-        os.makedirs(run, mode=0o777, exist_ok=True)
+        os.makedirs(logs, mode=0o777)
+        os.makedirs(run, mode=0o777)
     except OSError:
         pass
 

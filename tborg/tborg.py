@@ -26,7 +26,7 @@ import time
 import logging
 import six
 
-_LEVEL_TO_NAME = logging._levelNames if sid.PY2 else logging._levelToName
+_LEVEL_TO_NAME = logging._levelNames if six.PY2 else logging._levelToName
 
 class ThunderBorgException(Exception):
     pass

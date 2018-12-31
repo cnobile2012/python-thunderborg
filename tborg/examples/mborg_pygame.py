@@ -65,7 +65,7 @@ class PYGameController(object):
         time is used when looping during the controller detection period.
 
         :param sleep: The period of time to sleep between checks. Defaults
-                      to {} seconds.
+                      to 0.1 seconds.
         :type sleep: float
         """
         return self.__ctrl_wait_time
@@ -73,8 +73,6 @@ class PYGameController(object):
     @ctrl_wait_time.setter
     def ctrl_wait_time(self, sleep):
         self.__ctrl_wait_time = sleep
-    ctrl_wait_time.__doc__ = ctrl_wait_time.__doc__.format(
-        _DEFAULT_CTRL_WAIT)
 
     @property
     def event_wait_time(self):

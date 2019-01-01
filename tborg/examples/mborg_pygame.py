@@ -269,6 +269,7 @@ class JoyStickControl(PYGameController, Daemon):
     def __init__(self, bus_num=ThunderBorg.DEFAULT_BUS_NUM,
                  address=ThunderBorg.DEFAULT_I2C_ADDRESS,
                  log_level=logging.INFO, debug=False):
+        self._debug = debug
         cl = ConfigLogger()
         cl.config(logger_name=self._BASE_LOGGER_NAME,
                   file_path=self._LOG_FILE,
@@ -281,10 +282,8 @@ class JoyStickControl(PYGameController, Daemon):
                                    log_level=log_level)
 
         self._log = logging.getLogger(self._LOGGER_NAME)
-        PYGameController.__init__(
-            logger_name=self._CTRL_LOGGER_NAME, log_level=logging.DEBUG)
-        Daemon.__init__(
-            self._PIDFILE, logger_name=self._LOGGER_NAME)
+        PYGameController.__init__(self, logger_name=self._CTRL_LOGGER_NAME)
+        Daemon.__init__(self, self._PIDFILE, logger_name=self._LOGGER_NAME)
 
     def run(self):
         """
@@ -434,9 +433,9 @@ if __name__ == '__main__': # pragma: no cover
 
     parser = argparse.ArgumentParser(
         description=("JoyStick Control Using PYGame"))
-    #parser.add_argument(
-    #    '-d', '--debug', action='store_true', default=False, dest='debug',
-    #    help="Run in debug mode (no thunderborg code is run).")
+    parser.add_argument(
+        '-d', '--debug', action='store_true', default=False, dest='debug',
+        help="Run in debug mode (no thunderborg code is run).")
     parser.add_argument(
         '-s', '--start', action='store_true', default=False, dest='start',
         help="Start the daemon.")
@@ -462,5 +461,5 @@ if __name__ == '__main__': # pragma: no cover
     else:
         arg = 'start'
 
-    jsc = JoyStickControl() #debug=options.debug)
+    jsc = JoyStickControl(debug=options.debug)
     getattr(jsc, arg)()

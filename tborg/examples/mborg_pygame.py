@@ -272,7 +272,7 @@ class JoyStickControl(PYGameController, Daemon):
         self._debug = debug
         cl = ConfigLogger()
         cl.config(logger_name=self._BASE_LOGGER_NAME,
-                  file_path=self._LOG_FILE,
+                  file_path=self._LOG_PATH,
                   level=logging.DEBUG)
 
         if not self._debug:

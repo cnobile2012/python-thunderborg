@@ -755,9 +755,9 @@ class ThunderBorg(object):
             self._log.error(msg)
             raise ThunderBorgException(msg)
         else:
-            r = recv[1] / self._PWM_MAX
-            g = recv[2] / self._PWM_MAX
-            b = recv[3] / self._PWM_MAX
+            r = recv[1] / float(self._PWM_MAX)
+            g = recv[2] / float(self._PWM_MAX)
+            b = recv[3] / float(self._PWM_MAX)
             return r, g, b
 
     def get_led_one(self):

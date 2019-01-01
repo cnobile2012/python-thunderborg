@@ -268,15 +268,18 @@ class JoyStickControl(PYGameController, Daemon):
 
     def __init__(self, bus_num=ThunderBorg.DEFAULT_BUS_NUM,
                  address=ThunderBorg.DEFAULT_I2C_ADDRESS,
-                 log_level=logging.INFO):
-        cl = ConfigLogger(log_path=self._LOG_PATH)
+                 log_level=logging.INFO, debug=False):
+        cl = ConfigLogger()
         cl.config(logger_name=self._BASE_LOGGER_NAME,
-                  filename=self._LOG_FILE,
+                  file_path=self._LOG_FILE,
                   level=logging.DEBUG)
-        self._tb = ThunderBorg(bus_num=bus_num,
-                               address=address,
-                               logger_name=self._TBORG_LOGGER_NAME,
-                               log_level=log_level)
+
+        if not self._debug:
+            self._tb = ThunderBorg(bus_num=bus_num,
+                                   address=address,
+                                   logger_name=self._TBORG_LOGGER_NAME,
+                                   log_level=log_level)
+
         self._log = logging.getLogger(self._LOGGER_NAME)
         PYGameController.__init__(
             logger_name=self._CTRL_LOGGER_NAME, log_level=logging.DEBUG)
@@ -287,16 +290,16 @@ class JoyStickControl(PYGameController, Daemon):
         """
         Start the controller listening process.
         """
-        # Turn on failsafe.
-        self._tb.set_comms_failsafe(True)
-        assert self._tb.get_comms_failsafe() == True, (
-            "The failsafe mode could not be turned on."
-            )
-        #self._tb.set_comms_failsafe(False)
+        if not self._debug:
+            # Turn on failsafe.
+            self._tb.set_comms_failsafe(True)
+            assert self._tb.get_comms_failsafe() == True, (
+                "The failsafe mode could not be turned on."
+                )
+            # Log and init
+            self.log_battery_monitoring()
+            self.init_mborg()
 
-        # Log and init
-        self.log_battery_monitoring()
-        self.init_mborg()
         self.listen()
 
     def log_battery_monitoring(self):

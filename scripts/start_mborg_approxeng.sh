@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-HOME=/home/pi/
-TBORG_VE=$HOME.virtualenvs/tborg3
+TBORG_VE=$HOME/.virtualenvs/tborg3
 TBORG_VE_BIN=$TBORG_VE/bin
 TBORG_HOME=$HOME/src/python-thunderborg
 export PYTHON_PATH=$TBORG_VE/lib/python3.5/site-packages/

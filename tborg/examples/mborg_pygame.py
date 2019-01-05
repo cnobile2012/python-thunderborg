@@ -302,12 +302,13 @@ class JoyStickControl(PYGameController, Daemon):
         if not self._debug:
             # Turn on failsafe.
             self._tb.set_comms_failsafe(True)
-            assert self._tb.get_comms_failsafe() == True, (
-                "The failsafe mode could not be turned on."
-                )
-            # Log and init
-            self.log_battery_monitoring()
-            self.init_mborg()
+
+            if self._tb.get_comms_failsafe():
+                # Log and init
+                self.log_battery_monitoring()
+                self.init_mborg()
+            else:
+                self._clog.error("The failsafe mode could not be turned on.")
 
         self.listen()
 
@@ -436,7 +437,9 @@ class JoyStickControl(PYGameController, Daemon):
             'drive_slow_button', self.L1)
         self.drive_slow_speed = tmp_kwargs.pop(
             'drive_slow_speed', self._SLOW_SPEED)
-        assert not kwargs, "Invalid arguments found: {}".format(kwargs)
+
+        if kwargs:
+            self._log.error("Invalid arguments found: %s", kwargs)
 
 
 if __name__ == '__main__': # pragma: no cover

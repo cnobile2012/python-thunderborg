@@ -217,14 +217,9 @@ class PYGameController(object):
             self.set_quit()
 
         while not self._quit:
-            try:
-                for event in pygame.event.get():
-                    #print(event.joy) # We only use joystick 0 (zero).
-                    self.__METHODS[event.type](self, event)
-                    self.process_event()
-            except (KeyboardInterrupt, ThunderBorgException) as e:
-                self._clog.warn("Exiting pygame event loop, %s", e)
-                self.set_quit()
+            for event in pygame.event.get():
+                self.__METHODS[event.type](self, event)
+                self.process_event()
             else:
                 self._clog.warning("Waiting for controller")
                 time.sleep(self.event_wait_time)
@@ -235,11 +230,6 @@ class PYGameController(object):
         """
         Process the current events. This method needs to be overridden.
         """
-        #print(self.axis_data)
-        #print(self.ball_data)
-        #print(self.button_data)
-        #print(self.hat_data)
-
         raise NotImplementedError(
             "Programming error: must implement {}".format(
                 process_event.__name__))
@@ -309,8 +299,16 @@ class JoyStickControl(PYGameController, Daemon):
                 self.init_mborg()
             else:
                 self._clog.error("The failsafe mode could not be turned on.")
+                self.set_quit()
 
-        self.listen()
+        try:
+            self.listen()
+        except (KeyboardInterrupt, ThunderBorgException) as e:
+            self._log.warn("Exiting event processing, %s", e)
+        finally:
+            self._tb.set_comms_failsafe(False)
+            self._tb.set_both_leds(0, 0, 0) # Set LEDs off
+            sys.exit()
 
     def log_battery_monitoring(self):
         """
@@ -381,23 +379,19 @@ class JoyStickControl(PYGameController, Daemon):
             motor_two *= self.drive_slow_speed
 
         if not self._debug:
-            try:
-                self._tb.set_motor_one(motor_one * self._MAX_POWER)
-                self._tb.set_motor_two(motor_two * self._MAX_POWER)
+            self._tb.set_motor_one(motor_one * self._MAX_POWER)
+            self._tb.set_motor_two(motor_two * self._MAX_POWER)
 
-                # Set LEDs to purple to indicate motor faults.
-                if (self._tb.get_drive_fault_one()
-                    or self._tb.get_drive_fault_two()):
-                    if self._led_battery_mode:
-                        self._tb.set_led_battery_state(False)
-                        self._tb.set_both_leds(1, 0, 1) # Set to purple
-                        self._led_battery_mode = False
-                    elif not self._led_battery_mode:
-                        self._tb.set_led_battery_state(True)
-                        self._led_battery_mode = True
-            except (KeyboardInterrupt, ThunderBorgException) as e:
-                self._log.warn("Exiting event processing, %s", e)
-                raise e
+            # Set LEDs to purple to indicate motor faults.
+            if (self._tb.get_drive_fault_one()
+                or self._tb.get_drive_fault_two()):
+                if self._led_battery_mode:
+                    self._tb.set_led_battery_state(False)
+                    self._tb.set_both_leds(1, 0, 1) # Set to purple
+                    self._led_battery_mode = False
+                elif not self._led_battery_mode:
+                    self._tb.set_led_battery_state(True)
+                    self._led_battery_mode = True
 
     def set_defaults(self, **kwargs):
         """

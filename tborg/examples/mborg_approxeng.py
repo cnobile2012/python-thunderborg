@@ -93,18 +93,19 @@ class JoyStickControl(Daemon):
         if not self._debug:
             # Turn on failsafe.
             self._tb.set_comms_failsafe(True)
-            assert self._tb.get_comms_failsafe() == True, (
-                "The failsafe mode could not be turned on."
-                )
-            # Log and init
-            self.log_battery_monitoring()
-            self.init_mborg()
+
+            if self._tb.get_comms_failsafe():
+                # Log and init
+                self.log_battery_monitoring()
+                self.init_mborg()
+            else:
+                self._log.error("The failsafe mode could not be turned on.")
+                self.quit = True
 
         try:
             self.listen()
         except (KeyboardInterrupt, ThunderBorgException) as e:
             self._log.warn("Exiting event processing, %s", e)
-            raise e
         finally:
             self._tb.set_comms_failsafe(False)
             self._tb.set_both_leds(0, 0, 0) # Set LEDs off

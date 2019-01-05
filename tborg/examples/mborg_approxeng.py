@@ -63,10 +63,12 @@ class JoyStickControl(Daemon):
                  address=ThunderBorg.DEFAULT_I2C_ADDRESS,
                  log_level=logging.INFO, debug=False):
         self._debug = debug
+        log_level = logging.DEBUG if debug else log_level
         cl = ConfigLogger()
         cl.config(logger_name=self._BASE_LOGGER_NAME,
                   file_path=self._LOG_PATH,
                   level=log_level)
+        self._log = logging.getLogger(self._LOGGER_NAME)
         super(JoyStickControl, self).__init__(
             self._PIDFILE, logger_name=self._LOGGER_NAME)
 
@@ -76,7 +78,6 @@ class JoyStickControl(Daemon):
                                    logger_name=self._TBORG_LOGGER_NAME,
                                    log_level=log_level)
 
-        self._log = logging.getLogger(self._LOGGER_NAME)
         # Set defaults
         self.__quit = False
         self.__axis_x_invert = False
@@ -108,7 +109,7 @@ class JoyStickControl(Daemon):
             self._tb.set_comms_failsafe(False)
             self._tb.set_both_leds(0, 0, 0) # Set LEDs off
 
-            if self._quit: # Only shutdown if asked.
+            if self.quit: # Only shutdown if asked.
                 self._log.warn("Shutting down the Raspberry PI.")
                 os.system("sudo poweroff")
 
@@ -175,7 +176,6 @@ class JoyStickControl(Daemon):
 
     def listen(self):
         _mode = 0 # For now just set to 0
-        _quit = False
         motor_one = motor_two = 0
 
         while not self.quit:

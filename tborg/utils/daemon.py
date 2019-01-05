@@ -290,7 +290,7 @@ class Daemon(object):
         be called after the process has been daemonized by start() or
         restart().
         """
-        raise NotImplementedError
+        raise NotImplementedError("The run() method must be implemented.")
 
 
 if __name__ == '__main__': # pragma: no cover

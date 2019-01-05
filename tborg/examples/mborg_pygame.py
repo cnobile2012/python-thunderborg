@@ -47,16 +47,19 @@ class PYGameController(object):
     _DEFAULT_CTRL_WAIT = 0.1
     _DEFAULT_EVENT_WAIT = 0.0
 
-    def __init__(self, logger_name=''):
+    def __init__(self, logger_name='', log_level=logging.INFO, debug=False):
         """
         Initialize logging and sets the two wait times to a reasonable
         default.
         """
-        self._log = logging.getLogger(logger_name)
+        self._debug = debug
+        self._clog = logging.getLogger(logger_name)
+        self._clog.setLevel(log_level)
         self.__controller_initialized = False
         self.__ctrl_wait_time = 0
         self.ctrl_wait_time = self._DEFAULT_CTRL_WAIT
         self.event_wait_time = self._DEFAULT_EVENT_WAIT
+        self._quit = False
 
     @property
     def ctrl_wait_time(self):
@@ -108,10 +111,10 @@ class PYGameController(object):
             try:
                 pygame.joystick.init()
             except pygame.error as e:
-                self._log.error("PYGame error: %s", e)
+                self._clog.error("PYGame error: %s", e)
                 if self._quit_sleep(): break
             except KeyboardInterrupt:
-                self._log.warn("User aborted with CTRL C.")
+                self._clog.warn("User aborted with CTRL C.")
                 break
             else:
                 if pygame.joystick.get_count() < 1:
@@ -120,7 +123,7 @@ class PYGameController(object):
                     self.joystick = pygame.joystick.Joystick(0)
                     self.joystick.init()
                     self._initialize_variables()
-                    self._log.info("Found controller.")
+                    self._clog.info("Found controller.")
                     self.__controller_initialized = True
                     break
 
@@ -131,7 +134,7 @@ class PYGameController(object):
             pygame.joystick.quit()
             time.sleep(self.ctrl_wait_time)
         except KeyboardInterrupt:
-            self._log.warn("User aborted with CTRL C.")
+            self._clog.warn("User aborted with CTRL C.")
             error = True
 
         return error
@@ -149,7 +152,6 @@ class PYGameController(object):
         self.hat_data = {
             hat: (0, 0) for hat in range(self.joystick.get_numhats())
             }
-        self.__quit = False
         # Buttons Event Types
         self.SQUARE = 0
         self.CROSS = 1
@@ -194,7 +196,7 @@ class PYGameController(object):
         self.hat_data[event.hat] = event.value
 
     def set_quit(self, event=None):
-        self.__quit = True
+        self._quit = True
 
     __METHODS = {
         pygame.JOYAXISMOTION: __set_axis,
@@ -209,20 +211,25 @@ class PYGameController(object):
         """
         Listen to controller events.
         """
-        assert self.is_ctrl_init, ("The init_ctrl method must be called "
-                                   "before the listen method.")
+        if not self.is_ctrl_init and not self._debug:
+            self._clog.error("The init_ctrl method must be called before "
+                             "the listen method.")
+            self.set_quit()
 
-        while not self.__quit:
+        while not self._quit:
             try:
                 for event in pygame.event.get():
                     #print(event.joy) # We only use joystick 0 (zero).
                     self.__METHODS[event.type](self, event)
                     self.process_event()
             except (KeyboardInterrupt, ThunderBorgException) as e:
-                self._log.warn("Exiting pygame event loop, %s", e)
+                self._clog.warn("Exiting pygame event loop, %s", e)
                 self.set_quit()
             else:
+                self._clog.warning("Waiting for controller")
                 time.sleep(self.event_wait_time)
+
+        self._log.info("Exiting")
 
     def process_event(self):
         """
@@ -243,7 +250,7 @@ class PYGameController(object):
 
         .. note::
             The current way this is determined may not be reliable, but
-            as of now, it's the best way I have find.
+            as of now, it's the best way I have found.
         """
         return len(self.axis_data) == 6
 
@@ -257,7 +264,7 @@ class JoyStickControl(PYGameController, Daemon):
     _LOGGER_NAME = 'examples.mborg-pygame'
     _CTRL_LOGGER_NAME = 'examples.controller'
     _TBORG_LOGGER_NAME = 'examples.tborg'
-    _PIDFILE = os.path.join(RUN_PATH, 'mborg_approxeng.pid')
+    _PIDFILE = os.path.join(RUN_PATH, 'mborg_pygame.pid')
     _VOLTAGE_IN = 1.2 * 10
     _VOLTAGE_OUT = 12.0 * 0.95
     _PROCESS_INTERVAL = 0.00
@@ -270,10 +277,12 @@ class JoyStickControl(PYGameController, Daemon):
                  address=ThunderBorg.DEFAULT_I2C_ADDRESS,
                  log_level=logging.INFO, debug=False):
         self._debug = debug
+        log_level = logging.DEBUG if debug else log_level
         cl = ConfigLogger()
         cl.config(logger_name=self._BASE_LOGGER_NAME,
                   file_path=self._LOG_PATH,
-                  level=logging.DEBUG)
+                  level=log_level)
+        self._log = logging.getLogger(self._LOGGER_NAME)
 
         if not self._debug:
             self._tb = ThunderBorg(bus_num=bus_num,
@@ -281,9 +290,10 @@ class JoyStickControl(PYGameController, Daemon):
                                    logger_name=self._TBORG_LOGGER_NAME,
                                    log_level=log_level)
 
-        self._log = logging.getLogger(self._LOGGER_NAME)
-        PYGameController.__init__(self, logger_name=self._CTRL_LOGGER_NAME)
-        Daemon.__init__(self, self._PIDFILE, logger_name=self._LOGGER_NAME)
+        PYGameController.__init__(self, logger_name=self._CTRL_LOGGER_NAME,
+                                  log_level=log_level, debug=debug)
+        Daemon.__init__(self, self._PIDFILE, logger_name=self._LOGGER_NAME,
+                        verbose=2 if debug else 0)
 
     def run(self):
         """
@@ -369,23 +379,24 @@ class JoyStickControl(PYGameController, Daemon):
             motor_one *= self.drive_slow_speed
             motor_two *= self.drive_slow_speed
 
-        try:
-            self._tb.set_motor_one(motor_one * self._MAX_POWER)
-            self._tb.set_motor_two(motor_two * self._MAX_POWER)
+        if not self._debug:
+            try:
+                self._tb.set_motor_one(motor_one * self._MAX_POWER)
+                self._tb.set_motor_two(motor_two * self._MAX_POWER)
 
-            # Set LEDs to purple to indicate motor faults.
-            if (self._tb.get_drive_fault_one()
-                or self._tb.get_drive_fault_two()):
-                if self._led_battery_mode:
-                    self._tb.set_led_battery_state(False)
-                    self._tb.set_both_leds(1, 0, 1) # Set to purple
-                    self._led_battery_mode = False
-                elif not self._led_battery_mode:
-                    self._tb.set_led_battery_state(True)
-                    self._led_battery_mode = True
-        except (KeyboardInterrupt, ThunderBorgException) as e:
-            self._log.warn("Exiting event processing, %s", e)
-            raise e
+                # Set LEDs to purple to indicate motor faults.
+                if (self._tb.get_drive_fault_one()
+                    or self._tb.get_drive_fault_two()):
+                    if self._led_battery_mode:
+                        self._tb.set_led_battery_state(False)
+                        self._tb.set_both_leds(1, 0, 1) # Set to purple
+                        self._led_battery_mode = False
+                    elif not self._led_battery_mode:
+                        self._tb.set_led_battery_state(True)
+                        self._led_battery_mode = True
+            except (KeyboardInterrupt, ThunderBorgException) as e:
+                self._log.warn("Exiting event processing, %s", e)
+                raise e
 
     def set_defaults(self, **kwargs):
         """

@@ -211,20 +211,23 @@ class PYGameController(object):
         """
         Listen to controller events.
         """
-        if not self.is_ctrl_init and not self._debug:
+        if not self.is_ctrl_init:
             self._clog.error("The init_ctrl method must be called before "
                              "the listen method.")
             self.set_quit()
 
         while not self._quit:
-            for event in pygame.event.get():
-                self.__METHODS[event.type](self, event)
-                self.process_event()
-            else:
-                self._clog.warning("Waiting for controller")
-                time.sleep(self.event_wait_time)
+            try:
+                for event in pygame.event.get():
+                    self.__METHODS[event.type](self, event)
+                    self.process_event()
+                else:
+                    self._clog.warning("Waiting for controller")
+                    time.sleep(self.event_wait_time)
+            except Exception as e:
+                self._clog.error("PyGame error, %s", e)
 
-        self._log.info("Exiting")
+        self._clog.info("Exiting")
 
     def process_event(self):
         """
@@ -289,12 +292,13 @@ class JoyStickControl(PYGameController, Daemon):
         """
         Start the controller listening process.
         """
+        self.init_controller()
+
         if not self._debug:
             # Turn on failsafe.
             self._tb.set_comms_failsafe(True)
 
             if self._tb.get_comms_failsafe():
-                # Log and init
                 self.log_battery_monitoring()
                 self.init_mborg()
             else:
@@ -334,7 +338,6 @@ class JoyStickControl(PYGameController, Daemon):
         self._tb.halt_motors()
         self._tb.set_led_battery_state(False)
         self._tb.set_both_leds(0, 0, 1) # Set to blue
-        self.init_controller()
         self.event_wait_time = self._PROCESS_INTERVAL
 
         if not self.is_ctrl_init:

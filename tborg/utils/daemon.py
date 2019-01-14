@@ -242,13 +242,19 @@ class Daemon(object):
                 if not self.is_running(pid): break
         except OSError as e:
             self._log.error(e)
+            self.stop_callback()
             sys.exit(5)
 
+        self.stop_callback()
         self._log.info("...Stopped")
 
     def _stop(self):
         self.unlock_pid_file()
+        self.stop_callback()
         sys.exit(6)
+
+    def stop_callback(self):
+        return
 
     def restart(self):
         """
@@ -265,7 +271,8 @@ class Daemon(object):
             self._log.error("Could not open pid file %s, %s", self.pidfile, e)
             pid = None
         else:
-            pid = int(pf.read().strip())
+            pid_txt = pf.read().strip()
+            pid = int(pid_txt) if pid_txt else None
             pf is not self._pf and pf.close()
             pid = None if not self.is_running(pid) else pid
 

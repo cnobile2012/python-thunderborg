@@ -107,8 +107,11 @@ class JoyStickControl(Daemon):
         except (KeyboardInterrupt, ThunderBorgException) as e:
             self._log.warn("Exiting event processing, %s", e)
         finally:
+            self._tb.halt_motors()
             self._tb.set_comms_failsafe(False)
+            self._tb.set_led_battery_state(False)
             self._tb.set_both_leds(0, 0, 0) # Set LEDs off
+            self._log.info("Exiting")
 
             if self.quit: # Only shutdown if asked.
                 self._log.warn("Shutting down the Raspberry PI.")

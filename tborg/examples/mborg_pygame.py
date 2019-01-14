@@ -217,15 +217,12 @@ class PYGameController(object):
             self.set_quit()
 
         while not self._quit:
-            try:
-                for event in pygame.event.get():
-                    self.__METHODS[event.type](self, event)
-                    self.process_event()
-                else:
-                    self._clog.warning("Waiting for controller")
-                    time.sleep(self.event_wait_time)
-            except Exception as e:
-                self._clog.error("PyGame error, %s", e)
+            for event in pygame.event.get():
+                self.__METHODS[event.type](self, event)
+                self.process_event()
+            else:
+                #self._clog.warning("Waiting for controller")
+                time.sleep(self.event_wait_time)
 
         self._clog.info("Exiting")
 
@@ -309,9 +306,14 @@ class JoyStickControl(PYGameController, Daemon):
             self.listen()
         except (KeyboardInterrupt, ThunderBorgException) as e:
             self._log.warn("Exiting event processing, %s", e)
+        except Exception as e:
+            self._log.error("Unknown error, %s", e, exc_info=True)
         finally:
+            self._tb.halt_motors()
             self._tb.set_comms_failsafe(False)
+            self._tb.set_led_battery_state(False)
             self._tb.set_both_leds(0, 0, 0) # Set LEDs off
+            self._log.info("Exiting")
             sys.exit()
 
     def log_battery_monitoring(self):
@@ -358,14 +360,14 @@ class JoyStickControl(PYGameController, Daemon):
         # Invert the controller Y axis to match the motor fwd/rev.
         # If the Y axis needs to be inverted do that also.
         if self.axis_y_invert:
-            motor_one = motor_two = self.axis_data.get(self.LF_Y)
+            motor_one = motor_two = self.axis_data.get(self.LF_UD)
         else:
-            motor_one = motor_two = -self.axis_data.get(self.LF_Y)
+            motor_one = motor_two = -self.axis_data.get(self.LF_UD)
 
         if self.axis_x_invert:
-            x = -self.axis_data.get(self.RT_X)
+            x = -self.axis_data.get(self.RT_LR)
         else:
-            x = self.axis_data.get(self.RT_X)
+            x = self.axis_data.get(self.RT_LR)
 
         # Rotate turn button press
         if not self.button_data.get(self.rotate_turn_button):

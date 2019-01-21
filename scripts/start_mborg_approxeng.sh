@@ -5,4 +5,4 @@ TBORG_VE_BIN=$TBORG_VE/bin
 TBORG_HOME=$HOME/src/python-thunderborg
 export PYTHON_PATH=$TBORG_VE/lib/python3.5/site-packages/
 
-$TBORG_VE_BIN/python $TBORG_HOME/tborg/examples/mborg_approxeng.py > /tmp/mborg_approxeng_cron.log 2>&1
+$TBORG_VE_BIN/python $TBORG_HOME/tborg/examples/mborg_approxeng.py --voltage-in=0 > /tmp/mborg_approxeng_cron.log 2>&1

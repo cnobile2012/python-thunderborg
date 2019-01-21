@@ -59,10 +59,10 @@ class JoyStickControl(Daemon):
     _SLOW_SPEED = 0.5
 
     def __init__(self, bus_num=ThunderBorg.DEFAULT_BUS_NUM,
-                 address=ThunderBorg.DEFAULT_I2C_ADDRESS,
+                 address=ThunderBorg.DEFAULT_I2C_ADDRESS, borg=True,
                  log_level=logging.INFO, voltage_in=_VOLTAGE_IN, debug=False):
+        self._borg = borg
         self.voltage_in = float(voltage_in)
-        self._debug = debug
         log_level = logging.DEBUG if debug else log_level
         cl = ConfigLogger()
         cl.config(logger_name=self._BASE_LOGGER_NAME,
@@ -72,7 +72,7 @@ class JoyStickControl(Daemon):
         super(JoyStickControl, self).__init__(
             self._PIDFILE, logger_name=self._LOGGER_NAME)
 
-        if not self._debug:
+        if self._borg:
             self._tb = ThunderBorg(bus_num=bus_num,
                                    address=address,
                                    logger_name=self._TBORG_LOGGER_NAME,
@@ -117,7 +117,7 @@ class JoyStickControl(Daemon):
         """
         Start the controller listening process.
         """
-        if not self._debug:
+        if self._borg:
             # Turn on failsafe.
             self._tb.set_comms_failsafe(True)
 
@@ -261,7 +261,7 @@ class JoyStickControl(Daemon):
                         motor_one *= slow_speed
                         motor_two *= slow_speed
 
-                        if not self._debug:
+                        if self._borg:
                             self._tb.set_motor_one(motor_one * self.max_power)
                             self._tb.set_motor_two(motor_two * self.max_power)
 
@@ -317,6 +317,7 @@ class JoyStickControl(Daemon):
                 if hold_time is not None:
                     kp_map['quit_hold_time'] = hold_time
 
+        self._log.debug("kp_map: %s", kp_map)
         return kp_map
 
     def _check_axes(self, joystick):
@@ -333,6 +334,7 @@ class JoyStickControl(Daemon):
             elif axis_name == 'rx':
                 axis_map['right_x'] = float(axis_value)
 
+        self._log.debug("axis_map: %s", axis_map)
         return axis_map
 
 

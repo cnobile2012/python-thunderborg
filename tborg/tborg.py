@@ -1042,7 +1042,6 @@ class ThunderBorg(object):
 
         try:
             self._write(self.COMMAND_SET_BATT_LIMITS, [level_min, level_max])
-            time.sleep(0.2) # Wait for EEPROM write to complete
         except KeyboardInterrupt as e: # pragma: no cover
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
@@ -1050,6 +1049,8 @@ class ThunderBorg(object):
             msg = "Failed sending battery monitoring limits, {}".format(e)
             self._log.error(msg)
             raise ThunderBorgException(msg)
+        else:
+            time.sleep(0.2) # Wait for EEPROM write to complete
 
     def get_battery_monitoring_limits(self):
         """

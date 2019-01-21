@@ -52,16 +52,15 @@ class JoyStickControl(Daemon):
     _CTRL_LOGGER_NAME = 'examples.controller'
     _TBORG_LOGGER_NAME = 'examples.tborg'
     _PIDFILE = os.path.join(RUN_PATH, 'mborg_approxeng.pid')
-    _VOLTAGE_IN = 1.2 * 10
+    _VOLTAGE_IN = 12 # 1.2 volt cells * 10
     _VOLTAGE_OUT = 12.0 * 0.95
-    _MAX_POWER = (1.0 if _VOLTAGE_OUT > _VOLTAGE_IN
-                  else _VOLTAGE_OUT / float(_VOLTAGE_IN))
     _ROTATE_TURN_SPEED = 0.5
     _SLOW_SPEED = 0.5
 
     def __init__(self, bus_num=ThunderBorg.DEFAULT_BUS_NUM,
                  address=ThunderBorg.DEFAULT_I2C_ADDRESS,
-                 log_level=logging.INFO, debug=False):
+                 log_level=logging.INFO, voltage_in=_VOLTAGE_IN, debug=False):
+        self.voltage_in = int(voltage_in)
         self._debug = debug
         log_level = logging.DEBUG if debug else log_level
         cl = ConfigLogger()
@@ -77,6 +76,12 @@ class JoyStickControl(Daemon):
                                    address=address,
                                    logger_name=self._TBORG_LOGGER_NAME,
                                    log_level=log_level)
+            if self.voltage_in == 0:
+                current = self._tb.get_battery_voltage()
+                self.voltage_in = current
+
+            self._log.info("Voltage in: %s, max power: %s",
+                           voltage_in, self.max_power)
 
         # Set defaults
         self.__quit = False
@@ -85,6 +90,11 @@ class JoyStickControl(Daemon):
         # Longer than 10 secs will never be recognized because the
         # controller itself will disconnect before that.
         self.__quit_hold_time = 9.0
+
+    @property
+    def max_power(self):
+        return (1.0 if self._VOLTAGE_OUT > self.voltage_in
+                else self._VOLTAGE_OUT / float(self.voltage_in))
 
     def run(self):
         """
@@ -235,8 +245,8 @@ class JoyStickControl(Daemon):
                         motor_two *= slow_speed
 
                         if not self._debug:
-                            self._tb.set_motor_one(motor_one * self._MAX_POWER)
-                            self._tb.set_motor_two(motor_two * self._MAX_POWER)
+                            self._tb.set_motor_one(motor_one * self.max_power)
+                            self._tb.set_motor_two(motor_two * self.max_power)
 
                             # Set LEDs to purple to indicate motor faults.
                             if (self._tb.get_drive_fault_one()
@@ -318,6 +328,9 @@ if __name__ == '__main__': # pragma: no cover
         '-d', '--debug', action='store_true', default=False, dest='debug',
         help="Run in debug mode (no thunderborg code is run).")
     parser.add_argument(
+        '-v', '--voltage_in', default=12, dest='voltage_in',
+        help="The total voltage from the battery source, defaults to 12.")
+    parser.add_argument(
         '-s', '--start', action='store_true', default=False, dest='start',
         help="Start the daemon.")
     parser.add_argument(
@@ -342,5 +355,5 @@ if __name__ == '__main__': # pragma: no cover
     else:
         arg = 'start'
 
-    jsc = JoyStickControl(debug=options.debug)
+    jsc = JoyStickControl(voltage_in=options.debug, debug=options.debug)
     getattr(jsc, arg)()

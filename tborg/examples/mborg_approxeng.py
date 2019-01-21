@@ -328,7 +328,7 @@ if __name__ == '__main__': # pragma: no cover
         '-d', '--debug', action='store_true', default=False, dest='debug',
         help="Run in debug mode (no thunderborg code is run).")
     parser.add_argument(
-        '-v', '--voltage_in', default=12, dest='voltage_in',
+        '-v', '--voltage-in', default=12, dest='voltage_in',
         help="The total voltage from the battery source, defaults to 12.")
     parser.add_argument(
         '-s', '--start', action='store_true', default=False, dest='start',

@@ -233,24 +233,7 @@ class JoyStickControl(Daemon):
                         slow_speed = kp_map['slow_speed']
 
                         ## Set the axes
-                        axis_map = self._check_axes(joystick)
-                        # Set left Y axis
-                        left_y = axis_map['left_y']
-
-                        # Invert the controller Y axis to match the motor
-                        # fwd/rev.
-                        if self.axis_y_invert:
-                            motor_one = motor_two = -left_y
-                        else:
-                            motor_one = motor_two = left_y
-
-                        # Set right X axis
-                        right_x = axis_map['right_x']
-
-                        if self.axis_x_invert:
-                            x = -right_x
-                        else:
-                            x = right_x
+                        motor_one, motor_two, x = self._process_ly_rx(joystick)
 
                         # Set the drive slow speed.
                         x *= fast_rotate
@@ -281,6 +264,29 @@ class JoyStickControl(Daemon):
             except IOError:
                 self._log.debug("Waiting for controller")
                 time.sleep(2.0)
+
+    def _process_ly_rx(self, joystick):
+        ## Set the axes
+        axis_map = self._check_axes(joystick)
+        # Set left Y axis
+        left_y = axis_map['left_y']
+
+        # Invert the controller Y axis to match the motor
+        # fwd/rev.
+        if self.axis_y_invert:
+            motor_one = motor_two = -left_y
+        else:
+            motor_one = motor_two = left_y
+
+        # Set right X axis
+        right_x = axis_map['right_x']
+
+        if self.axis_x_invert:
+            x = -right_x
+        else:
+            x = right_x
+
+        return motor_one, motor_two, x
 
     def _check_presses(self, joystick):
         kp_map = {

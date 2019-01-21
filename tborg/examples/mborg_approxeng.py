@@ -81,7 +81,7 @@ class JoyStickControl(Daemon):
                 self.voltage_in = current
 
             self._log.info("Voltage in: %s, max power: %s",
-                           voltage_in, self.max_power)
+                           self.voltage_in, self.max_power)
 
         # Set defaults
         self.__quit = False

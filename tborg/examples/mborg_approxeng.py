@@ -168,10 +168,8 @@ class JoyStickControl(Daemon):
         Initialize motor controller.
         """
         self._tb.halt_motors()
-        #self._tb.set_led_battery_state(False)
-        self._tb.set_both_leds(0, 0, 1) # Set to blue
-        self._tb.set_led_battery_state(True)
-        self._led_battery_mode = True
+        self._tb.set_led_battery_state(False)
+        self._led_battery_mode = False
 
     @property
     def quit(self):
@@ -213,6 +211,10 @@ class JoyStickControl(Daemon):
             try:
                 with ControllerResource() as joystick:
                     while joystick.connected and not self.quit:
+                        if not self._led_battery_mode:
+                            self._tb.set_led_battery_state(True)
+                            self._led_battery_mode = True
+
                         ## Set key presses
                         kp_map = self._check_presses(joystick)
                         # Set mode (Does nothing now).
@@ -272,18 +274,13 @@ class JoyStickControl(Daemon):
                                     self._tb.set_led_battery_state(False)
                                     self._tb.set_both_leds(1, 0, 1) # purple
                                     self._led_battery_mode = False
-                                else:
-                                    self._tb.set_led_battery_state(True)
-                                    self._led_battery_mode = True
                         else:
-                            #print(("motor_one: {}, motor_two: {}, "
-                            #       "quit_hold_time: {}").format(
-                            #          motor_one, motor_two, quit_hold_time))
-                            #print("quit: {}".format(self.quit))
                             time.sleep(0.25)
+                    else: # while joystick.connected
+                        self._tb.set_both_leds(0, 0, 1) # Set to blue
             except IOError:
-                #self._log.warning("Waiting for controller")
-                time.sleep(1.0)
+                self._log.debug("Waiting for controller")
+                time.sleep(2.0)
 
     def _check_presses(self, joystick):
         kp_map = {
@@ -345,7 +342,7 @@ if __name__ == '__main__': # pragma: no cover
         description=("JoyStick Control Using Approxeng"))
     parser.add_argument(
         '-b', '--borg', action='store_true', default=True, dest='borg',
-        help="Run in debug mode (no thunderborg code is run).")
+        help="If present the ThunderBorg code is not run.")
     parser.add_argument(
         '-d', '--debug', action='store_true', default=False, dest='debug',
         help="Run in debug mode (no thunderborg code is run).")

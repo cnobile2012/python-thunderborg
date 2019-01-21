@@ -291,21 +291,6 @@ class JoyStickControl(Daemon):
             }
         joystick.check_presses()
 
-        ## if joystick.has_presses:
-        ##     last_presses = joystick.presses
-
-        ##     if last_presses is not None:
-        ##         for button_name in last_presses:
-        ##             if button_name == 'start':
-        ##                 # Change mode switch
-        ##                 kp_map['mode'] = True
-        ##             elif button_name == 'r1':
-        ##                 # Fast rotate press
-        ##                 kp_map['fast_rotate'] = self._ROTATE_TURN_SPEED
-        ##             elif button_name == 'l1':
-        ##                 # Drive slow button press
-        ##                 kp_map['slow_speed'] = self._SLOW_SPEED
-
         for button_name in joystick.buttons.names:
             hold_time = joystick[button_name]
 
@@ -326,7 +311,6 @@ class JoyStickControl(Daemon):
                     # Drive slow button press
                     kp_map['slow_speed'] = self._SLOW_SPEED
 
-        self._log.debug("kp_map: %s", kp_map)
         return kp_map
 
     def _check_axes(self, joystick):
@@ -343,7 +327,6 @@ class JoyStickControl(Daemon):
             elif axis_name == 'rx':
                 axis_map['right_x'] = float(axis_value)
 
-        self._log.debug("axis_map: %s", axis_map)
         return axis_map
 
 

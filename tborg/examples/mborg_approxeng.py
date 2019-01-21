@@ -291,28 +291,40 @@ class JoyStickControl(Daemon):
             }
         joystick.check_presses()
 
-        if joystick.has_presses:
-            last_presses = joystick.presses
+        ## if joystick.has_presses:
+        ##     last_presses = joystick.presses
 
-            if last_presses is not None:
-                for button_name in last_presses:
-                    if button_name == 'start':
-                        # Change mode switch
-                        kp_map['mode'] = True
-                    elif button_name == 'r1':
-                        # Fast rotate press
-                        kp_map['fast_rotate'] = self._ROTATE_TURN_SPEED
-                    elif button_name == 'l1':
-                        # Drive slow button press
-                        kp_map['slow_speed'] = self._SLOW_SPEED
+        ##     if last_presses is not None:
+        ##         for button_name in last_presses:
+        ##             if button_name == 'start':
+        ##                 # Change mode switch
+        ##                 kp_map['mode'] = True
+        ##             elif button_name == 'r1':
+        ##                 # Fast rotate press
+        ##                 kp_map['fast_rotate'] = self._ROTATE_TURN_SPEED
+        ##             elif button_name == 'l1':
+        ##                 # Drive slow button press
+        ##                 kp_map['slow_speed'] = self._SLOW_SPEED
 
         for button_name in joystick.buttons.names:
-            if button_name == 'home':
-                # Hold time for quit
-                hold_time = joystick[button_name]
+            hold_time = joystick[button_name]
 
-                if hold_time is not None:
+            if hold_time is not None:
+                if button_name == 'home':
+                    # Hold time for quit
                     kp_map['quit_hold_time'] = hold_time
+
+                if button_name == 'start':
+                    # Change mode switch
+                    kp_map['mode'] = True
+
+                if button_name == 'r1':
+                    # Fast rotate press
+                    kp_map['fast_rotate'] = self._ROTATE_TURN_SPEED
+
+                if button_name == 'l1':
+                    # Drive slow button press
+                    kp_map['slow_speed'] = self._SLOW_SPEED
 
         self._log.debug("kp_map: %s", kp_map)
         return kp_map

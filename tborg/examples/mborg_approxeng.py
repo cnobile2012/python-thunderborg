@@ -344,6 +344,9 @@ if __name__ == '__main__': # pragma: no cover
     parser = argparse.ArgumentParser(
         description=("JoyStick Control Using Approxeng"))
     parser.add_argument(
+        '-b', '--borg', action='store_true', default=True, dest='borg',
+        help="Run in debug mode (no thunderborg code is run).")
+    parser.add_argument(
         '-d', '--debug', action='store_true', default=False, dest='debug',
         help="Run in debug mode (no thunderborg code is run).")
     parser.add_argument(
@@ -374,5 +377,7 @@ if __name__ == '__main__': # pragma: no cover
     else:
         arg = 'start'
 
-    jsc = JoyStickControl(voltage_in=options.debug, debug=options.debug)
+    jsc = JoyStickControl(voltage_in=options.voltage_in,
+                          borg=options.borg,
+                          debug=options.debug)
     getattr(jsc, arg)()

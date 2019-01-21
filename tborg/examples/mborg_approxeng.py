@@ -78,7 +78,7 @@ class JoyStickControl(Daemon):
                                    logger_name=self._TBORG_LOGGER_NAME,
                                    log_level=log_level)
 
-            if self.voltage_in == math.isclose(0.0):
+            if math.isclose(self.voltage_in, 0.0):
                 self.voltage_in = self._tb.get_battery_voltage()
 
             self._log.info("Voltage in: %s, max power: %s",
@@ -96,7 +96,7 @@ class JoyStickControl(Daemon):
     @property
     def max_power(self):
         return (1.0 if self._VOLTAGE_OUT > self.voltage_in
-                else self._VOLTAGE_OUT / float(self.voltage_in))
+                else self._VOLTAGE_OUT / self.voltage_in)
 
     def set_battery_limits(self):
         max_level = self.voltage_in * self._MAX_VOLTAGE_MULT
@@ -107,6 +107,9 @@ class JoyStickControl(Daemon):
             min_level = 9.5
         elif 13.6 <= self.voltage_in < 17.6: # 4 LiIon 3.6 volt batteries
             min_level = 12.0
+        else:
+            min_level = self.voltage_in
+            self._log.error("Could not determine battery type.")
 
         self._tb.set_battery_monitoring_limits(min_level, max_level)
 

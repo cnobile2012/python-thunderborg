@@ -61,7 +61,7 @@ class JoyStickControl(Daemon):
     def __init__(self, bus_num=ThunderBorg.DEFAULT_BUS_NUM,
                  address=ThunderBorg.DEFAULT_I2C_ADDRESS,
                  log_level=logging.INFO, voltage_in=_VOLTAGE_IN, debug=False):
-        self.voltage_in = int(voltage_in)
+        self.voltage_in = float(voltage_in)
         self._debug = debug
         log_level = logging.DEBUG if debug else log_level
         cl = ConfigLogger()
@@ -77,9 +77,9 @@ class JoyStickControl(Daemon):
                                    address=address,
                                    logger_name=self._TBORG_LOGGER_NAME,
                                    log_level=log_level)
-            if self.voltage_in == 0:
-                current = self._tb.get_battery_voltage()
-                self.voltage_in = current
+
+            if self.voltage_in == math.isclose(0.0):
+                self.voltage_in = self._tb.get_battery_voltage()
 
             self._log.info("Voltage in: %s, max power: %s",
                            self.voltage_in, self.max_power)

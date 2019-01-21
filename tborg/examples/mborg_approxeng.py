@@ -54,6 +54,7 @@ class JoyStickControl(Daemon):
     _PIDFILE = os.path.join(RUN_PATH, 'mborg_approxeng.pid')
     _VOLTAGE_IN = 12 # 1.2 volt cells * 10
     _VOLTAGE_OUT = 12.0 * 0.95
+    _MAX_VOLTAGE_MULT = 1.145
     _ROTATE_TURN_SPEED = 0.5
     _SLOW_SPEED = 0.5
 
@@ -82,6 +83,7 @@ class JoyStickControl(Daemon):
 
             self._log.info("Voltage in: %s, max power: %s",
                            voltage_in, self.max_power)
+            self.set_battery_limits()
 
         # Set defaults
         self.__quit = False
@@ -95,6 +97,19 @@ class JoyStickControl(Daemon):
     def max_power(self):
         return (1.0 if self._VOLTAGE_OUT > self.voltage_in
                 else self._VOLTAGE_OUT / float(self.voltage_in))
+
+    def set_battery_limits(self):
+        current = self._tb.get_battery_voltage()
+        max_level = current * self._MAX_VOLTAGE_MULT
+
+        if 7.0 <= self.self.voltage_in < 12: # 9 volt battery
+            min_level = 7.5
+        elif 12 <= self.self.voltage_in < 13.6: # 10 NIMH 1.2 volt batteries
+            min_level = 9.5
+        elif 13.6 <= self.self.voltage_in < 17.6: # 4 LiIon 3.6 volt batteries
+            min_level = 12.0
+
+        self._tb.set_battery_monitoring_limits(min_level, max_level)
 
     def run(self):
         """

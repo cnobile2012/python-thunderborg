@@ -102,11 +102,11 @@ class JoyStickControl(Daemon):
         current = self._tb.get_battery_voltage()
         max_level = current * self._MAX_VOLTAGE_MULT
 
-        if 7.0 <= self.self.voltage_in < 12: # 9 volt battery
+        if 7.0 <= self.voltage_in < 12: # 9 volt battery
             min_level = 7.5
-        elif 12 <= self.self.voltage_in < 13.6: # 10 NIMH 1.2 volt batteries
+        elif 12 <= self.voltage_in < 13.6: # 10 NIMH 1.2 volt batteries
             min_level = 9.5
-        elif 13.6 <= self.self.voltage_in < 17.6: # 4 LiIon 3.6 volt batteries
+        elif 13.6 <= self.voltage_in < 17.6: # 4 LiIon 3.6 volt batteries
             min_level = 12.0
 
         self._tb.set_battery_monitoring_limits(min_level, max_level)

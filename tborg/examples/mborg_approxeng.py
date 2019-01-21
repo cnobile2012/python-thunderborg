@@ -99,8 +99,7 @@ class JoyStickControl(Daemon):
                 else self._VOLTAGE_OUT / float(self.voltage_in))
 
     def set_battery_limits(self):
-        current = self._tb.get_battery_voltage()
-        max_level = current * self._MAX_VOLTAGE_MULT
+        max_level = self.voltage_in * self._MAX_VOLTAGE_MULT
 
         if 7.0 <= self.voltage_in < 12: # 9 volt battery
             min_level = 7.5

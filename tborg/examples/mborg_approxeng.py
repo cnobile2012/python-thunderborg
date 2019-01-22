@@ -169,11 +169,11 @@ class JoyStickControl(Daemon):
         """
         self._tb.halt_motors()
         self._tb.set_led_battery_state(False)
-        self._tb.set_both_leds(0, 0, 1) # No joystick yet.
         self._led_battery_state = False
-        self._log.info("Battery LED state: %s, LED color one: %s, two: %s ",
-                       self._tb.get_led_battery_state(),
-                       self._tb.get_led_one(), self._led.get_led_two())
+        self._tb.set_both_leds(0, 0, 1) # No joystick yet.
+        self._log.debug("Battery LED state: %s, LED color one: %s, two: %s ",
+                        self._tb.get_led_battery_state(),
+                        self._tb.get_led_one(), self._tb.get_led_two())
 
     @property
     def quit(self):
@@ -263,9 +263,8 @@ class JoyStickControl(Daemon):
                                     self._led_battery_state = False
                         else:
                             time.sleep(0.25)
-                    else: # while joystick.connected
-                        self._tb.set_both_leds(0, 0, 1) # Set to blue
             except IOError:
+                self._tb.set_both_leds(0, 0, 1) # Set to blue
                 self._log.debug("Waiting for controller")
                 time.sleep(2.0)
 

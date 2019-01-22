@@ -346,7 +346,7 @@ if __name__ == '__main__': # pragma: no cover
     parser = argparse.ArgumentParser(
         description=("JoyStick Control Using Approxeng"))
     parser.add_argument(
-        '-b', '--borg', action='store_true', default=True, dest='borg',
+        '-b', '--borg', action='store_false', default=True, dest='borg',
         help="If present the ThunderBorg code is not run.")
     parser.add_argument(
         '-d', '--debug', action='store_true', default=False, dest='debug',

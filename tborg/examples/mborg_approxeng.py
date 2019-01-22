@@ -87,11 +87,11 @@ class JoyStickControl(Daemon):
 
         # Set defaults
         self.__quit = False
-        self.__axis_x_invert = False
-        self.__axis_y_invert = False
+        self.axis_x_invert = False
+        self.axis_y_invert = False
         # Longer than 10 secs will never be recognized because the
         # controller itself will disconnect before that.
-        self.__quit_hold_time = 9.0
+        self.quit_hold_time = 9.0
 
     @property
     def max_power(self):
@@ -169,7 +169,11 @@ class JoyStickControl(Daemon):
         """
         self._tb.halt_motors()
         self._tb.set_led_battery_state(False)
-        self._led_battery_mode = False
+        self._tb.set_both_leds(0, 0, 1) # No joystick yet.
+        self._led_battery_state = False
+        self._log.info("Battery LED state: %s, LED color one: %s, two: %s ",
+                       self._tb.get_led_battery_state(),
+                       self._tb.get_led_one(), self._led.get_led_two())
 
     @property
     def quit(self):
@@ -211,9 +215,9 @@ class JoyStickControl(Daemon):
             try:
                 with ControllerResource() as joystick:
                     while joystick.connected and not self.quit:
-                        if not self._led_battery_mode:
+                        if not self._led_battery_state:
                             self._tb.set_led_battery_state(True)
-                            self._led_battery_mode = True
+                            self._led_battery_state = True
 
                         ## Set key presses
                         kp_map = self._check_presses(joystick)
@@ -227,16 +231,16 @@ class JoyStickControl(Daemon):
                                 quit_hold_time)):
                             self.quit = True
 
-                        # Set fast rotate
-                        fast_rotate = kp_map['fast_rotate']
+                        # Set turning mode
+                        turning_mode = kp_map['turning_mode']
                         # Set slow speed
                         slow_speed = kp_map['slow_speed']
 
-                        ## Set the axes
+                        ## Set ly and rx axes
                         motor_one, motor_two, x = self._process_ly_rx(joystick)
 
                         # Set the drive slow speed.
-                        x *= fast_rotate
+                        x *= turning_mode
 
                         if x > 0.05:
                             motor_one *= 1.0 - (2.0 * x)
@@ -253,10 +257,10 @@ class JoyStickControl(Daemon):
                             # Set LEDs to purple to indicate motor faults.
                             if (self._tb.get_drive_fault_one()
                                 or self._tb.get_drive_fault_two()):
-                                if self._led_battery_mode:
+                                if self._led_battery_state:
                                     self._tb.set_led_battery_state(False)
                                     self._tb.set_both_leds(1, 0, 1) # purple
-                                    self._led_battery_mode = False
+                                    self._led_battery_state = False
                         else:
                             time.sleep(0.25)
                     else: # while joystick.connected
@@ -266,7 +270,7 @@ class JoyStickControl(Daemon):
                 time.sleep(2.0)
 
     def _process_ly_rx(self, joystick):
-        ## Set the axes
+        ## Set ly and rx axes
         axis_map = self._check_axes(joystick)
         # Set left Y axis
         left_y = axis_map['left_y']
@@ -293,7 +297,7 @@ class JoyStickControl(Daemon):
             'mode': False,
             'quit_hold_time': 0.0,
             'slow_speed': 1,
-            'fast_rotate': 1,
+            'turning_mode': 1,
             }
         joystick.check_presses()
 
@@ -310,8 +314,8 @@ class JoyStickControl(Daemon):
                     kp_map['mode'] = True
 
                 if button_name == 'r1':
-                    # Fast rotate press
-                    kp_map['fast_rotate'] = self._ROTATE_TURN_SPEED
+                    # Two wheel turning
+                    kp_map['turning_mode'] = self._ROTATE_TURN_SPEED
 
                 if button_name == 'l1':
                     # Drive slow button press

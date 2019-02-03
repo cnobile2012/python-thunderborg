@@ -67,10 +67,7 @@ class ConfigLogger(object):
                        "[line:%(lineno)d] %(message)s")
 
     def __init__(self, format_str=None):
-        if format_str:
-            self._format = format_str
-        else:
-            self._format = self._DEFAULT_FORMAT
+	self._format = format_str if format_str else self._DEFAULT_FORMAT
 
     def config(self, logger_name=None, file_path=None, level=logging.WARNING):
         """

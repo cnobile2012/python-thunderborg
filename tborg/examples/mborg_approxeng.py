@@ -49,7 +49,6 @@ class JoyStickControl(Daemon):
     _LOG_PATH = os.path.join(LOG_PATH, 'mborg_approxeng.log')
     _BASE_LOGGER_NAME = 'examples'
     _LOGGER_NAME = 'examples.mborg-approxeng'
-    _CTRL_LOGGER_NAME = 'examples.controller'
     _TBORG_LOGGER_NAME = 'examples.tborg'
     _PIDFILE = os.path.join(RUN_PATH, 'mborg_approxeng.pid')
     _VOLTAGE_IN = 12 # 1.2 volt cells * 10
@@ -236,7 +235,7 @@ class JoyStickControl(Daemon):
 
                         ## Set ly and rx axes
                         motor_one, motor_two, x = self._process_motion(
-                            joystick, 'left_y', 'right_x')
+                            joystick, 'ly', 'rx')
 
                         # Set the drive slow speed.
                         x *= turning_mode
@@ -321,8 +320,8 @@ class JoyStickControl(Daemon):
 
     def _check_axes(self, joystick):
         axis_map = {
-            'left_y': 0.0,
-            'right_x': 0.0,
+            'ly': 0.0,
+            'rx': 0.0,
             'pitch': 0.0,
             'roll': 0.0
             }
@@ -332,13 +331,13 @@ class JoyStickControl(Daemon):
             self._log.debug("%s: %s", axis_name, axis_value)
 
             if axis_name == 'ly':
-                axis_map['left_y'] = float(axis_value)
+                axis_map[axis_name] = float(axis_value)
             elif axis_name == 'rx':
-                axis_map['right_x'] = float(axis_value)
+                axis_map[axis_name] = float(axis_value)
             ## elif axis_name == 'pitch':
-            ##     axis_map['pitch'] = float(axis_value)
+            ##     axis_map[axis_name] = float(axis_value)
             ## elif acis_name == 'roll':
-            ##     axis_map['roll'] = float(axis_value)
+            ##     axis_map[axis_name] = float(axis_value)
 
         return axis_map
 

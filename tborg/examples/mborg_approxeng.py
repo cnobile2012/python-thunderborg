@@ -257,7 +257,7 @@ class JoyStickControl(Daemon):
                             # Set LEDs to purple to indicate motor faults.
                             if ((self._tb.get_drive_fault_one()
                                  or self._tb.get_drive_fault_two())
-                                and self._led_battery_state:
+                                and self._led_battery_state):
                                 self._tb.set_led_battery_state(False)
                                 self._tb.set_both_leds(1, 0, 1) # purple
                                 self._led_battery_state = False

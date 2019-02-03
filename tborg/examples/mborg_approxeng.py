@@ -218,8 +218,10 @@ class JoyStickControl(Daemon):
 
                         ## Set key presses
                         kp_map = self._check_presses(joystick)
-                        # Set mode (Does nothing now).
+                        # Set the mode.
                         _mode = kp_map['mode']
+
+
                         # Set the quit hold time.
                         quit_hold_time = kp_map['quit_hold_time']
 
@@ -334,10 +336,10 @@ class JoyStickControl(Daemon):
                 axis_map[axis_name] = float(axis_value)
             elif axis_name == 'rx':
                 axis_map[axis_name] = float(axis_value)
-            ## elif axis_name == 'pitch':
-            ##     axis_map[axis_name] = float(axis_value)
-            ## elif acis_name == 'roll':
-            ##     axis_map[axis_name] = float(axis_value)
+            elif axis_name == 'pitch':
+                axis_map[axis_name] = float(axis_value)
+            elif axis_name == 'roll':
+                axis_map[axis_name] = float(axis_value)
 
         return axis_map
 

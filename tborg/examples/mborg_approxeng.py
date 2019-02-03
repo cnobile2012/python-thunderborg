@@ -169,7 +169,6 @@ class JoyStickControl(Daemon):
         """
         self._tb.halt_motors()
         self._tb.set_led_battery_state(False)
-        self._led_battery_state = False
         self._tb.set_both_leds(0, 0, 1) # No joystick yet.
         self._log.debug("Battery LED state: %s, LED color one: %s, two: %s ",
                         self._tb.get_led_battery_state(),
@@ -215,9 +214,8 @@ class JoyStickControl(Daemon):
             try:
                 with ControllerResource() as joystick:
                     while joystick.connected and not self.quit:
-                        if not self._led_battery_state:
+                        if not self._tb.get_led_battery_state():
                             self._tb.set_led_battery_state(True)
-                            self._led_battery_state = True
 
                         ## Set key presses
                         kp_map = self._check_presses(joystick)
@@ -257,10 +255,9 @@ class JoyStickControl(Daemon):
                             # Set LEDs to purple to indicate motor faults.
                             if ((self._tb.get_drive_fault_one()
                                  or self._tb.get_drive_fault_two())
-                                and self._led_battery_state):
+                                and self._tb.get_led_battery_state()):
                                 self._tb.set_led_battery_state(False)
                                 self._tb.set_both_leds(1, 0, 1) # purple
-                                self._led_battery_state = False
                         else:
                             time.sleep(0.25)
             except IOError:

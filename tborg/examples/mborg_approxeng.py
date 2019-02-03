@@ -87,8 +87,8 @@ class JoyStickControl(Daemon):
 
         # Set defaults
         self.__quit = False
-        self.axis_x_invert = False
-        self.axis_y_invert = False
+        self.fwd_rev_invert = False
+        self.turn_invert = False
         # Longer than 10 secs will never be recognized because the
         # controller itself will disconnect before that.
         self.quit_hold_time = 9.0
@@ -191,20 +191,20 @@ class JoyStickControl(Daemon):
         self.__quit_hold_time = value
 
     @property
-    def axis_x_invert(self):
-        return self.__axis_x_invert
+    def fwd_rev_invert(self):
+        return self.__fwd_rev_invert
 
-    @axis_x_invert.setter
-    def axis_x_invert(self, value):
-        self.__axis_x_invert = value
+    @fwd_rev_invert.setter
+    def fwd_rev_invert(self, value):
+        self.__fwd_rev_invert = value
 
     @property
-    def axis_y_invert(self):
-        return self.__axis_y_invert
+    def turn_invert(self):
+        return self.__turn_invert
 
-    @axis_y_invert.setter
-    def axis_y_invert(self, value):
-        self.__axis_y_invert = value
+    @turn_invert.setter
+    def turn_invert(self, value):
+        self.__turn_invert = value
 
     def listen(self):
         _mode = 0 # For now just set to 0
@@ -235,7 +235,8 @@ class JoyStickControl(Daemon):
                         slow_speed = kp_map['slow_speed']
 
                         ## Set ly and rx axes
-                        motor_one, motor_two, x = self._process_ly_rx(joystick)
+                        motor_one, motor_two, x = self._process_motion(
+                            joystick, 'left_y', 'right_x')
 
                         # Set the drive slow speed.
                         x *= turning_mode
@@ -265,26 +266,25 @@ class JoyStickControl(Daemon):
                 self._log.debug("Waiting for controller")
                 time.sleep(2.0)
 
-    def _process_ly_rx(self, joystick):
-        ## Set ly and rx axes
+    def _process_motion(self, joystick, fr, tn):
+        ## Set forward/reverse and turning axes
         axis_map = self._check_axes(joystick)
-        # Set left Y axis
-        left_y = axis_map['left_y']
+        # Set left Y or pitch axis
+        fwd_rev = axis_map[fr]
+        # Set right X axis or roll
+        turn = axis_map[tn]
 
-        # Invert the controller Y axis to match the motor
-        # fwd/rev.
-        if self.axis_y_invert:
-            motor_one = motor_two = -left_y
+        # Invert the forward/reverse axis to match motor.
+        if self.fwd_rev_invert:
+            motor_one = motor_two = -fwd_rev
         else:
-            motor_one = motor_two = left_y
+            motor_one = motor_two = fwd_rev
 
-        # Set right X axis
-        right_x = axis_map['right_x']
-
-        if self.axis_x_invert:
-            x = -right_x
+        # Invert the turning axis to match motor.
+        if self.turn_invert:
+            x = -turn
         else:
-            x = right_x
+            x = turn
 
         return motor_one, motor_two, x
 
@@ -323,15 +323,22 @@ class JoyStickControl(Daemon):
         axis_map = {
             'left_y': 0.0,
             'right_x': 0.0,
+            'pitch': 0.0,
+            'roll': 0.0
             }
 
         for axis_name in joystick.axes.names:
             axis_value = joystick[axis_name]
+            self._log.debug("%s: %s", axis_name, axis_value)
 
             if axis_name == 'ly':
                 axis_map['left_y'] = float(axis_value)
             elif axis_name == 'rx':
                 axis_map['right_x'] = float(axis_value)
+            ## elif axis_name == 'pitch':
+            ##     axis_map['pitch'] = float(axis_value)
+            ## elif acis_name == 'roll':
+            ##     axis_map['roll'] = float(axis_value)
 
         return axis_map
 

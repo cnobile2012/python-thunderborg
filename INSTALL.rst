@@ -18,9 +18,8 @@ the rescue, every project is in it's own isolated environment and you no
 longer need to install python packages as sudo (root) user.
 
 Although this API will work with Python version 2.7.x I strongly recommend
-writing any new code using Python 3.4 or higher. The Python 2.x versions
-are quickly coming to their end of life as you can see here at
-`Python Clock <https://pythonclock.org/>`_.
+writing any new code using Python 3.6 or higher. The Python 2.x versions
+are at their end of life as of January 1st 2020.
 
 Building a Development Environment for Your Projects
 ====================================================
@@ -55,7 +54,7 @@ install ``virtualenv`` for you.
 .. code-block:: console
 
     $ sudo easy_install3 pip
-    # Newer systems no longer have `easy_install` for Python 2 or 3
+    # Newer systems no longer have ``easy_install`` for Python 3
     # installed, however, I have found the command below to work.
     $ sudo python3 /usr/lib/python3/dist-packages/easy_install.py pip
     $ sudo -H pip3 install virtualenvwrapper

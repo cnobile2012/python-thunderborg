@@ -72,7 +72,8 @@ class JoyStickControl(Daemon):
             self._PIDFILE, logger_name=self._LOGGER_NAME)
         self._log.info("Initial arguments: bus_num: %s, address: %s, "
                        "borg: %s, log_level: %s, voltage_in: %s, debug: %s",
-                       bus_num, address, borg, log_level, voltage_in, debug)
+                       bus_num, address, borg,
+                       logging.getLevelName(log_level), voltage_in, debug)
 
         if self._borg:
             self._tb = ThunderBorg(bus_num=bus_num,

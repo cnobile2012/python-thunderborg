@@ -205,17 +205,26 @@ class TestThunderBorg(BaseTest):
         Test that motor one responds to commands.
         """
         # Test forward
-        speed = 0.5
-        self._tb.set_motor_one(speed)
-        rcvd_speed = self._tb.get_motor_one()
-        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
-        self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
+        speeds = (0.0, 0.25, 0.5, 0.75, 1.0, 1.25)
+
+        for speed in speeds:
+            self._tb.set_motor_one(speed)
+            rcvd_speed = self._tb.get_motor_one()
+            msg = "Speed sent: {}, speed received: {}".format(
+                speed, rcvd_speed)
+            self.assertLessEqual(rcvd_speed, 1.0, msg=msg)
+            time.sleep(1.0)
+
         # Test reverse
-        speed = -0.5
-        self._tb.set_motor_one(speed)
-        rcvd_speed = self._tb.get_motor_one()
-        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
-        self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
+        speeds = (-0.0 -0.25, -0.5, -0.75, -1.0, -1.25)
+
+        for speed in speeds:
+            self._tb.set_motor_one(speed)
+            rcvd_speed = self._tb.get_motor_one()
+            msg = "Speed sent: {}, speed received: {}".format(
+                speed, rcvd_speed)
+            self.assertGreaterEqual(rcvd_speed, -1.0, msg=msg)
+            time.sleep(1.0)
 
     #@unittest.skip("Temporarily skipped")
     def test_set_and_get_motor_two(self):
@@ -223,17 +232,26 @@ class TestThunderBorg(BaseTest):
         Test that motor two responds to commands.
         """
         # Test forward
-        speed = 0.5
-        self._tb.set_motor_two(speed)
-        rcvd_speed = self._tb.get_motor_two()
-        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
-        self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
+        speeds = (0.0, 0.25, 0.5, 0.75, 1.0, 1.25)
+
+        for speed in speeds:
+            self._tb.set_motor_two(speed)
+            rcvd_speed = self._tb.get_motor_two()
+            msg = "Speed sent: {}, speed received: {}".format(
+                speed, rcvd_speed)
+            self.assertLessEqual(rcvd_speed, 1.0, msg=msg)
+            time.sleep(1.0)
+
         # Test reverse
-        speed = -0.5
-        self._tb.set_motor_two(speed)
-        rcvd_speed = self._tb.get_motor_two()
-        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
-        self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
+        speeds = (-0.0 -0.25, -0.5, -0.75, -1.0, -1.25)
+
+        for speed in speeds:
+            self._tb.set_motor_two(speed)
+            rcvd_speed = self._tb.get_motor_two()
+            msg = "Speed sent: {}, speed received: {}".format(
+                speed, rcvd_speed)
+            self.assertGreaterEqual(rcvd_speed, -1.0, msg=msg)
+            time.sleep(1.0)
 
     #@unittest.skip("Temporarily skipped")
     def test_set_both_motors(self):

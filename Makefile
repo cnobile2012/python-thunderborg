@@ -13,7 +13,7 @@ RM_REGEX	= '(^.*.pyc$$)|(^.*.wsgic$$)|(^.*~$$)|(.*\#$$)|(^.*,cover$$)'
 RM_CMD		= find $(PREFIX) -regextype posix-egrep -regex $(RM_REGEX) \
                   -exec rm {} \;
 PIP_ARGS	= # Pass var for pip install.
-#PATH		= # Pass var for test paths.
+TEST_PATH	= # Pass var for test paths.
 
 #----------------------------------------------------------------------
 all	: tar
@@ -22,7 +22,7 @@ all	: tar
 tests	: clean
 	@nosetests --with-coverage --cover-erase --cover-inclusive \
                    --cover-html --cover-html-dir=$(DOCS_DIR)/htmlcov \
-                   --cover-package=$(PREFIX)/tborg #$(PATH)
+                   --cover-package=$(PREFIX)/tborg $(TEST_PATH)
 
 .PHONY	: sphinx
 sphinx	: clean

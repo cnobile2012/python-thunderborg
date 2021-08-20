@@ -526,7 +526,7 @@ class ThunderBorg(object):
             # Reverse
             command = rev
             pwm = -int(self._PWM_MAX * level)
-            pwm = self._PWM_MAX if pwm < -self._PWM_MAX else pwm
+            pwm = self._PWM_MAX if pwm > self._PWM_MAX else pwm
         else:
             # Forward / stopped
             command = fwd
@@ -540,8 +540,15 @@ class ThunderBorg(object):
             raise e
         except IOError as e: # pragma: no cover
             motor = 1 if fwd == self.COMMAND_SET_A_FWD else 2
-            msg = "Failed sending motor %d drive level, %s"
-            self._log.error(msg, motor, e)
+            msg = "Failed sending motor {} drive level {}, {}".format(
+                motor, level, e)
+            self._log.error(msg)
+            raise ThunderBorgException(msg)
+        except ValueError as e:
+            motor = 1 if fwd == self.COMMAND_SET_A_FWD else 2
+            msg = "Failed sending motor {} drive level {}, pwm: {}, {}".format(
+                motor, level, pwm, e)
+            self._log.error(msg)
             raise ThunderBorgException(msg)
 
     def set_motor_one(self, level):

@@ -103,8 +103,8 @@ the tests pass, but will be invaluable if any fail.
 .. code-block:: console
 
     $ make tests
-    $ make tests PATH=tborg.tests.test_tborg.TestThunderBorg
-    $ make tests PATH=tborg/tests/test_tborg.py:TestClassMethods.test_set_i2c_address_without_current_address
+    $ make tests TEST_PATH=tborg.tests.test_tborg.TestThunderBorg
+    $ make tests TEST_PATH=tborg/tests/test_tborg.py:TestClassMethods.test_set_i2c_address_without_current_address
 
 * The 1st example will run all tests.
 * The 2nd example will run tests for a specific class in the

@@ -2,13 +2,25 @@
 ThunderBorg Motor Controller API
 ********************************
 
-.. image:: https://img.shields.io/pypi/pyversions/thunderborg.svg
+.. image:: https://img.shields.io/pypi/v/thunderborg.svg
    :target: https://pypi.python.org/pypi/thunderborg
    :alt: PyPi Versions
+
+.. image:: http://img.shields.io/pypi/wheel/thunderborg.svg
+   :target: https://pypi.python.org/pypi/thunderborg
+   :alt: PyPI Wheel
+
+.. image:: http://img.shields.io/pypi/pyversions/thunderborg.svg
+   :target: https://pypi.python.org/pypi/thunderborg
+   :alt: Python Versions
 
 .. image:: http://img.shields.io/travis/cnobile2012/thunderborg/master.svg
    :target: http://travis-ci.org/cnobile2012/thunderborg
    :alt: Build Status
+
+.. image:: http://img.shields.io/pypi/l/thunderborg.svg
+   :target: https://pypi.python.org/pypi/thunderborg
+   :alt: License
 
 The MIT License (MIT)
 
@@ -41,13 +53,8 @@ board has additional features that the original API does not have.
 Provides
 ========
 
-1. An API (Application Programming Interface) for the ThunderBorg motor
-   controller boards.
-
-2. TBD
-
-3. TBD
-
+An API (Application Programming Interface) for the ThunderBorg motor
+controller boards.
 
 `Installation Guide <INSTALL.rst>`_
 

@@ -12,6 +12,7 @@ TODAY		= $(shell date +"%Y-%m-%d_%H%M")
 RM_REGEX	= '(^.*.pyc$$)|(^.*.wsgic$$)|(^.*~$$)|(.*\#$$)|(^.*,cover$$)'
 RM_CMD		= find $(PREFIX) -regextype posix-egrep -regex $(RM_REGEX) \
                   -exec rm {} \;
+TEST_TAG        =
 PIP_ARGS	= # Pass var for pip install.
 TEST_PATH	= # Pass var for test paths.
 
@@ -28,7 +29,16 @@ tests	: clean
 sphinx	: clean
 	(cd $(DOCS_DIR); make html)
 
+# To add a pre-release candidate such as 'rc1' to a test package name an
+# environment variable needs to be set that setup.py can read.
+#
+# make build TEST_TAG=rc1
+# make upload-test TEST_TAG=rc1
+#
+# The tarball would then be named python-thunderborg-2.0.0rc1.tar.gz
+#
 .PHONY	: build
+build   : export PR_TAG=$(TEST_TAG)
 build	: clean
 	python setup.py sdist
 
@@ -39,8 +49,7 @@ upload	: clobber
 	twine upload --repository pypi dist/*
 
 .PHONY	: upload-test
-upload-test: clobber
-	python setup.py sdist
+upload-test: clobber build
 	python setup.py bdist_wheel --universal
 	twine upload --repository testpypi dist/*
 
@@ -51,7 +60,6 @@ install-dev:
 .PHONY	: install-prd
 install-prd:
 	pip install $(PIP_ARGS) -r requirements/production.txt
-
 
 .PHONY	: tar
 tar	: clean
@@ -65,6 +73,5 @@ clean	:
 
 clobber	: clean
 	@rm -rf dist build *.egg-info
-#	@rm -rf $(LOGS_DIR)/*.log
 	@rm -rf $(DOCS_DIR)/htmlcov
 	@rm -rf $(DOCS_DIR)/build

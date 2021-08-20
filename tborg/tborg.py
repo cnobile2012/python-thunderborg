@@ -540,8 +540,15 @@ class ThunderBorg(object):
             raise e
         except IOError as e: # pragma: no cover
             motor = 1 if fwd == self.COMMAND_SET_A_FWD else 2
-            msg = "Failed sending motor %d drive level, %s"
-            self._log.error(msg, motor, e)
+            msg = "Failed sending motor {} drive level {}, {}".format(
+                motor, level, e)
+            self._log.error(msg)
+            raise ThunderBorgException(msg)
+        except ValueError as e:
+            motor = 1 if fwd == self.COMMAND_SET_A_FWD else 2
+            msg = "Failed sending motor {} drive level {}, pwm: {}, {}".format(
+                motor, level, pwm, e)
+            self._log.error(msg)
             raise ThunderBorgException(msg)
 
     def set_motor_one(self, level):

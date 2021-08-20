@@ -3,6 +3,8 @@ source = tborg
 omit =
     *tests*
     *mock*
+    *examples*
+    *utils*
     # Virtualenv Python 2
     */tborg2/*
     # Virtualenv Python 3

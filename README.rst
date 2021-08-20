@@ -14,10 +14,6 @@ ThunderBorg Motor Controller API
    :target: https://pypi.python.org/pypi/python-thunderborg
    :alt: Python Versions
 
-.. image:: http://img.shields.io/travis/cnobile2012/thunderborg/master.svg
-   :target: http://travis-ci.org/cnobile2012/python-thunderborg
-   :alt: Build Status
-
 .. image:: http://img.shields.io/pypi/l/python-thunderborg.svg
    :target: https://pypi.python.org/pypi/python-thunderborg
    :alt: License

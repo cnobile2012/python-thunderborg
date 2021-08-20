@@ -2,24 +2,24 @@
 ThunderBorg Motor Controller API
 ********************************
 
-.. image:: https://img.shields.io/pypi/v/thunderborg.svg
-   :target: https://pypi.python.org/pypi/thunderborg
-   :alt: PyPi Versions
+.. image:: https://img.shields.io/pypi/v/python-thunderborg.svg
+   :target: https://pypi.python.org/pypi/python-thunderborg
+   :alt: PyPi Version
 
-.. image:: http://img.shields.io/pypi/wheel/thunderborg.svg
-   :target: https://pypi.python.org/pypi/thunderborg
+.. image:: http://img.shields.io/pypi/wheel/python-thunderborg.svg
+   :target: https://pypi.python.org/pypi/python-thunderborg
    :alt: PyPI Wheel
 
-.. image:: http://img.shields.io/pypi/pyversions/thunderborg.svg
-   :target: https://pypi.python.org/pypi/thunderborg
+.. image:: http://img.shields.io/pypi/pyversions/python-thunderborg.svg
+   :target: https://pypi.python.org/pypi/python-thunderborg
    :alt: Python Versions
 
 .. image:: http://img.shields.io/travis/cnobile2012/thunderborg/master.svg
-   :target: http://travis-ci.org/cnobile2012/thunderborg
+   :target: http://travis-ci.org/cnobile2012/python-thunderborg
    :alt: Build Status
 
-.. image:: http://img.shields.io/pypi/l/thunderborg.svg
-   :target: https://pypi.python.org/pypi/thunderborg
+.. image:: http://img.shields.io/pypi/l/python-thunderborg.svg
+   :target: https://pypi.python.org/pypi/python-thunderborg
    :alt: License
 
 The MIT License (MIT)

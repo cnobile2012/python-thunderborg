@@ -526,7 +526,7 @@ class ThunderBorg(object):
             # Reverse
             command = rev
             pwm = -int(self._PWM_MAX * level)
-            pwm = self._PWM_MAX if pwm < -self._PWM_MAX else pwm
+            pwm = self._PWM_MAX if pwm > self._PWM_MAX else pwm
         else:
             # Forward / stopped
             command = fwd

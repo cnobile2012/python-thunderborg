@@ -11,7 +11,9 @@ def version():
     major = re.search(regex.format('MAJORVERSION'), ver).group('ver')
     minor = re.search(regex.format('MINORVERSION'), ver).group('ver')
     patch = re.search(regex.format('PATCHLEVEL'), ver).group('ver')
-    return "{}.{}.{}".format(major, minor, patch)
+    # Look for a tag indicating a pre-release candidate. ex. rc1
+    env_value = os.environ.get('PR_TAG', '')
+    return "{}.{}.{}{}".format(major, minor, patch, env_value)
 
 with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
     README = readme.read()

@@ -129,10 +129,9 @@ before doing this.
 
 .. code-block:: console
 
+    $ pip install python-thunderborg
+    or
     $ pip install git+https://github.com/cnobile2012/python-thunderborg.git
-
-Eventually you will be able to install ``python-thunderborg`` from PyPi
-also.
 
 If you are working on ``python-thunderborg`` itself, then
 ``python-thunderborg`` is the project you are working on and you'll need to

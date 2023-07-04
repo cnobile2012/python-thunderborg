@@ -3,7 +3,7 @@ import re
 from setuptools import setup
 
 def version():
-    regex = r'^(?m){}[\s]*=[\s]*(?P<ver>\d*)$'
+    regex = r'(?m)(^{}[\s]*=[\s]*(?P<ver>\d*)$)'
 
     with open(os.path.join(os.path.dirname(__file__), 'include.mk')) as f:
         ver = f.read()
@@ -16,7 +16,7 @@ def version():
 with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
     README = readme.read()
 
-# allow setup.py to be run from any path
+# Allow setup.py to be run from any path.
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
@@ -27,7 +27,7 @@ setup(
     license='MIT',
     description=('ThunderBorg Motor Controller API'),
     long_description=README,
-    url='https://github.com/cnobile2012/thunderborg',
+    url='https://github.com/cnobile2012/python-thunderborg',
     author='Carl J. Nobile',
     author_email='carl.nobile@gmail.com',
     classifiers=[
@@ -39,11 +39,8 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         ],

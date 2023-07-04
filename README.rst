@@ -27,7 +27,8 @@ This API for the
 `ThunderBorg <https://www.piborg.org/motor-control-1135/thunderborg>`_
 board has additional features that the original API does not have.
 
-1. Python 2.7.x and 3.4 and greater are supported in the same code base.
+1. Python 2.7.x and 3.8 are supported in the same code base. There is an issue
+   building the ``evdev`` package with all version or Python 3.8 and higher.
 
 2. Built in logging to a log file of your choice--**no print statements**.
 
@@ -55,6 +56,8 @@ controller boards.
 `Installation Guide <INSTALL.rst>`_
 
 `Testing Guide <tborg/tests/README.rst>`_
+
+`Pair bluetooth Wireless Controller <PAIR-BT.rst>`_
 
 Feel free to contact me at: carl dot nobile at gmail.com
 

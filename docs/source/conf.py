@@ -28,9 +28,12 @@ not os.path.exists('install.rst') and os.symlink(
     os.path.join('..', '..', 'INSTALL.rst'), 'install.rst')
 not os.path.exists('testing.rst')  and os.symlink(
     os.path.join('..', '..', 'tborg', 'tests', 'README.rst'), 'testing.rst')
+not os.path.exists('pair-bluetooth.rst')  and os.symlink(
+    os.path.join('..', '..', 'tborg', 'tests', 'PAIR-BT.rst'),
+    'pair-bluetooth.rst')
 
 def version_info():
-    regex = r'^(?m){}[\s]*=[\s]*(?P<ver>\d*)$'
+    regex = r'(?m)(^{}[\s]*=[\s]*(?P<ver>\d*)$)'
     filepath = os.path.join('..', '..', 'include.mk')
 
     with open(os.path.join(os.path.dirname(__file__), filepath)) as f:
@@ -88,7 +91,7 @@ version, release = version_info()
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = "en"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

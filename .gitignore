@@ -10,6 +10,7 @@ old
 docs/htmlcov
 docs/source/install.rst
 docs/source/testing.rst
+docs/source/pair-bluetooth.rst
 nohup.out
 
 # C extensions

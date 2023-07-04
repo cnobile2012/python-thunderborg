@@ -18,6 +18,7 @@ Contents
    :maxdepth: 2
 
    install
+   pair-bluetooth
    usage
    testing
    modules

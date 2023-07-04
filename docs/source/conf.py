@@ -26,11 +26,10 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 not os.path.exists('install.rst') and os.symlink(
     os.path.join('..', '..', 'INSTALL.rst'), 'install.rst')
-not os.path.exists('testing.rst')  and os.symlink(
+not os.path.exists('testing.rst') and os.symlink(
     os.path.join('..', '..', 'tborg', 'tests', 'README.rst'), 'testing.rst')
-not os.path.exists('pair-bluetooth.rst')  and os.symlink(
-    os.path.join('..', '..', 'tborg', 'tests', 'PAIR-BT.rst'),
-    'pair-bluetooth.rst')
+not os.path.exists('pair-bluetooth.rst') and os.symlink(
+    os.path.join('..', '..', 'PAIR-BT.rst'), 'pair-bluetooth.rst')
 
 def version_info():
     regex = r'(?m)(^{}[\s]*=[\s]*(?P<ver>\d*)$)'

@@ -28,7 +28,7 @@ This API for the
 board has additional features that the original API does not have.
 
 1. Python 2.7.x and 3.8 are supported in the same code base. There is an issue
-   building the ``evdev`` package with all version of Python 3.8 and higher.
+   building the ``evdev`` package with all versions of Python 3.8 and higher.
 
 2. Built in logging to a log file of your choice--**no print statements**.
 

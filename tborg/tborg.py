@@ -240,8 +240,8 @@ class ThunderBorg(object):
             tb._i2c_write = io.open(device, mode='wb', buffering=0)
         except (IOError, OSError) as e:  # pragma: no cover
             tb.close_streams()
-            msg = ("Could not open read or write stream on bus {:d} at "
-                   "address 0x{:02X}, {}").format(bus_num, address, e)
+            msg = (f"Could not open read or write stream on bus {bus_num:d} "
+                   f"at address 0x{address:02X}, {e}")
             tb._log.critical(msg)
         else:
             try:
@@ -249,8 +249,8 @@ class ThunderBorg(object):
                 fcntl.ioctl(tb._i2c_write, cls._I2C_SLAVE, address)
             except (IOError, OSError) as e:  # pragma: no cover
                 tb.close_streams()
-                msg = ("Failed to initialize ThunderBorg on bus number {:d}, "
-                       "address 0x{:02X}, {}").format(bus_num, address, e)
+                msg = ("Failed to initialize ThunderBorg on bus number "
+                       f"{bus_num:d}, address 0x{address:02X}, {e}")
                 tb._log.critical(msg)
             else:
                 device_found = True
@@ -412,19 +412,19 @@ class ThunderBorg(object):
                             raise e
                         except IOError:  # pragma: no cover
                             tb.close_streams()
-                            msg = ("Missing ThunderBorg at address 0x{:02X}."
-                                   ).format(new_addr)
+                            msg = ("Missing ThunderBorg at address "
+                                   f"0x{new_addr:02X}.")
                             tb._log.error(msg)
                             raise ThunderBorgException(msg)
                         else:
                             if cls._check_board_chip(recv, bus_num,
                                                      new_addr, tb):
-                                msg = ("New I2C address of 0x{:02X} set "
-                                       "successfully.").format(new_addr)
+                                msg = (f"New I2C address of 0x{new_addr:02X} "
+                                       "set successfully.")
                                 tb._log.info(msg)
                             else:  # pragma: no cover
-                                msg = ("Failed to set address to 0x{:02X}"
-                                       ).format(new_addr)
+                                msg = ("Failed to set address to 0x"
+                                       f"{new_addr:02X}")
                                 tb._log.error(msg)
                                 raise ThunderBorgException(msg)
 
@@ -471,7 +471,7 @@ class ThunderBorg(object):
         try:
             self._i2c_write.write(data)
         except ValueError as e:  # pragma: no cover
-            msg = "{}".format(e)
+            msg = f"{e}"
             self._log.error(msg)
             raise ThunderBorgException(msg)
 
@@ -502,7 +502,7 @@ class ThunderBorg(object):
                 break
 
         if len(data) <= 0:  # pragma: no cover
-            msg = "I2C read for command '{}' failed.".format(command)
+            msg = f"I2C read for command '{command}' failed."
             self._log.error(msg)
             raise ThunderBorgException(msg)
 
@@ -527,14 +527,13 @@ class ThunderBorg(object):
             raise e
         except IOError as e:  # pragma: no cover
             motor = 1 if fwd == self.COMMAND_SET_A_FWD else 2
-            msg = "Failed sending motor {} drive level {}, {}".format(
-                motor, level, e)
+            msg = f"Failed sending motor {motor} drive level {level}, {e}"
             self._log.error(msg)
             raise ThunderBorgException(msg)
         except ValueError as e:
             motor = 1 if fwd == self.COMMAND_SET_A_FWD else 2
-            msg = "Failed sending motor {} drive level {}, pwm: {}, {}".format(
-                motor, level, pwm, e)
+            msg = (f"Failed sending motor {motor} drive level {level}, "
+                   f"pwm: {pwm}, {e}")
             self._log.error(msg)
             raise ThunderBorgException(msg)
 
@@ -608,8 +607,8 @@ class ThunderBorg(object):
         if direction == self.COMMAND_VALUE_REV:
             level = -level
         elif direction != self.COMMAND_VALUE_FWD:  # pragma: no cover
-            msg = ("Invalid command '{:02d}' while getting drive level "
-                   "for motor {:d}.").format(direction, motor)
+            msg = ("Invalid command '{direction:02d}' while getting drive "
+                   f"level for motor {motor:d}.")
             self._log.error(msg)
             raise ThunderBorgException(msg)
 
@@ -650,7 +649,7 @@ class ThunderBorg(object):
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
         except IOError as e:  # pragma: no cover
-            msg = "Failed sending motors halt command, {}".format(e)
+            msg = f"Failed sending motors halt command, {e}"
             self._log.error(msg)
             raise ThunderBorgException(msg)
         else:
@@ -745,7 +744,7 @@ class ThunderBorg(object):
             raise e
         except IOError as e:  # pragma: no cover
             led = 1 if command == self.COMMAND_GET_LED1 else 2
-            msg = "Failed to read ThunderBorg LED {} color, {}".format(led, e)
+            msg = f"Failed to read ThunderBorg LED {led} color, {e}"
             self._log.error(msg)
             raise ThunderBorgException(msg)
         else:
@@ -815,7 +814,7 @@ class ThunderBorg(object):
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
         except IOError as e:  # pragma: no cover
-            msg = "Failed to send LEDs state change, {}".format(e)
+            msg = f"Failed to send LEDs state change, {e}"
             self._log.error(msg)
             raise ThunderBorgException(msg)
 
@@ -836,7 +835,7 @@ class ThunderBorg(object):
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
         except IOError as e:  # pragma: no cover
-            msg = "Failed reading LED state, {}".format(e)
+            msg = f"Failed reading LED state, {e}"
             self._log.error(msg)
             raise ThunderBorgException(msg)
 
@@ -865,7 +864,7 @@ class ThunderBorg(object):
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
         except IOError as e:  # pragma: no cover
-            msg = "Failed sending communications failsafe state, {}".format(e)
+            msg = f"Failed sending communications failsafe state, {e}"
             self._log.error(msg)
             raise ThunderBorgException(msg)
 
@@ -883,7 +882,7 @@ class ThunderBorg(object):
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
         except IOError as e:  # pragma: no cover
-            msg = "Failed reading communications failsafe state, {}".format(e)
+            msg = f"Failed reading communications failsafe state, {e}"
             self._log.error(msg)
             raise ThunderBorgException(msg)
 
@@ -898,7 +897,7 @@ class ThunderBorg(object):
         except IOError as e:  # pragma: no cover
             motor = 1 if command == self.COMMAND_GET_DRIVE_A_FAULT else 2
             msg = ("Failed reading the drive fault state for "
-                   "motor {}, {}").format(motor, e)
+                   f"motor {motor}, {e}")
             self._log.error(msg)
             raise ThunderBorgException(msg)
 
@@ -1001,7 +1000,7 @@ class ThunderBorg(object):
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
         except IOError as e:  # pragma: no cover
-            msg = "Failed reading battery level, {}".format(e)
+            msg = f"Failed reading battery level, {str(e)}"
             self._log.error(msg)
             raise ThunderBorgException(msg)
 
@@ -1039,7 +1038,7 @@ class ThunderBorg(object):
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
         except IOError as e:  # pragma: no cover
-            msg = "Failed sending battery monitoring limits, {}".format(e)
+            msg = f"Failed sending battery monitoring limits, {e}"
             self._log.error(msg)
             raise ThunderBorgException(msg)
         else:
@@ -1066,7 +1065,7 @@ class ThunderBorg(object):
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
         except IOError as e:  # pragma: no cover
-            msg = "Failed reading battery monitoring limits, {}".format(e)
+            msg = f"Failed reading battery monitoring limits, {e}"
             self._log.error(msg)
             raise ThunderBorgException(msg)
 
@@ -1109,8 +1108,7 @@ class ThunderBorg(object):
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
         except IOError as e:  # pragma: no cover
-            msg = ("Failed sending binary word for the external LEDs, {}"
-                   ).format(e)
+            msg = f"Failed sending binary word for the external LEDs, {e}"
             self._log.error(msg)
             raise ThunderBorgException(msg)
 

@@ -62,7 +62,7 @@ class TestNoSetUp(BaseTest):
         ThunderBorg(logger_name=self.LOGGER_NAME, log_level=logging.DEBUG,
                     auto_set_addr=True)
         boards = ThunderBorg.find_board()
-        msg = "Boards found: {}".format(boards)
+        msg = "fBoards found: {boards}"
         self.assertEqual(ThunderBorg.DEFAULT_I2C_ADDRESS, 0x20, msg)
         self.assertTrue(len(boards) > 0, msg)
         self.assertEqual(boards[0], default_address, msg)
@@ -103,8 +103,8 @@ class TestClassMethods(BaseTest):
         """
         found = ThunderBorg.find_board()
         found = found[0] if found else 0
-        msg = "Found address '0x{:02X}', should be '0x{:02X}'.".format(
-            found, ThunderBorg.DEFAULT_I2C_ADDRESS)
+        msg = (f"Found address '0x{found:02X}', should be "
+               f"'0x{ThunderBorg.DEFAULT_I2C_ADDRESS:02X}'.")
         self.assertEqual(found, ThunderBorg.DEFAULT_I2C_ADDRESS, msg)
 
     #@unittest.skip("Temporarily skipped")
@@ -118,8 +118,7 @@ class TestClassMethods(BaseTest):
         ThunderBorg.set_i2c_address(new_addr)
         found = ThunderBorg.find_board()
         found = found[0] if found else 0
-        msg = "Found address '0x{:02X}', should be '0x{:02X}'.".format(
-            found, new_addr)
+        msg = f"Found address '0x{found:02X}', should be '0x{new_addr:02X}'."
         self.assertEqual(found, new_addr, msg)
 
     #@unittest.skip("Temporarily skipped")
@@ -134,8 +133,7 @@ class TestClassMethods(BaseTest):
         ThunderBorg.set_i2c_address(new_addr, cur_addr=cur_addr)
         found = ThunderBorg.find_board()
         found = found[0] if found else 0
-        msg = "Found address '0x{:02X}', should be '0x{:02X}'.".format(
-            found, new_addr)
+        msg = f"Found address '0x{found:02X}', should be '0x{new_addr:02X}'."
         self.assertEqual(found, new_addr, msg)
 
     #@unittest.skip("Temporarily skipped")
@@ -201,8 +199,7 @@ class TestThunderBorg(BaseTest):
         for speed in speeds:
             self._tb.set_motor_one(speed)
             rcvd_speed = self._tb.get_motor_one()
-            msg = "Speed sent: {}, speed received: {}".format(
-                speed, rcvd_speed)
+            msg = f"Speed sent: {speed}, speed received: {rcvd_speed}"
             self.assertLessEqual(rcvd_speed, 1.0, msg=msg)
             time.sleep(1.0)
 
@@ -212,8 +209,7 @@ class TestThunderBorg(BaseTest):
         for speed in speeds:
             self._tb.set_motor_one(speed)
             rcvd_speed = self._tb.get_motor_one()
-            msg = "Speed sent: {}, speed received: {}".format(
-                speed, rcvd_speed)
+            msg = f"Speed sent: {speed}, speed received: {rcvd_speed}"
             self.assertGreaterEqual(rcvd_speed, -1.0, msg=msg)
             time.sleep(1.0)
 
@@ -228,8 +224,7 @@ class TestThunderBorg(BaseTest):
         for speed in speeds:
             self._tb.set_motor_two(speed)
             rcvd_speed = self._tb.get_motor_two()
-            msg = "Speed sent: {}, speed received: {}".format(
-                speed, rcvd_speed)
+            msg = f"Speed sent: {speed}, speed received: {rcvd_speed}"
             self.assertLessEqual(rcvd_speed, 1.0, msg=msg)
             time.sleep(1.0)
 
@@ -239,8 +234,7 @@ class TestThunderBorg(BaseTest):
         for speed in speeds:
             self._tb.set_motor_two(speed)
             rcvd_speed = self._tb.get_motor_two()
-            msg = "Speed sent: {}, speed received: {}".format(
-                speed, rcvd_speed)
+            msg = f"Speed sent: {speed}, speed received: {rcvd_speed}"
             self.assertGreaterEqual(rcvd_speed, -1.0, msg=msg)
             time.sleep(1.0)
 
@@ -253,19 +247,19 @@ class TestThunderBorg(BaseTest):
         speed = 0.5
         self._tb.set_both_motors(speed)
         rcvd_speed = self._tb.get_motor_one()
-        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
+        msg = f"Speed sent: {speed}, speed received: {rcvd_speed}"
         self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
         rcvd_speed = self._tb.get_motor_two()
-        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
+        msg = f"Speed sent: {speed}, speed received: {rcvd_speed}"
         self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
         # Test reverse
         speed = -0.5
         self._tb.set_both_motors(speed)
         rcvd_speed = self._tb.get_motor_one()
-        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
+        msg = f"Speed sent: {speed}, speed received: {rcvd_speed}"
         self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
         rcvd_speed = self._tb.get_motor_two()
-        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
+        msg = f"Speed sent: {speed}, speed received: {rcvd_speed}"
         self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
 
     #@unittest.skip("Temporarily skipped")
@@ -277,20 +271,20 @@ class TestThunderBorg(BaseTest):
         speed = 0.5
         self._tb.set_both_motors(speed)
         rcvd_speed = self._tb.get_motor_one()
-        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
+        msg = f"Speed sent: {speed}, speed received: {rcvd_speed}"
         self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
         rcvd_speed = self._tb.get_motor_two()
-        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
+        msg = f"Speed sent: {speed}, speed received: {rcvd_speed}"
         self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
         # Halt the motors.
         self._tb.halt_motors()
         # Check that the board says they are not moving.
         speed = 0.0
         rcvd_speed = self._tb.get_motor_one()
-        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
+        msg = f"Speed sent: {speed}, speed received: {rcvd_speed}"
         self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
         rcvd_speed = self._tb.get_motor_two()
-        msg = "Speed sent: {}, speed received: {}".format(speed, rcvd_speed)
+        msg = f"Speed sent: {speed}, speed received: {rcvd_speed}"
         self.assertAlmostEqual(speed, rcvd_speed, delta=0.01, msg=msg)
 
     #@unittest.skip("Temporarily skipped")
@@ -299,7 +293,7 @@ class TestThunderBorg(BaseTest):
         Test that the RBG colors set are the same as the one's returned.
         """
         state = self._tb.get_led_battery_state()
-        msg = "Default state should be False: {}".format(state)
+        msg = f"Default state should be False: {state}"
         self.assertFalse(state, msg)
         rgb_list = [(0, 0, 0), (1, 1, 1), (1.0, 0.5, 0.0), (0.2, 0.0, 0.2)]
 
@@ -314,7 +308,7 @@ class TestThunderBorg(BaseTest):
         Test that the RBG colors set are the same as the one's returned.
         """
         state = self._tb.get_led_battery_state()
-        msg = "Default state should be False: {}".format(state)
+        msg = f"Default state should be False: {state}"
         self.assertFalse(state, msg)
         rgb_list = [(0, 0, 0), (1, 1, 1), (1.0, 0.5, 0.0), (0.2, 0.0, 0.2)]
 
@@ -329,7 +323,7 @@ class TestThunderBorg(BaseTest):
         Test that the RBG colors set are the same as the one's returned.
         """
         state = self._tb.get_led_battery_state()
-        msg = "Default state should be False: {}".format(state)
+        msg = f"Default state should be False: {state}"
         self.assertFalse(state, msg)
         rgb_list = [(0, 0, 0), (1, 1, 1), (1.0, 0.5, 0.0), (0.2, 0.0, 0.2)]
 
@@ -346,7 +340,7 @@ class TestThunderBorg(BaseTest):
         Test that the LED state changes.
         """
         state = self._tb.get_led_battery_state()
-        msg = "Default state should be False: {}".format(state)
+        msg = f"Default state should be False: {state}"
         self.assertFalse(state, msg)
         # Change the state of the LEDs to monitor the batteries.
         self._tb.set_led_battery_state(True)
@@ -360,7 +354,7 @@ class TestThunderBorg(BaseTest):
         Test that the failsafe changes states.
         """
         failsafe = self._tb.get_comms_failsafe()
-        msg = "Default failsafe should be False: {}".format(failsafe)
+        msg = f"Default failsafe should be False: {failsafe}"
         self.assertFalse(failsafe, msg)
         # Test that motors run continuously.
         speed = 0.5
@@ -376,7 +370,7 @@ class TestThunderBorg(BaseTest):
         # Turn on failsafe
         self._tb.set_comms_failsafe(True)
         failsafe = self._tb.get_comms_failsafe()
-        msg = "Failsafe should be True: {}".format(failsafe)
+        msg = f"Failsafe should be True: {failsafe}"
         self.assertTrue(failsafe, msg)
         # Start up motors
         self._tb.set_both_motors(speed)
@@ -466,9 +460,9 @@ class TestThunderBorg(BaseTest):
         self._tb.set_battery_monitoring_limits(vmin, vmax)
         voltage = self._tb.get_battery_voltage()
         minimum, maximum = self._tb.get_battery_monitoring_limits()
-        msg = ("Found minimum {:0.2f} and maximum {:0.2f} volts, should be "
-               "minimum {:0.2f} and maximum {:0.2f} volts, actual voltage "
-               "{:0.2f}").format(minimum, maximum, vmin, vmax, voltage)
+        msg = (f"Found minimum {minimum:0.2f} and maximum {maximum:0.2f} "
+               f"volts, should be minimum {vmin:0.2f} and maximum {vmax:0.2f} "
+               f"volts, actual voltage {voltage:0.2f}")
         self.assertAlmostEqual(minimum, vmin, delta=0.1, msg=msg)
         self.assertAlmostEqual(maximum, vmax, delta=0.1, msg=msg)
         # Check that the actual voltage is within the above ranges.

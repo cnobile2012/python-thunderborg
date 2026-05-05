@@ -210,7 +210,7 @@ class Daemon(object):
     def _update_pid_file(self):
         self._pf.seek(io.SEEK_SET)
         self._pf.truncate()
-        self._pf.write("{:d}\n".format(os.getpid()))
+        self._pf.write(f"{os.getpid():d}\n")
         self._pf.flush()
 
     def stop(self):
@@ -285,7 +285,7 @@ class Daemon(object):
 
         if pid is None:
             self._log.info('Process has stopped.')
-        elif os.path.exists('/proc/{:d}'.format(pid)):
+        elif os.path.exists(f'/proc/{pid:d}'):
             self._log.info('Process (pid %d) is running.', pid)
             result = True
         else:

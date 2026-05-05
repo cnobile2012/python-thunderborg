@@ -72,12 +72,11 @@ class JoyStickControl(Daemon):
             self._PIDFILE, logger_name=self._LOGGER_NAME)
         self._log.info("Initial arguments: bus_num: %s, address: %s, "
                        "borg: %s, log_level: %s, voltage_in: %s, debug: %s",
-                       bus_num, address, borg,
-                       logging.getLevelName(log_level), voltage_in, debug)
+                       bus_num, address, borg, logging.getLevelName(log_level),
+                       voltage_in, debug)
 
         if self._borg:
-            self._tb = ThunderBorg(bus_num=bus_num,
-                                   address=address,
+            self._tb = ThunderBorg(bus_num=bus_num, address=address,
                                    logger_name=self._TBORG_LOGGER_NAME,
                                    log_level=log_level)
 
@@ -159,10 +158,10 @@ class JoyStickControl(Daemon):
         buf = StringIO()
         buf.write("\nBattery Monitoring Settings\n")
         buf.write("---------------------------\n")
-        buf.write("Minimum (red)    {:02.2f} V\n".format(level_min))
-        buf.write("Middle  (yellow) {:02.2f} V\n".format(mid_level))
-        buf.write("Maximum (green)  {:02.2f} V\n".format(level_max))
-        buf.write("Current Voltage  {:02.2f} V\n".format(current_level))
+        buf.write(f"Minimum (red)    {level_min:02.2f} V\n")
+        buf.write(f"Middle  (yellow) {mid_level:02.2f} V\n")
+        buf.write(f"Maximum (green)  {level_max:02.2f} V\n")
+        buf.write(f"Current Voltage  {current_level:02.2f} V\n")
         self._log.info(buf.getvalue())
         buf.close()
 
@@ -386,7 +385,6 @@ if __name__ == '__main__':  # pragma: no cover
     else:
         arg = 'start'
 
-    jsc = JoyStickControl(voltage_in=options.voltage_in,
-                          borg=options.borg,
+    jsc = JoyStickControl(voltage_in=options.voltage_in, borg=options.borg,
                           debug=options.debug)
     getattr(jsc, arg)()

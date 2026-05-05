@@ -41,8 +41,8 @@ def version_info():
     major = re.search(regex.format('MAJORVERSION'), ver).group('ver')
     minor = re.search(regex.format('MINORVERSION'), ver).group('ver')
     patch = re.search(regex.format('PATCHLEVEL'), ver).group('ver')
-    version = "{}.{}".format(major, minor)
-    release = "{}.{}.{}".format(major, minor, patch)
+    version = f"{major}.{minor}"
+    release = f"{major}.{minor}.{patch}"
     return version, release
 
 # -- General configuration ------------------------------------------------
@@ -73,7 +73,7 @@ master_doc = 'index'
 # General information about the project.
 project = 'ThunderBorg Motor Controller API'
 author = 'Carl J. Nobile'
-copyright = '{:d}, {:s}'.format(datetime.datetime.now().year, author)
+copyright = f'{datetime.datetime.now().year:d}, {author:s}'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

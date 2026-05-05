@@ -11,8 +11,10 @@ sphinx_rtd_theme
 coverage
 wheel
 twine
-mock
-nose
+hatch
+hatchling
+pytest
+flake8
 
 # Utils
 ipython

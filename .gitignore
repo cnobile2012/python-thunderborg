@@ -12,6 +12,7 @@ docs/source/install.rst
 docs/source/testing.rst
 docs/source/pair-bluetooth.rst
 nohup.out
+tmp
 
 # C extensions
 *.so

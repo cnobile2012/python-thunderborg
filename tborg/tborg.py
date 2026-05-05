@@ -15,18 +15,17 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from __future__ import absolute_import
 
 __docformat__ = "restructuredtext en"
 
 import io
 import fcntl
-import types
 import time
 import logging
-import six
 
-_LEVEL_TO_NAME = logging._levelNames if six.PY2 else logging._levelToName
+
+_LEVEL_TO_NAME = logging._levelToName
+
 
 class ThunderBorgException(Exception):
     pass
@@ -37,13 +36,10 @@ class ThunderBorg(object):
     This module is designed to communicate with the ThunderBorg motor
     controller board.
     """
-    #.. autoclass: tborg.ThunderBorg
-    #   :members:
-    #
     # sudo i2cdetect -y 1
     _DEF_LOG_LEVEL = logging.WARNING
     _DEVICE_PREFIX = '/dev/i2c-{}'
-    DEFAULT_BUS_NUM = 1 # Rev. 2 boards
+    DEFAULT_BUS_NUM = 1  # Rev. 2 boards
     """Default I²C bus number."""
     DEFAULT_I2C_ADDRESS = 0x15
     """Default I²C address of the ThunderBorg board."""
@@ -219,11 +215,11 @@ class ThunderBorg(object):
         if cls._init_bus(bus_num, address, tb):
             try:
                 recv = tb._read(cls.COMMAND_GET_ID, cls._I2C_READ_LEN)
-            except KeyboardInterrupt as e: # pragma: no cover
+            except KeyboardInterrupt as e:  # pragma: no cover
                 tb.close_streams()
                 tb._log.warning("Keyboard interrupt, %s", e)
                 raise e
-            except IOError as e:
+            except IOError:
                 pass
             else:
                 found_chip = cls._check_board_chip(recv, bus_num, address, tb)
@@ -242,7 +238,7 @@ class ThunderBorg(object):
         try:
             tb._i2c_read = io.open(device, mode='rb', buffering=0)
             tb._i2c_write = io.open(device, mode='wb', buffering=0)
-        except (IOError, OSError) as e: # pragma: no cover
+        except (IOError, OSError) as e:  # pragma: no cover
             tb.close_streams()
             msg = ("Could not open read or write stream on bus {:d} at "
                    "address 0x{:02X}, {}").format(bus_num, address, e)
@@ -251,7 +247,7 @@ class ThunderBorg(object):
             try:
                 fcntl.ioctl(tb._i2c_read, cls._I2C_SLAVE, address)
                 fcntl.ioctl(tb._i2c_write, cls._I2C_SLAVE, address)
-            except (IOError, OSError) as e: # pragma: no cover
+            except (IOError, OSError) as e:  # pragma: no cover
                 tb.close_streams()
                 msg = ("Failed to initialize ThunderBorg on bus number {:d}, "
                        "address 0x{:02X}, {}").format(bus_num, address, e)
@@ -276,7 +272,7 @@ class ThunderBorg(object):
                        "not a ThunderBorg (ID 0x%02X instead of 0x%02X).")
                 tb._log.info(msg, address, bus_num, recv[1],
                              cls._I2C_ID_THUNDERBORG)
-        else: # pragma: no cover
+        else:  # pragma: no cover
             msg = ("Wrong number of bytes received, found '%d', should be "
                    "'%d' at address 0x%02X.")
             tb._log.error(msg, length, cls._I2C_READ_LEN, address)
@@ -318,18 +314,21 @@ class ThunderBorg(object):
         :raises ThunderBorgException: An error happened on a stream.
         """
         found = []
-        if not tb: tb = ThunderBorg(logger_name=logger_name,
-                                    log_level=logging.INFO,
-                                    static_init=True)
+
+        if not tb:
+            tb = ThunderBorg(logger_name=logger_name, log_level=logging.INFO,
+                             static_init=True)
+
         tb._log.info("Scanning I2C bus number %d.", bus_num)
 
         for address in range(0x03, 0x77, 1):
             if cls._is_thunder_borg_board(bus_num, address, tb):
                 found.append(address)
 
-        if close: tb.close_streams()
+        if close:
+            tb.close_streams()
 
-        if len(found) == 0: # pragma: no cover
+        if len(found) == 0:  # pragma: no cover
             msg = ("No ThunderBorg boards found, is the bus number '%d' "
                    "correct? (should be 0 for Rev 1 and 1 for Rev 2)")
             tb._log.error(msg, bus_num)
@@ -372,7 +371,7 @@ class ThunderBorg(object):
         if cur_addr < 0x00:
             found = cls.find_board(bus_num=bus_num, tb=tb)
 
-            if len(found) < 1: # pragma: no cover
+            if len(found) < 1:  # pragma: no cover
                 msg = ("No ThunderBorg boards found, cannot set a new "
                        "I2C address!")
                 tb._log.info(msg)
@@ -386,11 +385,11 @@ class ThunderBorg(object):
         if cls._init_bus(bus_num, cur_addr, tb):
             try:
                 recv = tb._read(cls.COMMAND_GET_ID, cls._I2C_READ_LEN)
-            except KeyboardInterrupt as e: # pragma: no cover
+            except KeyboardInterrupt as e:  # pragma: no cover
                 tb.close_streams()
                 tb._log.warning("Keyboard interrupt, %s", e)
                 raise e
-            except IOError as e: # pragma: no cover
+            except IOError:  # pragma: no cover
                 tb.close_streams()
                 msg = "Missing ThunderBorg at address 0x%02X."
                 tb._log.error(msg, cur_addr)
@@ -407,11 +406,11 @@ class ThunderBorg(object):
                         try:
                             recv = tb._read(cls.COMMAND_GET_ID,
                                             cls._I2C_READ_LEN)
-                        except KeyboardInterrupt as e: # pragma: no cover
+                        except KeyboardInterrupt as e:  # pragma: no cover
                             tb.close_streams()
                             tb._log.warning("Keyboard interrupt, %s", e)
                             raise e
-                        except IOError as e: # pragma: no cover
+                        except IOError:  # pragma: no cover
                             tb.close_streams()
                             msg = ("Missing ThunderBorg at address 0x{:02X}."
                                    ).format(new_addr)
@@ -423,7 +422,7 @@ class ThunderBorg(object):
                                 msg = ("New I2C address of 0x{:02X} set "
                                        "successfully.").format(new_addr)
                                 tb._log.info(msg)
-                            else: # pragma: no cover
+                            else:  # pragma: no cover
                                 msg = ("Failed to set address to 0x{:02X}"
                                        ).format(new_addr)
                                 tb._log.error(msg)
@@ -467,16 +466,11 @@ class ThunderBorg(object):
             "Programming error, the write stream object is not a stream.")
 
         data.insert(0, command)
-
-        if six.PY2: # pragma: no cover
-            #  Either PY2 or PY3 can be tested at a given time.
-            data = ''.join([chr(byte) for byte in data])
-        else:
-            data = bytes(data)
+        data = bytes(data)
 
         try:
             self._i2c_write.write(data)
-        except ValueError as e: # pragma: no cover
+        except ValueError as e:  # pragma: no cover
             msg = "{}".format(e)
             self._log.error(msg)
             raise ThunderBorgException(msg)
@@ -502,19 +496,12 @@ class ThunderBorg(object):
         for i in range(retry_count):
             self._write(command, [])
             recv = self._i2c_read.read(length)
-
-            # Split string/bytes
-            # b'\x99\x15\x00\x00\x00\x00' [153, 21, 0, 0, 0, 0]
-            if six.PY2: # pragma: no cover
-                # Either PY2 or PY3 can be tested at a given time.
-                data = [ord(bt) for bt in recv]
-            else:
-                data = [bt for bt in recv]
+            data = [bt for bt in recv]
 
             if command == data[0]:
                 break
 
-        if len(data) <= 0: # pragma: no cover
+        if len(data) <= 0:  # pragma: no cover
             msg = "I2C read for command '{}' failed.".format(command)
             self._log.error(msg)
             raise ThunderBorgException(msg)
@@ -535,10 +522,10 @@ class ThunderBorg(object):
 
         try:
             self._write(command, [pwm])
-        except KeyboardInterrupt as e: # pragma: no cover
+        except KeyboardInterrupt as e:  # pragma: no cover
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
-        except IOError as e: # pragma: no cover
+        except IOError as e:  # pragma: no cover
             motor = 1 if fwd == self.COMMAND_SET_A_FWD else 2
             msg = "Failed sending motor {} drive level {}, {}".format(
                 motor, level, e)
@@ -601,17 +588,17 @@ class ThunderBorg(object):
         """
         Base motor speed retrival method.
 
-        :param command: 
+        :param command: Command to run.
         """
         motor = 1 if command == self.COMMAND_GET_A else 2
 
         try:
             recv = self._read(command, self._I2C_READ_LEN)
-        except KeyboardInterrupt as e: # pragma: no cover
+        except KeyboardInterrupt as e:  # pragma: no cover
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
-        except IOError as e: # pragma: no cover
-            msg = "Failed reading motor %d drive level, {}".format(motor, e)
+        except IOError as e:  # pragma: no cover
+            msg = f"Failed reading motor {motor} drive level, {str(e)}"
             self._log.error(msg)
             raise ThunderBorgException(msg)
 
@@ -620,7 +607,7 @@ class ThunderBorg(object):
 
         if direction == self.COMMAND_VALUE_REV:
             level = -level
-        elif direction != self.COMMAND_VALUE_FWD: # pragma: no cover
+        elif direction != self.COMMAND_VALUE_FWD:  # pragma: no cover
             msg = ("Invalid command '{:02d}' while getting drive level "
                    "for motor {:d}.").format(direction, motor)
             self._log.error(msg)
@@ -659,10 +646,10 @@ class ThunderBorg(object):
         """
         try:
             self._write(self.COMMAND_ALL_OFF, [0])
-        except KeyboardInterrupt as e: # pragma: no cover
+        except KeyboardInterrupt as e:  # pragma: no cover
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
-        except IOError as e: # pragma: no cover
+        except IOError as e:  # pragma: no cover
             msg = "Failed sending motors halt command, {}".format(e)
             self._log.error(msg)
             raise ThunderBorgException(msg)
@@ -676,10 +663,10 @@ class ThunderBorg(object):
 
         try:
             self._write(command, [level_r, level_g, level_b])
-        except KeyboardInterrupt as e: # pragma: no cover
+        except KeyboardInterrupt as e:  # pragma: no cover
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
-        except IOError as e: # pragma: no cover
+        except IOError:  # pragma: no cover
             msg = "Failed sending color to the ThunderBorg LED one."
             self._log.error(msg)
             raise ThunderBorgException(msg)
@@ -753,10 +740,10 @@ class ThunderBorg(object):
     def _get_led(self, command):
         try:
             recv = self._read(command, self._I2C_READ_LEN)
-        except KeyboardInterrupt as e: # pragma: no cover
+        except KeyboardInterrupt as e:  # pragma: no cover
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
-        except IOError as e: # pragma: no cover
+        except IOError as e:  # pragma: no cover
             led = 1 if command == self.COMMAND_GET_LED1 else 2
             msg = "Failed to read ThunderBorg LED {} color, {}".format(led, e)
             self._log.error(msg)
@@ -824,10 +811,10 @@ class ThunderBorg(object):
 
         try:
             self._write(self.COMMAND_SET_LED_BATT_MON, [level])
-        except KeyboardInterrupt as e: # pragma: no cover
+        except KeyboardInterrupt as e:  # pragma: no cover
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
-        except IOError as e: # pragma: no cover
+        except IOError as e:  # pragma: no cover
             msg = "Failed to send LEDs state change, {}".format(e)
             self._log.error(msg)
             raise ThunderBorgException(msg)
@@ -845,10 +832,10 @@ class ThunderBorg(object):
         try:
             recv = self._read(self.COMMAND_GET_LED_BATT_MON,
                               self._I2C_READ_LEN)
-        except KeyboardInterrupt as e: # pragma: no cover
+        except KeyboardInterrupt as e:  # pragma: no cover
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
-        except IOError as e: # pragma: no cover
+        except IOError as e:  # pragma: no cover
             msg = "Failed reading LED state, {}".format(e)
             self._log.error(msg)
             raise ThunderBorgException(msg)
@@ -874,10 +861,10 @@ class ThunderBorg(object):
 
         try:
             self._write(self.COMMAND_SET_FAILSAFE, [level])
-        except KeyboardInterrupt as e: # pragma: no cover
+        except KeyboardInterrupt as e:  # pragma: no cover
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
-        except IOError as e: # pragma: no cover
+        except IOError as e:  # pragma: no cover
             msg = "Failed sending communications failsafe state, {}".format(e)
             self._log.error(msg)
             raise ThunderBorgException(msg)
@@ -892,10 +879,10 @@ class ThunderBorg(object):
         """
         try:
             recv = self._read(self.COMMAND_GET_FAILSAFE, self._I2C_READ_LEN)
-        except KeyboardInterrupt as e: # pragma: no cover
+        except KeyboardInterrupt as e:  # pragma: no cover
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
-        except IOError as e: # pragma: no cover
+        except IOError as e:  # pragma: no cover
             msg = "Failed reading communications failsafe state, {}".format(e)
             self._log.error(msg)
             raise ThunderBorgException(msg)
@@ -905,10 +892,10 @@ class ThunderBorg(object):
     def _get_drive_fault(self, command):
         try:
             recv = self._read(command, self._I2C_READ_LEN)
-        except KeyboardInterrupt as e: # pragma: no cover
+        except KeyboardInterrupt as e:  # pragma: no cover
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
-        except IOError as e: # pragma: no cover
+        except IOError as e:  # pragma: no cover
             motor = 1 if command == self.COMMAND_GET_DRIVE_A_FAULT else 2
             msg = ("Failed reading the drive fault state for "
                    "motor {}, {}").format(motor, e)
@@ -957,7 +944,6 @@ class ThunderBorg(object):
         :raises ThunderBorgException: An error happened on a stream.
         """
         return self._get_drive_fault(self.COMMAND_GET_DRIVE_A_FAULT)
-
 
     def get_drive_fault_two(self):
         """
@@ -1011,10 +997,10 @@ class ThunderBorg(object):
         """
         try:
             recv = self._read(self.COMMAND_GET_BATT_VOLT, self._I2C_READ_LEN)
-        except KeyboardInterrupt as e: # pragma: no cover
+        except KeyboardInterrupt as e:  # pragma: no cover
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
-        except IOError as e: # pragma: no cover
+        except IOError as e:  # pragma: no cover
             msg = "Failed reading battery level, {}".format(e)
             self._log.error(msg)
             raise ThunderBorgException(msg)
@@ -1049,15 +1035,15 @@ class ThunderBorg(object):
 
         try:
             self._write(self.COMMAND_SET_BATT_LIMITS, [level_min, level_max])
-        except KeyboardInterrupt as e: # pragma: no cover
+        except KeyboardInterrupt as e:  # pragma: no cover
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
-        except IOError as e: # pragma: no cover
+        except IOError as e:  # pragma: no cover
             msg = "Failed sending battery monitoring limits, {}".format(e)
             self._log.error(msg)
             raise ThunderBorgException(msg)
         else:
-            time.sleep(0.2) # Wait for EEPROM write to complete
+            time.sleep(0.2)  # Wait for EEPROM write to complete
 
     def get_battery_monitoring_limits(self):
         """
@@ -1076,10 +1062,10 @@ class ThunderBorg(object):
         """
         try:
             recv = self._read(self.COMMAND_GET_BATT_LIMITS, self._I2C_READ_LEN)
-        except KeyboardInterrupt as e: # pragma: no cover
+        except KeyboardInterrupt as e:  # pragma: no cover
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
-        except IOError as e: # pragma: no cover
+        except IOError as e:  # pragma: no cover
             msg = "Failed reading battery monitoring limits, {}".format(e)
             self._log.error(msg)
             raise ThunderBorgException(msg)
@@ -1119,10 +1105,10 @@ class ThunderBorg(object):
 
         try:
             self._write(self.COMMAND_WRITE_EXTERNAL_LED, [b0, b1, b2, b3])
-        except KeyboardInterrupt as e: # pragma: no cover
+        except KeyboardInterrupt as e:  # pragma: no cover
             self._log.warning("Keyboard interrupt, %s", e)
             raise e
-        except IOError as e: # pragma: no cover
+        except IOError as e:  # pragma: no cover
             msg = ("Failed sending binary word for the external LEDs, {}"
                    ).format(e)
             self._log.error(msg)
@@ -1139,8 +1125,9 @@ class ThunderBorg(object):
 
            2. Executing ``tb.set_external_led_colors([[1.0, 1.0, 0.0]])``
               will set a single LED to full yellow.
-           3. Executing ``tb.set_external_led_colors([[1.0, 0.0, 0.0], [0.5, 0.0, 0.0], [0.0, 0.0, 0.0]])`` will set LED 1 to full red, LED 2 to half red,
-              and LED 3 to off.
+           3. Executing ``tb.set_external_led_colors([[1.0, 0.0, 0.0],
+              [0.5, 0.0, 0.0], [0.0, 0.0, 0.0]])`` will set LED 1 to full red,
+              LED 2 to half red, and LED 3 to off.
 
         :param colors: The RGB colors for setting the LEDs.
         :type colors: list

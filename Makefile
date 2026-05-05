@@ -24,9 +24,21 @@ all	: tar
 # $ make tests TEST_PATH=tborg/tests/test_tborg.py:TestClassMethods.test_set_i2c_address_without_current_address
 .PHONY	: tests
 tests	: clean
-	@nosetests --with-coverage --cover-erase --cover-inclusive \
-                   --cover-html --cover-html-dir=$(DOCS_DIR)/htmlcov \
-                   --cover-package=$(PREFIX)/tborg $(TEST_PATH)
+	@rm -rf $(DOCS_DIR)/htmlcov
+	@mkdir -p $(LOGS_DIR)
+	@coverage erase --rcfile=$(COVERAGE_FILE)
+	@coverage run --rcfile=$(COVERAGE_FILE) -m pytest --capture=tee-sys \
+         $(TEST_PATH)
+	@coverage report -m --rcfile=$(COVERAGE_FILE)
+	@coverage html --rcfile=$(COVERAGE_FILE)
+	@echo $(TODAY)
+
+.PHONY	: flake8
+flake8	:
+        # Error on syntax errors or undefined names.
+	flake8 . --select=E9,F7,F63,F82 --show-source
+        # Warn on everything else.
+	flake8 . --exit-zero
 
 .PHONY	: sphinx
 sphinx	: clean

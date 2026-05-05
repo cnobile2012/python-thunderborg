@@ -191,4 +191,4 @@ Copy the ``start_mborg_approxeng.sh`` script.
     $ cd # Make sure you're in your home directory.
     $ mkdir bin
     $ cd /path/to/python-thunderborg
-    $ cd scripts/start_mborg_approxeng.sh ~/bin/
+    $ cp scripts/start_mborg_approxeng.sh ~/bin/

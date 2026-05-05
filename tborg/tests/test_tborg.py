@@ -1,39 +1,36 @@
 #
 # tborg/tests/test_tborg.py
 #
-from __future__ import absolute_import
 
 import os
 import logging
 import unittest
 import time
 
-try:
-    from unittest.mock import patch
-except:
-    from mock import patch
+from unittest.mock import patch
 
 from tborg import ConfigLogger, ThunderBorgException, ThunderBorg
 
 LOG_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                         '..', '..', 'logs'))
+                                        '..', '..', 'logs'))
 not os.path.isdir(LOG_PATH) and os.mkdir(LOG_PATH, 0o0775)
 
 
-#def isclose(a, b, rel_tol, abs_tol):
-#    return abs(a-b) <= max( rel_tol * max(abs(a), abs(b)), abs_tol)
+# def isclose(a, b, rel_tol, abs_tol):
+#     return abs(a-b) <= max( rel_tol * max(abs(a), abs(b)), abs_tol)
 
 
 class BaseTest(unittest.TestCase):
     LOGGER_NAME = 'thunder-borg'
 
     def __init__(self, name, filename=None):
-        super(BaseTest, self).__init__(name)
-        full_path = os.path.abspath(os.path.join(LOG_PATH, filename))
-        cl = ConfigLogger()
-        cl.config(logger_name=self.LOGGER_NAME,
-                  file_path=full_path,
-                  level=logging.DEBUG)
+        super().__init__(name)
+
+        if filename:
+            full_path = os.path.abspath(os.path.join(LOG_PATH, filename))
+            cl = ConfigLogger()
+            cl.config(logger_name=self.LOGGER_NAME, file_path=full_path,
+                      level=logging.DEBUG)
 
     @classmethod
     def setUpClass(self):
@@ -51,8 +48,7 @@ class TestNoSetUp(BaseTest):
     _LOG_FILENAME = 'tb-no-setup-method.log'
 
     def __init__(self, name):
-        super(TestNoSetUp, self).__init__(
-            name, filename=self._LOG_FILENAME)
+        super().__init__(name, filename=self._LOG_FILENAME)
 
     #@unittest.skip("Temporarily skipped")
     @patch.object(ThunderBorg, 'DEFAULT_I2C_ADDRESS', 0x20)
@@ -63,9 +59,8 @@ class TestNoSetUp(BaseTest):
         """
         default_address = 0x15
         # Initialize the board by instantiating ThunderBorg.
-        tb = ThunderBorg(logger_name=self.LOGGER_NAME,
-                         log_level=logging.DEBUG,
-                         auto_set_addr=True)
+        ThunderBorg(logger_name=self.LOGGER_NAME, log_level=logging.DEBUG,
+                    auto_set_addr=True)
         boards = ThunderBorg.find_board()
         msg = "Boards found: {}".format(boards)
         self.assertEquals(ThunderBorg.DEFAULT_I2C_ADDRESS, 0x20, msg)
@@ -78,8 +73,7 @@ class TestNoSetUp(BaseTest):
         Test that an invalid address creates the expected exception.
         """
         with self.assertRaises(ThunderBorgException) as cm:
-            ThunderBorg(address=0x70,
-                        logger_name=self._LOG_FILENAME,
+            ThunderBorg(address=0x70, logger_name=self._LOG_FILENAME,
                         log_level=logging.DEBUG)
 
     #@unittest.skip("Temporarily skipped")
@@ -97,8 +91,7 @@ class TestClassMethods(BaseTest):
     _LOG_FILENAME = 'tb-class-method.log'
 
     def __init__(self, name):
-        super(TestClassMethods, self).__init__(
-            name, filename=self._LOG_FILENAME)
+        super().__init__(name, filename=self._LOG_FILENAME)
 
     def tearDown(self):
         ThunderBorg.set_i2c_address(ThunderBorg.DEFAULT_I2C_ADDRESS)
@@ -167,17 +160,15 @@ class TestClassMethods(BaseTest):
         new_addr = 0x70
         ThunderBorg.set_i2c_address(new_addr)
         # Now instantiate ThunderBorg.
-        tb = ThunderBorg(logger_name=self._LOG_FILENAME,
-                         log_level=logging.DEBUG,
-                         auto_set_addr=True)
+        ThunderBorg(logger_name=self._LOG_FILENAME, log_level=logging.DEBUG,
+                    auto_set_addr=True)
 
 
 class TestThunderBorg(BaseTest):
     _LOG_FILENAME = 'tb-instance.log'
 
     def __init__(self, name):
-        super(TestThunderBorg, self).__init__(
-            name, filename=self._LOG_FILENAME)
+        super().__init__(name, filename=self._LOG_FILENAME)
 
     def setUp(self):
         self._tb = ThunderBorg(logger_name=self._LOG_FILENAME,
@@ -216,7 +207,7 @@ class TestThunderBorg(BaseTest):
             time.sleep(1.0)
 
         # Test reverse
-        speeds = (-0.0 -0.25, -0.5, -0.75, -1.0, -1.25)
+        speeds = (-0.0, -0.25, -0.5, -0.75, -1.0, -1.25)
 
         for speed in speeds:
             self._tb.set_motor_one(speed)
@@ -243,7 +234,7 @@ class TestThunderBorg(BaseTest):
             time.sleep(1.0)
 
         # Test reverse
-        speeds = (-0.0 -0.25, -0.5, -0.75, -1.0, -1.25)
+        speeds = (-0.0, -0.25, -0.5, -0.75, -1.0, -1.25)
 
         for speed in speeds:
             self._tb.set_motor_two(speed)
@@ -360,7 +351,7 @@ class TestThunderBorg(BaseTest):
         # Change the state of the LEDs to monitor the batteries.
         self._tb.set_led_battery_state(True)
         state = self._tb.get_led_battery_state()
-        msg = "Battery monitoring state should be True".format(state)
+        msg = "Battery monitoring state should be True"
         self.assertTrue(state, msg)
 
     #@unittest.skip("Temporarily skipped")
@@ -374,9 +365,9 @@ class TestThunderBorg(BaseTest):
         # Test that motors run continuously.
         speed = 0.5
         self._tb.set_both_motors(speed)
-        sleep = 1 # Seconds
+        sleep = 1  # Seconds
         time.sleep(sleep)
-        msg = "Motors should run for {} second.".format(sleep)
+        msg = f"Motors should run for {sleep} second."
         m0_speed = self._tb.get_motor_one()
         m1_speed = self._tb.get_motor_two()
         self.assertAlmostEqual(m0_speed, speed, delta=0.1, msg=msg)
@@ -390,8 +381,8 @@ class TestThunderBorg(BaseTest):
         # Start up motors
         self._tb.set_both_motors(speed)
         time.sleep(sleep)
-        msg = ("Motors should run for 1/4 of a second with sleep of {} "
-               "second(s).").format(sleep)
+        msg = (f"Motors should run for 1/4 of a second with sleep of {sleep} "
+               "second(s).")
         m0_speed = self._tb.get_motor_one()
         m1_speed = self._tb.get_motor_two()
         self.assertNotAlmostEqual(m0_speed, speed, delta=0.1, msg=msg)
@@ -399,7 +390,7 @@ class TestThunderBorg(BaseTest):
         # Send keepalive
         msg = "Motors are running for {} seconds"
         interval = 0.25
-        sleep = 1.5 # Seconds
+        sleep = 1.5  # Seconds
 
         for itr in range(6):
             self._tb.set_motor_one(0.5)
@@ -423,7 +414,6 @@ class TestThunderBorg(BaseTest):
         self.assertFalse(fault, msg.format(fault))
         # Run motor one for a second.
         speed = 0.5
-        sleep = 1 # Seconds
         self._tb.set_motor_one(speed)
         self._tb.halt_motors()
         # Test that fault is cleared.
@@ -440,7 +430,6 @@ class TestThunderBorg(BaseTest):
         self.assertFalse(fault, msg.format(fault))
         # Run motor one for a second.
         speed = 0.5
-        sleep = 1 # Seconds
         self._tb.set_motor_two(speed)
         self._tb.halt_motors()
         # Test that fault is cleared.
@@ -455,8 +444,8 @@ class TestThunderBorg(BaseTest):
         vmin = ThunderBorg._BATTERY_MIN_DEFAULT
         vmax = ThunderBorg._BATTERY_MAX_DEFAULT
         voltage = self._tb.get_battery_voltage()
-        msg = ("Voltage should be in the range of {:0.02f} to {:0.02f}, "
-               "found {:0.02f} volts").format(vmin, vmax, voltage)
+        msg = (f"Voltage should be in the range of {vmin:0.02f} to "
+               f"{vmax:0.02f}, found {voltage:0.02f} volts")
         self.assertTrue(vmin <= voltage <= vmax, msg)
 
     #@unittest.skip("Temporarily skipped")

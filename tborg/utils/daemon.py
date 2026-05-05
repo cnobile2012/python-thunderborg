@@ -41,7 +41,6 @@ Exit values
 
 # Core modules
 from __future__ import print_function
-import errno
 import fcntl
 import io
 import logging
@@ -158,7 +157,9 @@ class Daemon(object):
         user = pwd.getpwuid(os.getuid()).pw_name
 
         try:
-            if not self._pf: self._pf = open(self.pidfile, 'a+')
+            if not self._pf:
+                self._pf = open(self.pidfile, 'a+')
+
             fcntl.flock(self._pf.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
         except IOError as e:
             self._pf.close()
@@ -166,7 +167,7 @@ class Daemon(object):
                    "'%s', %s (%s)")
             self._log.warning(msg, self.pidfile, user, e.errno, e.strerror)
             sys.exit(3)
-        except OSError as e: # pragma: no cover
+        except OSError as e:  # pragma: no cover
             msg = "User '%s' could not create path: %s, %s (%s)"
             self._log.error(msg, user, self.pidfile, e.errno, e.strerror)
             sys.exit(4)
@@ -182,7 +183,7 @@ class Daemon(object):
         try:
             pf = open(self.pidfile, 'a+') if not self._pf else self._pf
             fcntl.flock(pf.fileno(), fcntl.LOCK_UN)
-        except IOError as e: # pragma: no cover
+        except IOError as e:  # pragma: no cover
             pf is not self._pf and pf.close()
             msg = "The lock file %s could not be unlocked, %s, %s (%s)"
             self._log.error(msg, self.pidfile, e.errno, e.strerror)
@@ -239,7 +240,8 @@ class Daemon(object):
                     self._log.debug("Trying SIGKILL.")
                     os.kill(pid, signal.SIGKILL)
 
-                if not self.is_running(pid): break
+                if not self.is_running(pid):
+                    break
         except OSError as e:
             self._log.error(e)
             self.stop_callback()
@@ -267,7 +269,7 @@ class Daemon(object):
     def get_pid(self):
         try:
             pf = open(self.pidfile, 'r') if not self._pf else self._pf
-        except (IOError, SystemExit) as e: # pragma: no cover
+        except (IOError, SystemExit) as e:  # pragma: no cover
             self._log.error("Could not open pid file %s, %s", self.pidfile, e)
             pid = None
         else:
@@ -300,7 +302,7 @@ class Daemon(object):
         raise NotImplementedError("The run() method must be implemented.")
 
 
-if __name__ == '__main__': # pragma: no cover
+if __name__ == '__main__':  # pragma: no cover
     class MyDaemon(Daemon):
 
         def run(self):
@@ -316,7 +318,7 @@ if __name__ == '__main__': # pragma: no cover
     logfile = os.path.abspath(os.path.join(log_path, 'daemon.log'))
     logging.basicConfig(filename=logfile, format=log_format,
                         level=logging.DEBUG)
-    #logging.basicConfig(format=log_format)
+    # logging.basicConfig(format=log_format)
     md = MyDaemon(pidfile, verbose=2)
     arg = sys.argv[1] if len(sys.argv) == 2 else ''
     arg = 'start' if arg not in ('start', 'stop', 'restart') else arg

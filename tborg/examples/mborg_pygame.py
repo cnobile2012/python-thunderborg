@@ -16,7 +16,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from __future__ import absolute_import
 
 __docformat__ = "restructuredtext en"
 
@@ -25,19 +24,20 @@ import sys
 import time
 import logging
 import pygame
-import six
+
+from io import StringIO
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))))
 sys.path.append(BASE_DIR)
 
-from tborg import(
+from tborg import (
     create_working_dir, ConfigLogger, ThunderBorg, ThunderBorgException)
 from tborg.utils.daemon import Daemon
 
 create_working_dir()
 
-from tborg import BORG_CUBE, LOG_PATH, RUN_PATH
+from tborg import LOG_PATH, RUN_PATH
 
 
 class PYGameController(object):
@@ -112,13 +112,17 @@ class PYGameController(object):
                 pygame.joystick.init()
             except pygame.error as e:
                 self._clog.error("PYGame error: %s", e)
-                if self._quit_sleep(): break
+
+                if self._quit_sleep():
+                    break
             except KeyboardInterrupt:
                 self._clog.warn("User aborted with CTRL C.")
                 break
             else:
                 if pygame.joystick.get_count() < 1:
-                    if self._quit_sleep(): break
+
+                    if self._quit_sleep():
+                        break
                 else:
                     self.joystick = pygame.joystick.Joystick(0)
                     self.joystick.init()
@@ -173,7 +177,7 @@ class PYGameController(object):
         self.LF_UD = 1
         self.L2_VR = 2
         self.RT_LR = 3
-        self.RT_UD = 4 # if self.is_ps4() else 3
+        self.RT_UD = 4  # if self.is_ps4() else 3
         self.R2_VR = 5
 
         # Create HAT variables. Hat Event Types (HAT0, HAT1, ...)
@@ -221,7 +225,7 @@ class PYGameController(object):
                 self.__METHODS[event.type](self, event)
                 self.process_event()
             else:
-                #self._clog.warning("Waiting for controller")
+                self._clog.warning("Waiting for controller")
                 time.sleep(self.event_wait_time)
 
         self._clog.info("Exiting")
@@ -231,8 +235,7 @@ class PYGameController(object):
         Process the current events. This method needs to be overridden.
         """
         raise NotImplementedError(
-            "Programming error: must implement {}".format(
-                process_event.__name__))
+            "Programming error: must implement the process_event method")
 
     def is_ps4(self):
         """
@@ -312,7 +315,7 @@ class JoyStickControl(PYGameController, Daemon):
             self._tb.halt_motors()
             self._tb.set_comms_failsafe(False)
             self._tb.set_led_battery_state(False)
-            self._tb.set_both_leds(0, 0, 0) # Set LEDs off
+            self._tb.set_both_leds(0, 0, 0)  # Set LEDs off
             self._log.info("Exiting")
             sys.exit()
 
@@ -323,7 +326,7 @@ class JoyStickControl(PYGameController, Daemon):
         level_min, level_max = self._tb.get_battery_monitoring_limits()
         current_level = self._tb.get_battery_voltage()
         mid_level = (level_min + level_max) / 2
-        buf = six.StringIO()
+        buf = StringIO()
         buf.write("\nBattery Monitoring Settings\n")
         buf.write("---------------------------\n")
         buf.write("Minimum (red)    {:02.2f} V\n".format(level_min))
@@ -339,13 +342,13 @@ class JoyStickControl(PYGameController, Daemon):
         """
         self._tb.halt_motors()
         self._tb.set_led_battery_state(False)
-        self._tb.set_both_leds(0, 0, 1) # Set to blue
+        self._tb.set_both_leds(0, 0, 1)  # Set to blue
         self.event_wait_time = self._PROCESS_INTERVAL
 
         if not self.is_ctrl_init:
             self._log.warn("Could not initialize ")
             self._tb.set_comms_failsafe(False)
-            self._tb.set_both_leds(0, 0, 0) # Set LEDs off
+            self._tb.set_both_leds(0, 0, 0)  # Set LEDs off
             sys.exit()
 
         self.set_defaults()
@@ -392,7 +395,7 @@ class JoyStickControl(PYGameController, Daemon):
                 or self._tb.get_drive_fault_two()):
                 if self._led_battery_mode:
                     self._tb.set_led_battery_state(False)
-                    self._tb.set_both_leds(1, 0, 1) # Set to purple
+                    self._tb.set_both_leds(1, 0, 1)  # Set to purple
                     self._led_battery_mode = False
                 elif not self._led_battery_mode:
                     self._tb.set_led_battery_state(True)
@@ -441,7 +444,7 @@ class JoyStickControl(PYGameController, Daemon):
             self._log.error("Invalid arguments found: %s", kwargs)
 
 
-if __name__ == '__main__': # pragma: no cover
+if __name__ == '__main__':  # pragma: no cover
     import argparse
 
     parser = argparse.ArgumentParser(

@@ -16,16 +16,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from __future__ import absolute_import
 
 __docformat__ = "restructuredtext en"
 
 import logging
 import math
 import os
-import six
 import sys
 import time
+
+from io import StringIO
 
 from approxeng.input.selectbinder import ControllerResource
 
@@ -39,7 +39,7 @@ from tborg.utils.daemon import Daemon
 
 create_working_dir()
 
-from tborg import BORG_CUBE, LOG_PATH, RUN_PATH
+from tborg import LOG_PATH, RUN_PATH
 
 
 class JoyStickControl(Daemon):
@@ -51,7 +51,7 @@ class JoyStickControl(Daemon):
     _LOGGER_NAME = 'examples.mborg-approxeng'
     _TBORG_LOGGER_NAME = 'examples.tborg'
     _PIDFILE = os.path.join(RUN_PATH, 'mborg_approxeng.pid')
-    _VOLTAGE_IN = 12 # 1.2 volt cells * 10
+    _VOLTAGE_IN = 12  # 1.2 volt cells * 10
     _VOLTAGE_OUT = 12.0 * 0.95
     _MAX_VOLTAGE_MULT = 1.145
     _ROTATE_TURN_SPEED = 0.5
@@ -104,11 +104,11 @@ class JoyStickControl(Daemon):
     def set_battery_limits(self):
         max_level = self.voltage_in * self._MAX_VOLTAGE_MULT
 
-        if 7.0 <= self.voltage_in < 12: # 9 volt battery
+        if 7.0 <= self.voltage_in < 12:  # 9 volt battery
             min_level = 7.5
-        elif 12 <= self.voltage_in < 13.6: # 10 NIMH 1.2 volt batteries
+        elif 12 <= self.voltage_in < 13.6:  # 10 NIMH 1.2 volt batteries
             min_level = 9.5
-        elif 13.6 <= self.voltage_in < 17.6: # 4 LiIon 3.6 volt batteries
+        elif 13.6 <= self.voltage_in < 17.6:  # 4 LiIon 3.6 volt batteries
             min_level = 12.0
         else:
             min_level = self.voltage_in
@@ -140,10 +140,10 @@ class JoyStickControl(Daemon):
             self._tb.halt_motors()
             self._tb.set_comms_failsafe(False)
             self._tb.set_led_battery_state(False)
-            self._tb.set_both_leds(0, 0, 0) # Set LEDs off
+            self._tb.set_both_leds(0, 0, 0)  # Set LEDs off
             self._log.info("Exiting")
 
-            if self.quit: # Only shutdown if asked.
+            if self.quit:  # Only shutdown if asked.
                 self._log.warn("Shutting down the Raspberry PI.")
                 os.system("sudo poweroff")
 
@@ -156,7 +156,7 @@ class JoyStickControl(Daemon):
         level_min, level_max = self._tb.get_battery_monitoring_limits()
         current_level = self._tb.get_battery_voltage()
         mid_level = (level_min + level_max) / 2
-        buf = six.StringIO()
+        buf = StringIO()
         buf.write("\nBattery Monitoring Settings\n")
         buf.write("---------------------------\n")
         buf.write("Minimum (red)    {:02.2f} V\n".format(level_min))
@@ -172,7 +172,7 @@ class JoyStickControl(Daemon):
         """
         self._tb.halt_motors()
         self._tb.set_led_battery_state(False)
-        self._tb.set_both_leds(0, 0, 1) # No joystick yet.
+        self._tb.set_both_leds(0, 0, 1)  # No joystick yet.
         self._log.debug("Battery LED state: %s, LED color one: %s, two: %s ",
                         self._tb.get_led_battery_state(),
                         self._tb.get_led_one(), self._tb.get_led_two())
@@ -210,7 +210,7 @@ class JoyStickControl(Daemon):
         self.__turn_invert = value
 
     def listen(self):
-        _mode = 0 # For now just set to 0
+        # _mode = 0  # For now just set to 0
         motor_one = motor_two = 0
 
         while not self.quit:
@@ -220,11 +220,10 @@ class JoyStickControl(Daemon):
                         if not self._tb.get_led_battery_state():
                             self._tb.set_led_battery_state(True)
 
-                        ## Set key presses
+                        # Set key presses
                         kp_map = self._check_presses(joystick)
                         # Set the mode.
-                        _mode = kp_map['mode']
-
+                        # _mode = kp_map['mode']
 
                         # Set the quit hold time.
                         quit_hold_time = kp_map['quit_hold_time']
@@ -239,7 +238,7 @@ class JoyStickControl(Daemon):
                         # Set slow speed
                         slow_speed = kp_map['slow_speed']
 
-                        ## Set ly and rx axes
+                        # Set ly and rx axes
                         motor_one, motor_two, x = self._process_motion(
                             joystick, 'ly', 'rx')
 
@@ -263,16 +262,16 @@ class JoyStickControl(Daemon):
                                  or self._tb.get_drive_fault_two())
                                 and self._tb.get_led_battery_state()):
                                 self._tb.set_led_battery_state(False)
-                                self._tb.set_both_leds(1, 0, 1) # purple
+                                self._tb.set_both_leds(1, 0, 1)  # purple
                         else:
                             time.sleep(0.25)
             except IOError:
-                self._tb.set_both_leds(0, 0, 1) # Set to blue
+                self._tb.set_both_leds(0, 0, 1)  # Set to blue
                 self._log.debug("Waiting for controller")
                 time.sleep(2.0)
 
     def _process_motion(self, joystick, fr, tn):
-        ## Set forward/reverse and turning axes
+        # Set forward/reverse and turning axes
         axis_map = self._check_axes(joystick)
         # Set left Y or pitch axis
         fwd_rev = axis_map[fr]
@@ -348,7 +347,7 @@ class JoyStickControl(Daemon):
         return axis_map
 
 
-if __name__ == '__main__': # pragma: no cover
+if __name__ == '__main__':  # pragma: no cover
     import argparse
 
     parser = argparse.ArgumentParser(

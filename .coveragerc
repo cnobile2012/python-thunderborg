@@ -9,6 +9,7 @@ omit =
     */tborg2/*
     # Virtualenv Python 3
     */tborg3/*
+    tmp/*
 
 [report]
 show_missing = True

@@ -20,8 +20,8 @@ TEST_PATH	= # Pass var for test paths.
 all	: tar
 
 # $ make tests
-# $ make tests TEST_PATH=tborg.tests.test_tborg.TestThunderBorg
-# $ make tests TEST_PATH=tborg/tests/test_tborg.py:TestClassMethods.test_set_i2c_address_without_current_address
+# $ make tests TEST_PATH=tborg/tests/test_tborgpy::TestThunderBorg
+# $ make tests TEST_PATH=tborg/tests/test_tborg.py::TestClassMethods::test_set_i2c_address_without_current_address
 .PHONY	: tests
 tests	: clean
 	@rm -rf $(DOCS_DIR)/htmlcov

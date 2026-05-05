@@ -63,7 +63,7 @@ class TestNoSetUp(BaseTest):
                     auto_set_addr=True)
         boards = ThunderBorg.find_board()
         msg = "Boards found: {}".format(boards)
-        self.assertEquals(ThunderBorg.DEFAULT_I2C_ADDRESS, 0x20, msg)
+        self.assertEqual(ThunderBorg.DEFAULT_I2C_ADDRESS, 0x20, msg)
         self.assertTrue(len(boards) > 0, msg)
         self.assertEqual(boards[0], default_address, msg)
 

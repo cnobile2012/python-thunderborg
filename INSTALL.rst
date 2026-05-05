@@ -37,14 +37,6 @@ account) on your Raspberry Pi you will need to install a few system packages.
 I'm assuming you have installed Raspian bullseye. Python 2 is no longer
 installed on bullseye.
 
-Change the below packages to the Python 2.x versions where
-appropriate.
-
-.. code-block:: console
-
-    $ sudo apt install build-essential python3-dev python3-setuptool \
-                       git libssh-dev libffi-dev rustc-mozilla cargo-mozilla
-
 If you'll be using pygame instead of approxeng you'll also need to install
 the following packages.
 

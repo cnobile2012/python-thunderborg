@@ -47,6 +47,13 @@ board has additional features that the original API does not have.
    It is functionally compatible, but not signature compatible. In other
    words the class and method calls are completely different.
 
+The original code and site are below:
+
+`GitHub <https://github.com/piborg>`_
+
+`Store (Closed as of 2026) <https://www.piborg.org/>`_
+
+
 Provides
 ========
 

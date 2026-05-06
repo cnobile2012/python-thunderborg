@@ -4,10 +4,7 @@
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-python_classes = "Test*"
-testpaths = [
-	"tborg/tests"
-	]
+testpaths = ["tborg/tests"]
 
 [build-system]
 requires = ["hatchling", "wheel"]

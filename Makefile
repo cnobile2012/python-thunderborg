@@ -47,8 +47,9 @@ tests	: clean
 	@rm -rf $(DOCS_DIR)/htmlcov
 	@mkdir -p $(LOGS_DIR)
 	@coverage erase --rcfile=$(COVERAGE_FILE)
-	@coverage run --rcfile=$(COVERAGE_FILE) -m pytest --capture=tee-sys \
-         $(TEST_PATH)
+        # The --omit must be here or tests will be in coverage.
+	@coverage run --rcfile=$(COVERAGE_FILE) --omit="tborg/tests/*" -m pytest \
+         --capture=tee-sys $(TEST_PATH)
 	@coverage report -m --rcfile=$(COVERAGE_FILE)
 	@coverage html --rcfile=$(COVERAGE_FILE)
 	@echo $(TODAY)

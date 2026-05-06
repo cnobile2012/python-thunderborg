@@ -5,7 +5,8 @@
 include include.mk
 
 PREFIX		= $(shell pwd)
-PACKAGE_DIR	= $(shell echo $${PWD\#\#*/})
+BASE_DIR	= $(shell basename $(PREFIX))
+PACKAGE_DIR	= $(BASE_DIR)-$(VERSION)$(TEST_TAG)
 DOCS_DIR	= $(PREFIX)/docs
 LOGS_DIR	= $(PREFIX)/logs
 TODAY		= $(shell date +"%Y-%m-%d_%H%M")
@@ -17,8 +18,27 @@ PIP_ARGS	= # Pass var for pip install.
 TEST_PATH	= # Pass var for test paths.
 
 #----------------------------------------------------------------------
-all	: tar
+all	: help
 
+#----------------------------------------------------------------------
+.PHONY:	help
+help	:
+	@LC_ALL=C $(MAKE) -pRrq -f $(firstword $(MAKEFILE_LIST)) : \
+                2>/dev/null | awk -v RS= \
+                -F: '/(^|\n)# Files(\n|$$)/,/(^|\n)# Finished Make data \
+                     base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | grep \
+                -E -v -e '^[^[:alnum:]]' -e '^$@$$'
+
+#
+# The tarball would then be named python-thunderborg-2.0.0rc1.tar.gz
+#
+.PHONY	: tar
+tar	: clean
+	@(cd ..; tar -czvf $(PACKAGE_DIR).tar.gz --exclude=".git" \
+          --exclude="__pycache__" --exclude="$(LOGS_DIR)/*.log" \
+          --exclude="dist/*" $(BASE_DIR))
+
+#----------------------------------------------------------------------
 # $ make tests
 # $ make tests TEST_PATH=tborg/tests/test_tborgpy::TestThunderBorg
 # $ make tests TEST_PATH=tborg/tests/test_tborg.py::TestClassMethods::test_set_i2c_address_without_current_address
@@ -50,8 +70,6 @@ sphinx	: clean
 # make build TEST_TAG=rc1
 # make upload-test TEST_TAG=rc1
 #
-# The tarball would then be named python-thunderborg-2.0.0rc1.tar.gz
-#
 .PHONY	: build
 build   : export PR_TAG=$(TEST_TAG)
 build	: clean
@@ -75,11 +93,6 @@ install-dev:
 .PHONY	: install-prd
 install-prd:
 	pip install $(PIP_ARGS) -r requirements/production.txt
-
-.PHONY	: tar
-tar	: clean
-	@(cd ..; tar -czvf $(PACKAGE_DIR).tar.gz --exclude=".git" \
-          --exclude="$(LOGS_DIR)/*.log" --exclude="dist/*" $(PACKAGE_DIR))
 
 #----------------------------------------------------------------------
 

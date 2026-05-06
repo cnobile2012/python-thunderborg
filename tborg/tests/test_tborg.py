@@ -72,9 +72,16 @@ class TestNoSetUp(BaseTest):
         """
         Test that an invalid address creates the expected exception.
         """
+        err_msg = ("ThunderBorg could not be found; is it properly attached, "
+                   "the correct address used, and the I2C driver module "
+                   "loaded?")
+
         with self.assertRaises(ThunderBorgException) as cm:
             ThunderBorg(address=0x70, logger_name=self._LOG_FILENAME,
                         log_level=logging.DEBUG)
+
+        message = str(cm.exception)
+        self.assertEqual(message, err_msg)
 
     #@unittest.skip("Temporarily skipped")
     @patch.object(ThunderBorg, '_I2C_ID_THUNDERBORG', 0x20)
@@ -82,9 +89,16 @@ class TestNoSetUp(BaseTest):
         """
         Test that an invalid board ID causes the expected exception.
         """
+        err_msg = ("ThunderBorg could not be found; is it properly attached, "
+                   "the correct address used, and the I2C driver module "
+                   "loaded?")
+
         with self.assertRaises(ThunderBorgException) as cm:
             ThunderBorg(logger_name=self._LOG_FILENAME,
                         log_level=logging.DEBUG)
+
+        message = str(cm.exception)
+        self.assertEqual(message, err_msg)
 
 
 class TestClassMethods(BaseTest):
@@ -139,13 +153,16 @@ class TestClassMethods(BaseTest):
     #@unittest.skip("Temporarily skipped")
     def test_set_i2c_address_with_address_range_invalid(self):
         """
-        Test that an exception is raised  when the address is out of
-        range.
+        Test that an exception is raised  when the address is out of range.
         """
         new_addr = 0x78
+        err_msg = "Error, I2C addresses must be in the range of 0x03 to 0x77"
 
         with self.assertRaises(ThunderBorgException) as cm:
             ThunderBorg.set_i2c_address(new_addr)
+
+        message = str(cm.exception)
+        self.assertEqual(message, err_msg)
 
     #@unittest.skip("Temporarily skipped")
     def test_config_with_auto_set_address(self):
@@ -182,7 +199,7 @@ class TestThunderBorg(BaseTest):
         self._tb.write_external_led_word(0, 0, 0, 0)
         self._tb.close_streams()
 
-    def validate_tuples(self, t0, t1):
+    def _validate_tuples(self, t0, t1):
         msg = "rgb0: {:0.2f}, rgb1: {:0.2f}"
 
         for x, y in zip(t0, t1):
@@ -300,7 +317,7 @@ class TestThunderBorg(BaseTest):
         for rgb in rgb_list:
             self._tb.set_led_one(*rgb)
             ret_rgb = self._tb.get_led_one()
-            self.validate_tuples(ret_rgb, rgb)
+            self._validate_tuples(ret_rgb, rgb)
 
     #@unittest.skip("Temporarily skipped")
     def test_set_get_led_two(self):
@@ -315,7 +332,7 @@ class TestThunderBorg(BaseTest):
         for rgb in rgb_list:
             self._tb.set_led_two(*rgb)
             ret_rgb = self._tb.get_led_two()
-            self.validate_tuples(ret_rgb, rgb)
+            self._validate_tuples(ret_rgb, rgb)
 
     #@unittest.skip("Temporarily skipped")
     def test_set_both_leds(self):
@@ -330,9 +347,9 @@ class TestThunderBorg(BaseTest):
         for rgb in rgb_list:
             self._tb.set_both_leds(*rgb)
             ret_rgb = self._tb.get_led_one()
-            self.validate_tuples(ret_rgb, rgb)
+            self._validate_tuples(ret_rgb, rgb)
             ret_rgb = self._tb.get_led_two()
-            self.validate_tuples(ret_rgb, rgb)
+            self._validate_tuples(ret_rgb, rgb)
 
     #@unittest.skip("Temporarily skipped")
     def test_set_and_get_led_battery_state(self):
@@ -450,10 +467,10 @@ class TestThunderBorg(BaseTest):
 
         .. note::
 
-          Set limits based on a fully charged LiIon battery pack. This
-          could be anywhere between 15.4 and 16.8 volts maximum depending
-          on the type of batteries used. The minimum should never be less
-          than 3 volts per cell or in a four pack 12 volts.
+          Set limits based on a fully charged LiIon battery pack. This could
+          be anywhere between 15.4 and 16.8 volts maximum depending on the
+          type of batteries used. The minimum should never be less than 3
+          volts per cell or in a four pack 12 volts.
         """
         vmin = 12.0
         vmax = 16.8
@@ -480,13 +497,14 @@ class TestThunderBorg(BaseTest):
         color = (255, 64, 1, 0)
         self._tb.write_external_led_word(*color)
 
-        #self.validate_tuples(led2, off)
+        #self._validate_tuples(led2, off)
 
     @unittest.skip("Temporarily skipped")
     def test_set_external_led_colors(self):
         """
-        Test that setting external LEDs works correctly.
+        Test that setting external LEDs works correctly. This test requires
+        external LEDs.
         """
         # Set a single LED to yellow.
-        yellow = [[1.0, 1.0, 0.0]]
+        yellow = [(1.0, 1.0, 0.0)]
         self._tb.set_external_led_colors(yellow)

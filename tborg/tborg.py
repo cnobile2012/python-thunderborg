@@ -363,8 +363,7 @@ class ThunderBorg(object):
                          static_init=True)
 
         if not (0x03 <= new_addr <= 0x77):
-            msg = ("Error, I2C addresses must be in the range "
-                   "of 0x03 to 0x77")
+            msg = "Error, I2C addresses must be in the range of 0x03 to 0x77"
             tb._log.error(msg)
             raise ThunderBorgException(msg)
 
@@ -530,7 +529,7 @@ class ThunderBorg(object):
             msg = f"Failed sending motor {motor} drive level {level}, {e}"
             self._log.error(msg)
             raise ThunderBorgException(msg)
-        except ValueError as e:
+        except ValueError as e:  # pragma: no cover
             motor = 1 if fwd == self.COMMAND_SET_A_FWD else 2
             msg = (f"Failed sending motor {motor} drive level {level}, "
                    f"pwm: {pwm}, {e}")

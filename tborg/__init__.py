@@ -15,7 +15,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from __future__ import absolute_import
 
 import os
 import logging
@@ -32,7 +31,7 @@ LOG_PATH = None
 RUN_PATH = None
 
 
-def create_working_dir():
+def create_working_dir():  # pragma: no cover
     """
     This function creates a `borg_cube` directory containing a `logs`
     and `run` directories.

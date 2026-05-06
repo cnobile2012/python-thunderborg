@@ -79,6 +79,6 @@ class ConfigLogger(object):
             formatter = logging.Formatter(self._format)
             handler.setFormatter(formatter)
             logger.addHandler(handler)
-        else:
+        else:  # pragma: no cover
             logging.basicConfig(filename=file_path, format=self._format,
                                 level=level)

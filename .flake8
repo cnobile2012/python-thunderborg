@@ -9,5 +9,5 @@ exclude =
     tmp,
 
 per-file-ignores =
-    tborg/examples/*: E129, E402
+    tborg/examples/*: E129, E252, E402
     tborg/tests/*: E265

@@ -22,10 +22,6 @@ python packages as sudo (root) user. Which means the other advantage of
 virtual environments is that it's installed in your user account not in the
 root of the system.
 
-Although this API will work with Python version 2.7.x I strongly recommend
-writing any new code using Python 3.8 or higher. The Python 2.x versions
-ware at their end of life on January 1st 2020.
-
 Building a Development Environment for your Projects
 ----------------------------------------------------
 
@@ -52,19 +48,25 @@ the following packages.
                        xfonts-base xfonts-100dpi xfonts-75dpi xfonts-cyrillic \
                        fontconfig fonts-freefont-ttf
 
-Install the Python virtual environment. The ``pip`` utility can be used to
-install packages for either ``python2`` or ``python3`` there is no need to
-install ``pip`` for both python versions. This is also true for the virtual
-environment package which can create virtual environments for either
-version of Python. The ``virtualenvwrapper`` package is a wrapper around
-``virtualenv`` that provides easy to use tools for ``virtualenv`` and will
-install ``virtualenv`` for you.
+If you want to use `tborg/examples/monster_web.py` you will need to install
+the following package. This will install lots of packages so be sure to use
+the `--no-install-recommends` so you don't get things that are not needed.
+There is a problem with this however, in that picamera2 cannot be accessed
+within a virtual environment. ** I'm still working on this ***
+
+.. code-block:: console
+
+    $ sudo apt install python3-picamera2 --no-install-recommends
+
+Install the Python virtual environment. The ``virtualenvwrapper`` package is
+a wrapper around ``virtualenv`` that provides easy to use tools for
+``virtualenv`` and will install ``virtualenv`` for you.
 
 .. note::
 
-   A directory is created in the user's home directory named
-   ``.virtualenvs``. In there you'll be able to find all your project
-   requirements and the packages you have installed for each of them.
+   A directory is created in the user's home directory named ``.virtualenvs``.
+   In there you'll be able to find all your project requirements and the
+   packages you have installed for each of them.
 
 .. code-block:: console
 
@@ -92,13 +94,14 @@ Then add the following lines to the bottom of the ``.bashrc`` file.
     $ . .bashrc
 
 Create a VE (Virtual Environment) for your project. The VE name can be
-whatever you want and does not need to match the actual project's name,
-but it might be a good idea to keep it short so that you can remember it.
+whatever you want and does not need to match the actual project's name, but
+it might be a good idea to keep it short so that you can remember it. Also,
+you can use other versions of python besides 3.13.
 
 .. code-block:: console
 
     $ cd /path/to/your_project
-    $ mkvirtualenv your_project # mkvirtualenv -p python2 your_project
+    $ mkvirtualenv -p python3.13 your_project
 
 After the initial creation of the VE you can use these commands to activate
 and deactivate a VE.

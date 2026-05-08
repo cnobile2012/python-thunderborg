@@ -1,11 +1,13 @@
 [run]
 source = tborg
 omit =
-    **/tests/*
     **/examples/*
     **/utils/*
     tmp/*
     */__pycache__/*
+    # Doesn't work here, see Makefile.
+    #**/tests/*
+    #/usr/*
 
 [report]
 show_missing = True

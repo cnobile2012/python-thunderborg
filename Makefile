@@ -48,7 +48,7 @@ tests	: clean
 	@mkdir -p $(LOGS_DIR)
 	@coverage erase --rcfile=$(COVERAGE_FILE)
         # The --omit must be here or tests will be in coverage.
-	@coverage run --rcfile=$(COVERAGE_FILE) --omit="tborg/tests/*" \
+	@coverage run --rcfile=$(COVERAGE_FILE) --omit="tborg/tests/*,/usr/*" \
          -m pytest --capture=tee-sys $(TEST_PATH)
 	@coverage report -m --rcfile=$(COVERAGE_FILE)
 	@coverage html --rcfile=$(COVERAGE_FILE)

@@ -1,2 +1,3 @@
 jinja2
 picamera2
+opencv-python

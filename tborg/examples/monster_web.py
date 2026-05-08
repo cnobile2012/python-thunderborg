@@ -5,15 +5,25 @@
 #
 __docformat__ = "restructuredtext en"
 
-import ThunderBorg
 import time
 import sys
 import threading
-import picamera2
 import cv2
 import datetime
 
+from picamera2 import Picamera2
 from socketserver import TCPServer
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
+sys.path.append(BASE_DIR)
+
+from tborg import (create_working_dir, ConfigLogger, ThunderBorg,
+                   ThunderBorgException)
+
+create_working_dir()
+
+from tborg import LOG_PATH, RUN_PATH
 
 
 class Watchdog(threading.Thread):
@@ -38,7 +48,7 @@ class Watchdog(threading.Thread):
                 if self.event.wait(1):
                     # Connection
                     print("Reconnected...")
-                    self.tb.SetLedShowBattery(True)
+                    self.tb.set_led_battery_state(True)
                     timed_out = False
                     self.event.clear()
             else:
@@ -47,10 +57,10 @@ class Watchdog(threading.Thread):
                 else:
                     # Timed out
                     print("Timed out...")
-                    self.tb.SetLedShowBattery(False)
-                    self.tb.SetLeds(0, 0, 1)
+                    self.tb.set_led_battery_state(False)
+                    self.tb.set_both_leds(0, 0, 1)
                     timed_out = True
-                    self.tb.MotorsOff()
+                    self.tb.halt_motors()
 
 
 class StreamProcessor(threading.Thread):
@@ -63,7 +73,9 @@ class StreamProcessor(threading.Thread):
         self.jpeg_quality = global_data['jpeg_quality']
         self.last_frame = global_data['last_frame']
         self.lock_frame = global_data['lock_frame']
-        self.stream = picamera.array.PiRGBArray(global_data['camera'])
+        self.camera = global_data['camera']
+
+        self.stream = self.camera.capture_array()
         self.event = threading.Event()
         self.terminated = False
         self.start()
@@ -80,24 +92,55 @@ class StreamProcessor(threading.Thread):
 
                     if self.flipped_camera:
                         # Flips X and Y
-                        flippedArray = cv2.flip(self.stream.array, -1)
-                        retval, thisFrame = cv2.imencode(
-                            '.jpg', flippedArray,
+                        flipped_array = cv2.flip(self.stream.array, -1)
+                        retval, this_frame = cv2.imencode(
+                            '.jpg', flipped_array,
                             [cv2.IMWRITE_JPEG_QUALITY, self.jpeg_quality])
-                        del flippedArray
+                        del flipped_array
                     else:
-                        retval, thisFrame = cv2.imencode(
+                        retval, this_frame = cv2.imencode(
                             '.jpg', self.stream.array,
                             [cv2.IMWRITE_JPEG_QUALITY, self.jpeg_quality])
 
                     self.lock_frame.acquire()
-                    self.last_frame = thisFrame
+                    self.last_frame = this_frame
                     self.lock_frame.release()
                 finally:
                     # Reset the stream and event
                     self.stream.seek(0)
                     self.stream.truncate()
                     self.event.clear()
+
+
+class ImageCapture(threading.Thread):
+    """
+    Image capture thread
+    """
+    def __init__(self, camera, processor, running, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.camera = camera  # Already configured and started.
+        self.processor = processor
+        self.running = running
+        self.start()
+
+    def run(self):
+        print("Start the stream using the video port.")
+
+        while self.running:
+            # Wait until processor is ready
+            if self.processor.event.is_set():
+                time.sleep(0.001)
+                continue
+
+            request = self.camera.capture_request()
+            self.processor.frame = request.make_array("main")
+            request.release()
+            self.processor.event.set()
+
+        print("Terminating camera processing...")
+        self.processor.terminated = True
+        self.processor.join()
+        print("Processing terminated.")
 
 
 class WebServer(SocketServer.BaseRequestHandler):
@@ -108,6 +151,9 @@ class WebServer(SocketServer.BaseRequestHandler):
 
     def handle(self):
         # Get the HTTP request data
+        lock_frame = self.GLOBAL_DATA['lock_frame']
+        watchdog = self.GLOBAL_DATA['watchdog']
+        max_power = self.GLOBAL_DATA['max_power']
         req_data = self.request.recv(1024).strip()
         req_data = req_data.split('\n')
         # Get the URL requested
@@ -123,9 +169,9 @@ class WebServer(SocketServer.BaseRequestHandler):
 
         if get_path.startswith('/cam.jpg'):
             # Camera snapshot
-            self.lock_frame.acquire()
-            send_frame = self.last_frame
-            self.lock_frame.release()
+            lock_frame.acquire()
+            send_frame = self.GLOBAL_DATA['last_frame']
+            lock_frame.release()
 
             if send_frame is not None:
                 self.send(send_frame.tostring())
@@ -135,7 +181,7 @@ class WebServer(SocketServer.BaseRequestHandler):
             httpText += 'Speeds: 0 %, 0 %'
             httpText += '</center></body></html>'
             self.send(httpText)
-            self.tb.MotorsOff()
+            self.tb.halt_motors()
         elif get_path.startswith('/set/'):
             # Motor power setting: /set/driveLeft/driveRight
             parts = get_path.split('/')
@@ -173,15 +219,15 @@ class WebServer(SocketServer.BaseRequestHandler):
             httpText += '</center></body></html>'
             self.send(httpText)
             # Set the outputs
-            driveLeft *= self.max_power
-            driveRight *= self.max_power
-            self.tb.SetMotor1(driveRight)
-            self.tb.SetMotor2(driveLeft)
+            driveLeft *= max_power
+            driveRight *= max_power
+            self.tb.set_motor_one(driveRight)
+            self.tb.set_motor_two(driveLeft)
         elif get_path.startswith('/photo'):
             # Save camera photo
-            self.lock_frame.acquire()
-            captureFrame = self.last_frame
-            self.lock_frame.release()
+            lock_frame.acquire()
+            captureFrame = self.GLOBAL_DATA['last_frame']
+            lock_frame.release()
             httpText = '<html><body><center>'
 
             if captureFrame is not None:
@@ -312,37 +358,11 @@ class WebServer(SocketServer.BaseRequestHandler):
         self.request.sendall(f'HTTP/1.0 200 OK\n\n{content}')
 
 
-class ImageCapture(threading.Thread):
-    """
-    Image capture thread
-    """
-    def __init__(self, camera, processor, running, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.camera = camera
-        self.processor = processor
-        self.running = running
-        self.start()
-
-    def run(self):
-        print("Start the stream using the video port.")
-        self.camera.capture_sequence(self.TriggerStream(), format='bgr',
-                                     use_video_port=True)
-        print("Terminating camera processing...")
-        self.processor.terminated = True
-        self.processor.join()
-        print("Processing terminated.")
-
-    # Stream delegation loop
-    def TriggerStream(self):
-        while self.running:
-            if self.processor.event.is_set():
-                time.sleep(0.01)
-            else:
-                yield self.processor.stream
-                self.processor.event.set()
-
-
 class MonsterWeb:
+    _LOG_PATH = os.path.join(LOG_PATH, 'monster_web.log')
+    _BASE_LOGGER_NAME = 'examples'
+    _LOGGER_NAME = f'{_BASE_LOGGER_NAME}.monster_web'
+    _TBORG_LOGGER_NAME = 'examples.tborg'
     WEB_PORT = 80
     """
     int: Port number for the web-page, 80 (default).
@@ -375,11 +395,9 @@ class MonsterWeb:
     """
     int: JPEG quality level, smaller is faster, higher looks better (0 to 100)
     """
-
     # These were all global to the module.
     LAST_FRAME = None
     LOCK_FRAME = threading.Lock()
-    CAMERA = picamera.PiCamera()
     PROCESSOR = None
     RUNNING = True
     WATCHDOG = None
@@ -387,48 +405,25 @@ class MonsterWeb:
 
     def __init__(self, address: int=0x15, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.tb = ThunderBorg.ThunderBorg()
-        self.tb.i2cAddress = address  # Board address
-        self.tb.Init()
+        self.tb = ThunderBorg(logger_name=self._TBORG_LOGGER_NAME,
+                              address=address, log_level=logging.INFO)
+        self.camera = None
         self.global_data = {'tb': self.tb,
-                            'web_ port': self.WEB_PORT,
-                            'image_width': self.IMAGE_WIDTH,
-                            'image_height': self.IMAGE_HEIGHT,
-                            'frame_rate': self.FRAME_RATE,
                             'display_rate': self.DISPLAY_RATE,
                             'photo_directory': self.PHOTO_DIRECTORY,
-                            'flipped_camera': self.FLIPPED_CAMERA,
+                            'flipped_amera': self.FLIPPED_CAMERA,
                             'jpeg_quality': self.JPEG_QUALITY,
                             'last_frame': self.LAST_FRAME,
                             'lock_frame': self.LOCK_FRAME,
-                            'camera': self.CAMERA,
+                            'camera': self.camera,
                             'processor': self.PROCESSOR,
-                            'running': self.RUNNING,
                             'watchdog': self.WATCHDOG,
                             'max_power': self.MAX_POWER,
                             }
 
-        if not self.tb.foundChip:
-            boards = ThunderBorg.ScanForThunderBorg()
-
-            if len(boards) == 0:
-                print("No ThunderBorg found, check you are attached :)")
-            else:
-                print(f"No ThunderBorg at address {self.tb.i2cAddress:02X}, "
-                      "but we did find boards:")
-
-                for board in boards:
-                    print(f"    {board:02X} ({board})")
-
-                print("If you need to change the I²C address change the "
-                      "setup line so it is correct, e.g.")
-                print("self.tb.i2cAddress = 0x{boards[0]:02X}")
-
-            sys.exit()
-
-        self.tb.SetCommsFailsafe(False)
-        self.tb.SetLedShowBattery(False)
-        self.tb.SetLeds(0, 0, 1)
+        self.tb.set_comms_failsafe(False)
+        self.tb.set_led_battery_state(False)
+        self.tb.set_both_leds(0, 0, 1)
 
         # Power settings
         # Total battery voltage to the ThunderBorg
@@ -448,18 +443,24 @@ class MonsterWeb:
         Create the image buffer frame
         """
         # Startup sequence
-        print("Setup camera")
-        self.camera.resolution = (self.IMAGE_WIDTH, self.IMAGE_HEIGHT)
-        self. camera.framerate = self.FRAME_RATE
+        self.camera = Picamera2()
+        config = picam2.create_video_configuration(
+            main={"size": (self.IMAGE_WIDTH, self.IMAGE_HEIGHT),
+                  "format": "BGR888"},
+            controls={"FrameDurationLimits": (
+                int(1_000_000 / self.FRAME_RATE),
+                int(1_000_000 / self.FRAME_RATE))})
+        self.camera.configure(config)
+        self.camera.start()
 
         print("Setup the stream processing thread")
-        self.processor = StreamProcessor(self.last_frame, self.lock_frame,
-                                         self.camera)
+        self.PROCESSOR = StreamProcessor(self.LAST_FRAME, self.LOCK_FRAME,
+                                         self.CAMERA)
         print("Wait ...")
         time.sleep(2)
-        captureThread = ImageCapture(self.camera, self.processor, self.running)
+        captureThread = ImageCapture(self.CAMERA, self.PROCESSOR, self.RUNNING)
         print("Setup the watchdog")
-        self.watchdog = Watchdog(self.tb)
+        self.WATCHDOG = Watchdog(self.tb)
 
         # Run the web server until we are told to close
         try:
@@ -475,7 +476,7 @@ class MonsterWeb:
             print("If the script was just working recently try waiting a "
                   "minute first.\n")
             # Flag the script to exit
-            self.running = False
+            self.RUNNING = False
 
         print("Press CTRL+C to terminate the web-server.")
 
@@ -487,23 +488,23 @@ class MonsterWeb:
             print("\nUser shutdown")
         finally:
             # Turn the motors off under all scenarios
-            self.tb.MotorsOff()
+            self.tb.halt_motors()
             print("Motors off")
 
         # Tell each thread to stop, and wait for them to end
         if httpServer is not None:
             httpServer.server_close()
 
-        self.running = False
+        self.RUNNING = False
         captureThread.join()
-        self.processor.terminated = True
-        self.watchdog.terminated = True
-        self.processor.join()
-        self.watchdog.join()
-        self.camera = None
-        self.tb.SetLedShowBattery(False)
-        self.tb.SetLeds(0, 0, 0)
-        self.tb.MotorsOff()
+        self.PROCESSOR.terminated = True
+        self.WATCHDOG.terminated = True
+        self.PROCESSOR.join()
+        self.WATCHDOG.join()
+        self.CAMERA = None
+        self.tb.set_led_battery_state(False)
+        self.tb.set_both_leds(0, 0, 0)
+        self.tb.halt_motors()
         print("Web-server terminated.")
 
 

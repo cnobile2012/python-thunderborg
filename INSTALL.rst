@@ -96,12 +96,13 @@ Then add the following lines to the bottom of the ``.bashrc`` file.
 Create a VE (Virtual Environment) for your project. The VE name can be
 whatever you want and does not need to match the actual project's name, but
 it might be a good idea to keep it short so that you can remember it. Also,
-you can use other versions of python besides 3.13.
+you can use other versions of python besides 3.13. The `--system-site-packages`
+argument below is only needed if you intend to use the camera.
 
 .. code-block:: console
 
     $ cd /path/to/your_project
-    $ mkvirtualenv -p python3.13 your_project
+    $ mkvirtualenv -p python3.13 --system-site-packages your_project
 
 After the initial creation of the VE you can use these commands to activate
 and deactivate a VE.

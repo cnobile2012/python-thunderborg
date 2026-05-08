@@ -31,7 +31,7 @@ class ThunderBorgException(Exception):
     pass
 
 
-class ThunderBorg(object):
+class ThunderBorg:
     """
     This module is designed to communicate with the ThunderBorg motor
     controller board.
@@ -129,12 +129,8 @@ class ThunderBorg(object):
     COMMAND_ANALOG_MAX = 0x3FF
     """Maximum value for analog readings"""
 
-    def __init__(self,
-                 bus_num=DEFAULT_BUS_NUM,
-                 address=DEFAULT_I2C_ADDRESS,
-                 logger_name='',
-                 log_level=_DEF_LOG_LEVEL,
-                 auto_set_addr=False,
+    def __init__(self, bus_num=DEFAULT_BUS_NUM, address=DEFAULT_I2C_ADDRESS,
+                 logger_name='', log_level=_DEF_LOG_LEVEL, auto_set_addr=False,
                  static_init=False):
         """
         Setup logging and initialize the ThunderBorg motor driver board.

@@ -41,7 +41,6 @@ class Watchdog(threading.Thread):
         self.event = threading.Event()
         self.terminated = False
         self.start()
-        self.timestamp = time.time()
 
     def run(self):
         timed_out = True
@@ -162,8 +161,6 @@ class WebServer(BaseRequestHandler):
             parts = line.split(' ')
             url_path = parts[0]
 
-        #watchdog.event.set()
-
         # Serve static files from the templates directory
         if url_path.startswith('/stream.mjpg'):
             self._serve_mjpeg_stream()
@@ -177,6 +174,7 @@ class WebServer(BaseRequestHandler):
                                   percent_left=0, percent_right=0)
 
             if self.tb:
+                watchdog.event.set()
                 self.tb.halt_motors()
         elif url_path.startswith('/set'):
             # Motor power setting: /set/left/right
@@ -219,6 +217,7 @@ class WebServer(BaseRequestHandler):
             drive_right *= max_power
 
             if self.tb:
+                watchdog.event.set()
                 self.tb.set_motor_one(drive_right)
                 self.tb.set_motor_two(drive_left)
         elif url_path.startswith('/photo'):

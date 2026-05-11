@@ -1013,7 +1013,7 @@ class ThunderBorg:
         :param float voltage_in: The current volatge level.
         """
         if math.isclose(voltage_in, 0.0):
-            voltage_in = self._tb.get_battery_voltage()
+            voltage_in = self.get_battery_voltage()
 
         max_level = voltage_in * self._MAX_VOLTAGE_MULT
 

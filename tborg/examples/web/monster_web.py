@@ -121,7 +121,8 @@ class ImageCapture(threading.Thread):
                 continue
 
             request = self.camera.capture_request()
-            self.processor.frame = request.make_array("main")
+            self.processor.frame = cv2.cvtColor(request.make_array("main"),
+                                                cv2.COLOR_RGB2BGR)
             request.release()
             self.processor.event.set()
 
@@ -461,7 +462,14 @@ class MonsterWeb(Daemon):
                     int(1_000_000 / self.FRAME_RATE))})
             self.camera.configure(config)
             self.camera.start()
-            self.camera.set_controls({"AwbMode": 1})
+            # Color adaption
+            # 0 Auto
+            # 1 Tungsten
+            # 2 Fluorescent
+            # 3 Indoor
+            # 4 Daylight
+            # 5 Cloudy
+            self.camera.set_controls({"AwbMode": 0})
 
             self._log.info("Setup the stream processing thread")
             self.processor = StreamProcessor(self.global_data)

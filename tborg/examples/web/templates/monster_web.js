@@ -19,13 +19,3 @@ function photo() {
   var iframe = document.getElementById("set_drive");
   iframe.src = "/photo";
 }
-
-function refresh_image() {
-  for (const img of document.images) {
-    console.log(img.src);
-
-
-  //if (document.images.length > 0) {
-  //  document.images["rpicam"].src = "cam.jpg?" + Math.random();
-  }
-}

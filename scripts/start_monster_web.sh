@@ -17,4 +17,3 @@ if [ -d "$SITE_PACKAGES" ]; then
 else
     printf "site-packages not found inside %s\n" $PYTHON_PATH
 fi
-

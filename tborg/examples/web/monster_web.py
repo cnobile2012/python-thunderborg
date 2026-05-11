@@ -326,7 +326,7 @@ class WebServer(BaseRequestHandler):
                         frame +
                         b"\r\n")
 
-                time.sleep(1 / 20)  # 20 FPS
+                time.sleep(1 / self.GLOBAL_DATA['fps'])  # Frames Per Ssecond
 
         except (BrokenPipeError, ConnectionResetError):
             pass
@@ -355,7 +355,7 @@ class MonsterWeb(Daemon):
     """
     int: Height of the captured image in pixels
     """
-    FRAME_RATE = 20
+    FRAME_RATE = 30
     """
     int: Number of images to capture per second
     """
@@ -414,6 +414,7 @@ class MonsterWeb(Daemon):
 
         self.global_data = {'tb': self.tb,
                             'log_name': self._LOGGER_NAME,
+                            'fps': self.FRAME_RATE,
                             'flipped_camera': self.FLIPPED_CAMERA,
                             'jpeg_quality': self.JPEG_QUALITY,
                             'last_frame': self.LAST_FRAME,

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-
+#
+# Start the monster_web.pp script
+#
 TBORG_VE=$HOME/.virtualenvs/tborg3
 TBORG_VE_BIN=$TBORG_VE/bin
 TBORG_HOME=$HOME/src/python-thunderborg
@@ -10,8 +12,9 @@ SITE_PACKAGES=$PYTHON_PATH/site-packages
 if [ -d "$SITE_PACKAGES" ]; then
     #printf "Found site-packages at: %s\n" $SITE_PACKAGES
     export PYTHONPATH="$SITE_PACKAGES:$PYTHONPATH"
-    $TBORG_VE_BIN/python $TBORG_HOME/tborg/examples/mborg_approxeng.py \
-                         --voltage-in=0 > /tmp/mborg_approxeng_cron.log 2>&1
+    $TBORG_VE_BIN/python $TBORG_HOME/tborg/examples/web/monster_web.py \
+                         --voltage-in=0 > /tmp/monster_web_cron.log 2>&1
 else
     printf "site-packages not found inside %s\n" $PYTHON_PATH
 fi
+

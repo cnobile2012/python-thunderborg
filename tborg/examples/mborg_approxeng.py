@@ -68,8 +68,7 @@ class JoyStickControl(Daemon):
                   file_path=self._LOG_PATH,
                   level=log_level)
         self._log = logging.getLogger(self._LOGGER_NAME)
-        super(JoyStickControl, self).__init__(
-            self._PIDFILE, logger_name=self._LOGGER_NAME)
+        super().__init__(self._PIDFILE, logger_name=self._LOGGER_NAME)
         self._log.info("Initial arguments: bus_num: %s, address: %s, "
                        "borg: %s, log_level: %s, voltage_in: %s, debug: %s",
                        bus_num, address, borg, logging.getLevelName(log_level),
@@ -359,7 +358,8 @@ if __name__ == '__main__':  # pragma: no cover
         help="Run in debug mode (no thunderborg code is run).")
     parser.add_argument(
         '-v', '--voltage-in', default=12, dest='voltage_in',
-        help="The total voltage from the battery source, defaults to 12.")
+        help=("The total voltage from the battery source, defaults to 12. "
+              "If set to 0 (zero) the voltage is auto detected."))
     parser.add_argument(
         '-s', '--start', action='store_true', default=False, dest='start',
         help="Start the daemon.")

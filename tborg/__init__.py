@@ -29,6 +29,7 @@ __all__ = ['create_working_dir', 'ConfigLogger', 'ThunderBorg',
 BORG_CUBE = None
 LOG_PATH = None
 RUN_PATH = None
+MEDIA_PATH = None
 
 
 def create_working_dir():  # pragma: no cover
@@ -42,20 +43,26 @@ def create_working_dir():  # pragma: no cover
     global BORG_CUBE
     global LOG_PATH
     global RUN_PATH
+    global MEDIA_PATH
     home = os.path.expanduser('~')
     borg_cube = os.path.join(home, 'borg_cube')
     logs = os.path.join(borg_cube, 'logs')
     run = os.path.join(borg_cube, 'run')
+    media = os.path.join(borg_cube, 'media')
 
-    try:
+    if not os.path.exists(logs):
         os.makedirs(logs, mode=0o777)
+
+    if not os.path.exists(run):
         os.makedirs(run, mode=0o777)
-    except OSError:
-        pass
+
+    if not os.path.exists(media):
+        os.makedirs(media, mode=0o777)
 
     BORG_CUBE = borg_cube
     LOG_PATH = logs
     RUN_PATH = run
+    MEDIA_PATH = media
 
 
 class ConfigLogger(object):
@@ -65,8 +72,8 @@ class ConfigLogger(object):
     _DEFAULT_FORMAT = ("%(asctime)s %(levelname)s %(name)s %(funcName)s "
                        "[line:%(lineno)d] %(message)s")
 
-    def __init__(self, format_str=None):
-        self._format = format_str if format_str else self._DEFAULT_FORMAT
+    def __init__(self, format=None):
+        self._format = format if format else self._DEFAULT_FORMAT
 
     def config(self, logger_name=None, file_path=None, level=logging.WARNING):
         """

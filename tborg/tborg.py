@@ -20,6 +20,7 @@ __docformat__ = "restructuredtext en"
 
 import io
 import fcntl
+import math
 import time
 import logging
 
@@ -41,11 +42,11 @@ class ThunderBorg:
     _DEVICE_PREFIX = '/dev/i2c-{}'
     DEFAULT_BUS_NUM = 1  # Rev. 2 boards
     """Default I²C bus number."""
-    DEFAULT_I2C_ADDRESS = 0x15
+    DEFAULT_I2C_ADDRESS = 0x15  # 21
     """Default I²C address of the ThunderBorg board."""
     _POSSIBLE_BUSS = [0, 1]
-    _I2C_ID_THUNDERBORG = 0x15
-    _I2C_SLAVE = 0x0703
+    _I2C_ID_THUNDERBORG = 0x15  # 21
+    _I2C_SLAVE = 0x0703  # 1795
     _I2C_READ_LEN = 6
     _PWM_MAX = 255
     _VOLTAGE_PIN_MAX = 36.3
@@ -56,6 +57,8 @@ class ThunderBorg:
     """Default minimum battery monitoring voltage"""
     _BATTERY_MAX_DEFAULT = 35.0
     """Default maximum battery monitoring voltage"""
+    _MAX_VOLTAGE_MULT = 1.145
+    """Maximum battery multiplier"""
     # Commands
     COMMAND_SET_LED1 = 1
     """Set the color of the ThunderBorg LED"""
@@ -114,9 +117,9 @@ class ThunderBorg:
     """Get the battery monitoring limits"""
     COMMAND_WRITE_EXTERNAL_LED = 24
     """Write a 32bit pattern out to SK9822 / APA102C"""
-    COMMAND_GET_ID = 0x99
+    COMMAND_GET_ID = 0x99  # 153
     """Get the board identifier"""
-    COMMAND_SET_I2C_ADD = 0xAA
+    COMMAND_SET_I2C_ADD = 0xAA  # 170
     """Set a new I²C address"""
     COMMAND_VALUE_FWD = 1
     """I²C value representing forward"""
@@ -126,7 +129,7 @@ class ThunderBorg:
     """I²C value representing off"""
     COMMAND_VALUE_ON = 1
     """I²C value representing on"""
-    COMMAND_ANALOG_MAX = 0x3FF
+    COMMAND_ANALOG_MAX = 0x3FF  # 1023
     """Maximum value for analog readings"""
 
     def __init__(self, bus_num=DEFAULT_BUS_NUM, address=DEFAULT_I2C_ADDRESS,
@@ -1000,9 +1003,31 @@ class ThunderBorg:
             raise ThunderBorgException(msg)
 
         raw = (recv[1] << 8) + recv[2]
-        level = float(raw) / self.COMMAND_ANALOG_MAX
-        level *= self._VOLTAGE_PIN_MAX
+        level = (float(raw) / self.COMMAND_ANALOG_MAX) * self._VOLTAGE_PIN_MAX
         return level + self._VOLTAGE_PIN_CORRECTION
+
+    def set_battery_limits(self, voltage_in: float) -> None:
+        """
+        Guess the battery type NiMH or Li-ion then set the battery limits.
+
+        :param float voltage_in: The current volatge level.
+        """
+        if math.isclose(voltage_in, 0.0):
+            voltage_in = self._tb.get_battery_voltage()
+
+        max_level = voltage_in * self._MAX_VOLTAGE_MULT
+
+        if 7.0 <= voltage_in < 9.6:  # 9 volt battery
+            min_level = 8.3
+        elif 9.6 <= voltage_in < 13.6:  # 10 NIMH 1.2 volt batteries
+            min_level = 11.6
+        elif 13.6 <= voltage_in < 16.8:  # 4 LiIon 3.6 volt batteries
+            min_level = 15.2
+        else:
+            min_level = voltage_in
+            self._log.error("Could not determine battery type.")
+
+        self.set_battery_monitoring_limits(min_level, max_level)
 
     def set_battery_monitoring_limits(self, minimum, maximum):
         """

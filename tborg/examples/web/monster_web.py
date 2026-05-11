@@ -174,8 +174,8 @@ class WebServer(BaseRequestHandler):
                                   percent_left=0, percent_right=0)
 
             if self.tb:
-                watchdog.event.set()
                 self.tb.halt_motors()
+                watchdog.event.set()
         elif url_path.startswith('/set'):
             # Motor power setting: /set/left/right
             self._log.info("set: %s", url_path)
@@ -217,9 +217,9 @@ class WebServer(BaseRequestHandler):
             drive_right *= max_power
 
             if self.tb:
-                watchdog.event.set()
                 self.tb.set_motor_one(drive_right)
                 self.tb.set_motor_two(drive_left)
+                watchdog.event.set()
         elif url_path.startswith('/photo'):
             # Save camera photo
             self._log.info("photo: %s", url_path)
@@ -460,6 +460,7 @@ class MonsterWeb(Daemon):
                     int(1_000_000 / self.FRAME_RATE))})
             self.camera.configure(config)
             self.camera.start()
+            self.camera.set_controls({"AwbMode": 1})
 
             self._log.info("Setup the stream processing thread")
             self.processor = StreamProcessor(self.global_data)

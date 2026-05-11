@@ -4,6 +4,20 @@ How to Pair a Bluetooth Device on the Command Line
 
 On the Raspberry Pi command line type the following.
 
+Try to auto pair the controllor first. Near L2 use a paper clip and insert it
+in the tiny hole on the back. This will reset the controllor if it's been
+previously paired to another device. Then connect the controllor via one of the
+RPIs USB connectors. Then run the command below to see if it auto regestered.
+
+.. code-block:: console
+
+   $ bluetoothctl devices
+
+   Device 30:EC:00:2F:8C:3B Wireless Controller
+
+If your controllor auto registered it should return a line similar to the one
+above. If not then pair using the method below.
+
 .. code-block:: console
 
     $ bluetoothctl
@@ -12,27 +26,24 @@ You will get a ``[bluetooth]#`` command line, then type the following commands.
 
 .. code-block:: console
 
-   [bluetooth]# pairable on
-   Changing pairable on succeeded
-   [bluetooth]# discoverable on
-   Changing discoverable on succeeded
+   [bluetooth]# power on
    [bluetooth]# agent on
-   Agent is already registered
    [bluetooth]# default-agent
-   Default agent request successful
+   [bluetooth]# pairable on
    [bluetooth]# scan on
-   [NEW] Device 7C:C5:35:EA:6F:7E 7C-C5-35-EA-6F-7E
-   [CHG] Device 7C:C5:35:EA:6F:7E RSSI: -80
-   [NEW] Device 40:1B:5F:E0:4D:E2 Wireless Controller
-   [CHG] Device 7C:C5:35:EA:6F:7E RSSI: -89
-   [bluetooth]# pair 40:1B:5F:E0:4D:E2
-   Attempting to pair with 40:1B:5F:E0:4D:E2
-   [CHG] Device 40:1B:5F:E0:4D:E2 Connected: yes
-   [CHG] Device 40:1B:5F:E0:4D:E2 UUIDs: 00001124-0000-1000-8000-00805f9b34fb
-   [CHG] Device 40:1B:5F:E0:4D:E2 UUIDs: 00001200-0000-1000-8000-00805f9b34fb
-   [CHG] Device 40:1B:5F:E0:4D:E2 ServicesResolved: yes
-   [CHG] Device 40:1B:5F:E0:4D:E2 Paired: yes
-   [agent] Authorize service 00001124-0000-1000-8000-00805f9b34fb (yes/no): yes
+
+   Hold the SHARE ther press and hold the PS button until the light rapidly
+   flashes white. You should see something like the next line within other
+   lines.
+
+   [NEW] Device 02:34:FE:08:19:FA 02-34-FE-08-19-FA
+   [NEW] Controller B8:27:EB:CF:5A:FE Discovering: yes *** THE ONE YOU WANT ***
+   [CHG] Device 40:F4:C9:4E:29:ED RSSI: 0xffffffbd (-67)
+   
+   [bluetooth]# pair B8:27:EB:CF:5A:FE
+   [bluetooth]# trust B8:27:EB:CF:5A:FE
+   [bluetooth]# connect B8:27:EB:CF:5A:FE
+
    [Wireless Controller]# quit
 
 If any of this fails, and the first command returns:

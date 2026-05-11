@@ -428,7 +428,7 @@ class MonsterWeb(Daemon):
     def run(self):
         try:
             self.create_image_buffer_frame()
-        except Exception as e:
+        except Exception:
             self._log.error("monster_web.py failed to start.", exc_info=True)
             sys.exit(1)
         else:
@@ -440,7 +440,8 @@ class MonsterWeb(Daemon):
                     # Log and init
                     self.log_battery_monitoring()
                 else:
-                    self._log.error("The failsafe mode could not be turned on.")
+                    self._log.error("The failsafe mode could not be "
+                                    "turned on.")
                     self.running = False
 
                 sys.exit(0)

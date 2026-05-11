@@ -14,7 +14,7 @@ import threading
 import cv2
 import logging
 
-#from picamera2 import Picamera2
+from picamera2 import Picamera2
 from socketserver import ThreadingMixIn, TCPServer, BaseRequestHandler
 from jinja2 import Environment, FileSystemLoader
 
@@ -474,6 +474,7 @@ class MonsterWeb(Daemon):
         try:
             WebServer.GLOBAL_DATA = self.global_data
             http_server = ThreadingTCPServer(("0.0.0.0", self.port), WebServer)
+            http_server.allow_reuse_address = True
         except Exception as e:
             # Failed to open the port, report common issues
             self._log.info(f"\nFailed to open port {self.port}")

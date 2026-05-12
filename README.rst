@@ -18,7 +18,6 @@ ThunderBorg Motor Controller API
    :target: https://pypi.python.org/pypi/python-thunderborg
    :alt: License
 
-The MIT License (MIT)
 
 Overview
 ========
@@ -27,8 +26,7 @@ This API for the
 `ThunderBorg <https://www.piborg.org/motor-control-1135/thunderborg>`_
 board has additional features that the original API does not have.
 
-1. Python 2.7.x and 3.8 are supported in the same code base. There is an issue
-   building the ``evdev`` package with all versions of Python 3.9 and higher.
+1. Tested with Python 3.13. All Python 2.x code has been removed.
 
 2. Built in logging to a log file of your choice--**no print statements**.
 

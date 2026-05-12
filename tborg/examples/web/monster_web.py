@@ -356,7 +356,7 @@ class MonsterWeb(Daemon):
     """
     int: Height of the captured image in pixels
     """
-    FRAME_RATE = 30
+    FRAME_RATE = 20
     """
     int: Number of images to capture per second
     """

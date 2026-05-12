@@ -3,6 +3,10 @@
 #
 # Creates a web-page interface for the MonsterBorg.
 #
+# <IP>:9000/
+# or
+# <IP>:9000/hold
+#
 __docformat__ = "restructuredtext en"
 
 import time

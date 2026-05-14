@@ -1,15 +1,8 @@
 tborg package
 =============
 
-Subpackages
------------
-
-.. toctree::
-
-    tborg.examples
-    tborg.tests
-
-.. automodule:: tborg
+.. automodule:: tborg.tborg
     :members:
+    :private-members:
     :undoc-members:
     :show-inheritance:

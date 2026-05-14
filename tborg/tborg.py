@@ -284,7 +284,7 @@ class ThunderBorg:
                      (auto_set_addr
                       and not self._auto_set_address(bus_num, self)))):
                 msg = ("ThunderBorg could not be found; is it properly "
-                       "attached, the correct address used, and the I2C "
+                       "attached, the correct address used, and the I²C "
                        "driver module loaded?")
                 self._log.critical(msg)
                 raise ThunderBorgException(msg)
@@ -406,7 +406,7 @@ class ThunderBorg:
         found_chip = False
         boards = cls.find_board(tb=tb, close=False)
         msg = "Found ThunderBorg(s) on bus '%d' at address %s."
-        hex_boards = ', '.join(['0x%02X' % b for b in boards])
+        hex_boards = ', '.join([f'0x{b:02X}' for b in boards])
         tb._log.warning(msg, bus_num, hex_boards)
 
         if boards:
@@ -442,7 +442,7 @@ class ThunderBorg:
             tb = ThunderBorg(logger_name=logger_name, log_level=logging.INFO,
                              static_init=True)
 
-        tb._log.info("Scanning I2C bus number %d.", bus_num)
+        tb._log.info("Scanning I²C bus number %d.", bus_num)
 
         for address in range(0x03, 0x77, 1):
             if cls._is_thunder_borg_board(bus_num, address, tb):
@@ -485,7 +485,7 @@ class ThunderBorg:
                          static_init=True)
 
         if not (0x03 <= new_addr <= 0x77):
-            msg = "Error, I2C addresses must be in the range of 0x03 to 0x77"
+            msg = "Error, I²C addresses must be in the range of 0x03 to 0x77"
             tb._log.error(msg)
             raise ThunderBorgException(msg)
 
@@ -494,13 +494,13 @@ class ThunderBorg:
 
             if len(found) < 1:  # pragma: no cover
                 msg = ("No ThunderBorg boards found, cannot set a new "
-                       "I2C address!")
+                       "I²C address!")
                 tb._log.info(msg)
                 raise ThunderBorgException(msg)
 
             cur_addr = found[0]
 
-        msg = "Changing I2C address from 0x%02X to 0x%02X on bus number %d."
+        msg = "Changing I²C address from 0x%02X to 0x%02X on bus number %d."
         tb._log.info(msg, cur_addr, new_addr, bus_num)
 
         if cls._init_bus(bus_num, cur_addr, tb):
@@ -540,7 +540,7 @@ class ThunderBorg:
                         else:
                             if cls._check_board_chip(recv, bus_num,
                                                      new_addr, tb):
-                                msg = (f"New I2C address of 0x{new_addr:02X} "
+                                msg = (f"New I²C address of 0x{new_addr:02X} "
                                        "set successfully.")
                                 tb._log.info(msg)
                             else:  # pragma: no cover
@@ -562,11 +562,11 @@ class ThunderBorg:
         """
         if hasattr(self, '_i2c_read'):
             self._i2c_read.close()
-            self._log.debug("I2C read stream is now closed.")
+            self._log.debug("I²C read stream is now closed.")
 
         if hasattr(self, '_i2c_write'):
             self._i2c_write.close()
-            self._log.debug("I2C write stream is now closed.")
+            self._log.debug("I²C write stream is now closed.")
 
     def _write(self, command: int, data: list) -> None:
         """
@@ -620,7 +620,7 @@ class ThunderBorg:
                 break
 
         if len(data) <= 0:  # pragma: no cover
-            msg = f"I2C read for command '{command}' failed."
+            msg = f"I²C read for command '{command}' failed."
             self._log.error(msg)
             raise ThunderBorgException(msg)
 

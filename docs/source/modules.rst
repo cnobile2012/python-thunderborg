@@ -3,6 +3,9 @@ API Documentation
 *****************
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    tborg
+   tborg.examples
+   tborg.utils
+   tborg.tests

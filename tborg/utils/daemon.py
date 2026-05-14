@@ -1,32 +1,38 @@
+# -*- coding: utf-8 -*-
+#
+# tborg/utils/daemon.py
+#
 """
-***
+*****************************
 Modified generic daemon class
-***
+*****************************
 
-Author:   http://www.jejik.com/articles/2007/02/
-                 a_simple_unix_linux_daemon_in_python/www.boxedice.com
+Author: http://www.jejik.com/articles/2007/02/a_simple_unix_linux_daemon_in_python/www.boxedice.com
 
-License:  http://creativecommons.org/licenses/by-sa/3.0/
+License: http://creativecommons.org/licenses/by-sa/3.0/
 
-Changes:  23rd Jan 2009 (David Mytton <david@boxedice.com>)
-          - Replaced hard coded '/dev/null in __init__ with os.devnull
-          - Added OS check to conditionally remove code that doesn't
-            work on OS X
-          - Added output to console on completion
-          - Tidied up formatting
-          11th Mar 2009 (David Mytton <david@boxedice.com>)
-          - Fixed problem with daemon exiting on Python 2.4
-            (before SystemExit was part of the Exception base)
-          13th Aug 2010 (David Mytton <david@boxedice.com>
-          - Fixed unhandled exception if PID file is empty
-          23rd Nov 2018 (Carl Nobile <carl.nobile@gmail.com>)
-          - Now using fcntl to put an OS lock on the pid file, this will
-            catch all instances of the application exiting including
-            application and machine crashes plus the PID file no longer
-            needs to be deleted.
-          - Added a log file. A daemon process is disconnected from the
-            terminal so cannot print to the screen after the process is
-            daemonized.
+Changes
+-------
+
+23rd Jan 2009 (David Mytton <david@boxedice.com>)
+ - Replaced hard coded '/dev/null in __init__ with os.devnull
+ - Added OS check to conditionally remove code that doesn't work on OS X
+ - Added output to console on completion
+ - Tidied up formatting
+
+11th Mar 2009 (David Mytton <david@boxedice.com>)
+ - Fixed problem with daemon exiting on Python 2.4 (before SystemExit was
+   part of the Exception base)
+
+13th Aug 2010 (David Mytton <david@boxedice.com>
+ - Fixed unhandled exception if PID file is empty
+
+23rd Nov 2018 (Carl Nobile <carl.nobile@gmail.com>)
+ - Now using fcntl to put an OS lock on the pid file, this will catch all
+   instances of the application exiting including application and machine
+   crashes plus the PID file no longer needs to be deleted.
+ - Added a log file. A daemon process is disconnected from the terminal so
+   cannot print to the screen after the process is daemonized.
 
 Exit values
 -----------

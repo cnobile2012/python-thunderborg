@@ -65,6 +65,17 @@ flake8	:
 sphinx	: clean
 	(cd $(DOCS_DIR); make html)
 
+.PHONY	: latexpdf
+latexpdf:
+	(cd $(DOCS_DIR); make latexpdf)
+
+.PHONY	: epub
+epub	:
+	(cd $(DOCS_DIR); make epub)
+
+.PHONY	: alldocs
+alldocs	: sphinx epub latexpdf
+
 # To add a pre-release candidate such as 'rc1' to a test package name an
 # environment variable needs to be set that setup.py can read.
 #

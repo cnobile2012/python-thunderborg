@@ -4,10 +4,10 @@ How to Pair a Bluetooth Device on the Command Line
 
 On the Raspberry Pi command line type the following.
 
-Try to auto pair the controllor first. Near L2 use a paper clip and insert it
-in the tiny hole on the back. This will reset the controllor if it's been
-previously paired to another device. Then connect the controllor via one of the
-RPIs USB connectors. Then run the command below to see if it auto regestered.
+Try to auto pair the controller first. Near L2 use a paper clip and insert it
+in the tiny hole on the back. This will reset the controller if it's been
+previously paired to another device. Then connect the controller via one of the
+RPIs USB connectors. Then run the command below to see if it auto registered.
 
 .. code-block:: console
 
@@ -15,7 +15,7 @@ RPIs USB connectors. Then run the command below to see if it auto regestered.
 
    Device 30:EC:00:2F:8C:3B Wireless Controller
 
-If your controllor auto registered it should return a line similar to the one
+If your controller auto registered it should return a line similar to the one
 above. If not then pair using the method below.
 
 .. code-block:: console
@@ -27,22 +27,23 @@ You will get a ``[bluetooth]#`` command line, then type the following commands.
 .. code-block:: console
 
    [bluetooth]# power on
-   [bluetooth]# agent on
+   [bluetooth]# agent on (agent NoInputNoOutput * If run as sudo)
    [bluetooth]# default-agent
    [bluetooth]# pairable on
    [bluetooth]# scan on
 
-   Hold the SHARE ther press and hold the PS button until the light rapidly
+   Hold the SHARE then press and hold the PS button until the light rapidly
    flashes white. You should see something like the next line within other
-   lines.
+   lines. Copy the hex number, different on every controller, then run the
+   three commands below.
 
    [NEW] Device 02:34:FE:08:19:FA 02-34-FE-08-19-FA
-   [NEW] Controller B8:27:EB:CF:5A:FE Discovering: yes *** THE ONE YOU WANT ***
+   [NEW] Controller 30:EC:00:2F:8C:3B Discovering: yes *** THE ONE YOU WANT ***
    [CHG] Device 40:F4:C9:4E:29:ED RSSI: 0xffffffbd (-67)
    
-   [bluetooth]# pair B8:27:EB:CF:5A:FE
-   [bluetooth]# trust B8:27:EB:CF:5A:FE
-   [bluetooth]# connect B8:27:EB:CF:5A:FE
+   [bluetooth]# pair 30:EC:00:2F:8C:3B
+   [bluetooth]# trust 30:EC:00:2F:8C:3B
+   [bluetooth]# connect 30:EC:00:2F:8C:3B
 
    [Wireless Controller]# quit
 
@@ -70,3 +71,16 @@ will change to ``[Wireless Controller]`` then type quit. You're done.
    a very rapid flashing of the light blue LED then after you type **yes** when
    asked and hit the enter key the LED will turn to a dark blue and you are
    done.
+
+If things `bluetoothctl devices` shows a device but you can't pair it follow
+these steps exactly.
+
+.. code-block:: console
+
+   $ sudo systemctl stop bluetooth
+   $ B8:27:EB:CF:5A:FE
+   $ sudo rm -rf /var/lib/bluetooth/B8:27:EB:CF:5A:FE/<your controller MAC>
+   $ sudo rm -f /var/lib/bluetooth/B8:27:EB:CF:5A:FE/cache/*
+   $ sudo systemctl start bluetooth
+
+Then try to repair the controller.

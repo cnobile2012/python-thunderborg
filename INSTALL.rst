@@ -48,15 +48,22 @@ the following packages.
                        xfonts-base xfonts-100dpi xfonts-75dpi xfonts-cyrillic \
                        fontconfig fonts-freefont-ttf
 
-If you want to use `tborg/examples/monster_web.py` you will need to install
+If you want to use ``tborg/examples/monster_web.py`` you will need to install
 the following package. This will install lots of packages so be sure to use
-the `--no-install-recommends` so you don't get things that are not needed.
+the ``--no-install-recommends`` so you don't get things that are not needed.
 There is a problem with this however, in that picamera2 cannot be accessed
 within a virtual environment. ** I'm still working on this ***
 
 .. code-block:: console
 
     $ sudo apt install python3-picamera2 --no-install-recommends
+
+Some bluetooth packages.
+
+.. code-block:: console
+
+    $ sudo apt install bluez-tools joystick
+
 
 Install the Python virtual environment. The ``virtualenvwrapper`` package is
 a wrapper around ``virtualenv`` that provides easy to use tools for

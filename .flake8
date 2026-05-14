@@ -9,5 +9,6 @@ exclude =
     tmp,
 
 per-file-ignores =
+    tborg/tborg.py: E252
     tborg/examples/*: E129, E252, E402
     tborg/tests/*: E265

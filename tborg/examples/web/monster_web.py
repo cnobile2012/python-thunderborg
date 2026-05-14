@@ -18,7 +18,6 @@ import threading
 import cv2
 import logging
 
-from picamera2 import Picamera2
 from socketserver import ThreadingMixIn, TCPServer, BaseRequestHandler
 from jinja2 import Environment, FileSystemLoader
 
@@ -28,6 +27,30 @@ sys.path.append(BASE_DIR)
 
 from tborg import create_working_dir, ConfigLogger, ThunderBorg
 from tborg.utils.daemon import Daemon
+
+
+def is_raspberry_pi():
+    # Method 1: Check /proc/cpuinfo
+    try:
+        with open('/proc/cpuinfo', 'r') as f:
+            for line in f:
+                if line.startswith('Hardware') or line.startswith('Model'):
+                    return 'Raspberry Pi' in line
+    except FileNotFoundError:
+        pass
+
+    # Method 2: Check device tree (fallback)
+    try:
+        with open('/sys/firmware/devicetree/base/model', 'r') as f:
+            return 'Raspberry Pi' in f.read()
+    except (FileNotFoundError, PermissionError):
+        pass
+
+    return False
+
+
+if is_raspberry_pi():
+    from picamera2 import Picamera2
 
 create_working_dir()
 

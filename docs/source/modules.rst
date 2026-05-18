@@ -7,5 +7,4 @@ API Documentation
 
    tborg
    tborg.examples
-   tborg.utils
    tborg.tests

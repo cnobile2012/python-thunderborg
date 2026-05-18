@@ -18,3 +18,12 @@ tborg.examples.mborg_pygame
     :private-members:
     :undoc-members:
     :show-inheritance:
+
+tborg.examples.web
+------------------
+
+.. automodule:: tborg.examples.web.monster_web
+    :members:
+    :private-members:
+    :undoc-members:
+    :show-inheritance:

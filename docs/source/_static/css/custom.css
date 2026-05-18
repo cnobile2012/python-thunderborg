@@ -1,0 +1,95 @@
+div.body {
+    max-width: 750px;
+}
+
+div.bodywrapper {
+    margin: 0 0 0 320px;
+    width: 750px;
+}
+
+div.document {
+    width: 1090px;
+    margin: 30px auto 0 auto;
+}
+
+div.documentwrapper {
+    width: 1130px;
+}
+
+div.sphinxsidebar {
+    width: 400px;
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0 10px 0 0;
+}
+
+div.sphinxsidebarwrapper {
+    width: 300px;
+}
+
+H1.logo {
+    font-size: 27px;
+}
+
+div.footer {
+    width: 1130px;
+}
+
+/* Change background and border color for important directives */
+.admonition.important {
+    background-color: #ffe6cc; /* Light orange background */
+    border-left: 5px solid #ff6600; /* Orange left border */
+}
+
+/* Change the title text color */
+.admonition.important .admonition-title {
+    color: #cc3300; /* Dark red title text */
+}
+
+/* Change background and border color for seealso directives */
+.admonition.seealso {
+    background-color: #aaffff; /* Background */
+    border-left: 5px solid #1726ff; /* Left border */
+}
+
+/* Change the title text color */
+.admonition.seealso .admonition-title {
+    color: #4949ff; /* Title text */
+}
+
+/* Change background and border color for note directives */
+.admonition.note {
+    background-color: #e7ffd5; /* Background */
+    border-left: 5px solid #38ffa2; /* Left border */
+}
+
+/* Change the title text color */
+.admonition.note .admonition-title {
+    color: #1aff00; /* Title text */
+}
+
+/* Change background and border color for warning directives */
+.admonition.warning {
+    background-color: #ffcccc; /* Background */
+    border-left: 5px solid #ff5e61; /* Left border */
+}
+
+/* Change the title text color */
+.admonition.warning .admonition-title {
+    color: #000000; /* Title text */
+}
+
+/* Set a line of test to blue */
+.color-blue {
+    color: #0000ff;
+}
+
+/* Set a line of test to red */
+.color-red {
+    color: #ff0000;
+}
+
+/* Set a line of test to violet */
+.color-violet {
+    color: #9058ff;
+}

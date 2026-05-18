@@ -1,6 +1,7 @@
 #
 # Development by Carl J. Nobile
 #
+# -*-coding: utf-8-*-
 
 include include.mk
 

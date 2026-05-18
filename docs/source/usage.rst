@@ -1,3 +1,4 @@
+.. -*-coding: utf-8-*-
 *****
 Usage
 *****
@@ -10,9 +11,9 @@ press the ``Enter`` key.
 .. code-block:: console
 
     $ ipython
-    Python 3.5.2 (default, Sep 14 2017, 22:51:06)
+    Python 3.13.13 (main, Apr  8 2026, 09:49:30) [GCC 13.3.0]
     Type 'copyright', 'credits' or 'license' for more information
-    IPython 6.4.0 -- An enhanced Interactive Python. Type '?' for help.
+    IPython 9.13.0 -- An enhanced Interactive Python. Type '?' for help.
 
     In [1]:
 
@@ -39,9 +40,9 @@ restart ``ipython``.
 
     $ mkdir logs
     $ ipython
-    Python 3.5.2 (default, Sep 14 2017, 22:51:06)
+    Python 3.13.13 (main, Apr  8 2026, 09:49:30) [GCC 13.3.0]
     Type 'copyright', 'credits' or 'license' for more information
-    IPython 6.4.0 -- An enhanced Interactive Python. Type '?' for help.
+    IPython 9.13.0 -- An enhanced Interactive Python. Type '?' for help.
 
     In [1]:
 

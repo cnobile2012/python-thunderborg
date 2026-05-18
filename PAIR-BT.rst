@@ -1,3 +1,5 @@
+.. -*-coding: utf-8-*-
+
 **************************************************
 How to Pair a Bluetooth Device on the Command Line
 **************************************************
@@ -72,7 +74,7 @@ will change to ``[Wireless Controller]`` then type quit. You're done.
    asked and hit the enter key the LED will turn to a dark blue and you are
    done.
 
-If things `bluetoothctl devices` shows a device but you can't pair it follow
+If the `bluetoothctl devices` shows a device but you can't pair it follow
 these steps exactly.
 
 .. code-block:: console

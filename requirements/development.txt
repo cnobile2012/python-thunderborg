@@ -2,6 +2,7 @@
 -r base.txt
 -r pygame.txt
 -r approxeng.txt
+-r monsterweb.txt
 
 # Documentation
 Sphinx

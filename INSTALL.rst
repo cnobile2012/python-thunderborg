@@ -30,12 +30,10 @@ Building a Development Environment for your Projects
 First you will need to log into your Raspberry Pi with ssh. There are many
 good tutorials online that explain how to do this.
 
-As the `pi` user (on the newer RPI OS you'll need to create your own user
-account) on your Raspberry Pi you will need to install a few system packages.
-I'm assuming you have installed Raspian bullseye. Python 2 is no longer
-installed on bullseye.
+Log into your user account on your Raspberry Pi then you will need to install a
+few system packages.
 
-If you'll be using pygame instead of approxeng you'll also need to install
+If you will be using pygame instead of approxeng you'll also need to install
 the following packages.
 
 .. code-block:: console
@@ -54,7 +52,7 @@ If you want to use ``tborg/examples/monster_web.py`` you will need to install
 the following package. This will install lots of packages so be sure to use
 the ``--no-install-recommends`` so you don't get things that are not needed.
 There is a problem with this however, in that picamera2 cannot be accessed
-within a virtual environment. ** I'm still working on this ***
+within a virtual environment.
 
 .. code-block:: console
 
@@ -65,7 +63,6 @@ Some bluetooth packages.
 .. code-block:: console
 
     $ sudo apt install bluez-tools joystick
-
 
 Install the Python virtual environment. The ``virtualenvwrapper`` package is
 a wrapper around ``virtualenv`` that provides easy to use tools for
@@ -104,9 +101,11 @@ Then add the following lines to the bottom of the ``.bashrc`` file.
 
 Create a VE (Virtual Environment) for your project. The VE name can be
 whatever you want and does not need to match the actual project's name, but
-it might be a good idea to keep it short so that you can remember it. Also,
-you can use other versions of python besides 3.13. The `--system-site-packages`
-argument below is only needed if you intend to use the camera.
+it might be a good idea to keep it short so that you can remember it. Some of
+my scripts expect `tborg3` as the VE name, so if you use a different name you
+will need to change the name in the scripts. Also, you can use other versions
+of python besides 3.13. The `--system-site-packages` argument below is only
+needed if you intend to use the camera.
 
 .. code-block:: console
 
@@ -118,7 +117,7 @@ and deactivate a VE.
 
 .. code-block:: console
 
-    $ workon <your_project>
+    $ workon tborg3  # <your name>
     $ deactivate
 
 Next you will need to install all the Python packages that your project
@@ -129,10 +128,11 @@ Installing python-thunderborg
 =============================
 
 To install ``python-thunderborg`` in your virtual environment enter the
-following on the command line. Be sure your virtual environment is activated
-before doing this.
+following on the command line.
 
 .. code-block:: console
+
+    $ workon tborg3  # <your name>
 
     $ pip install python-thunderborg
     or
@@ -152,15 +152,16 @@ account for this to work properly.
 If all the correct system packages have been installed you can now setup the
 virtual environment that ``python-thunderborg`` requires.
 
-There are three pip files that can be used ``approxeng.txt``, ``pygame.txt``,
-or ``development.txt``. Unless you will be mofiying the ``python-thunderborg``
-code itself you will not need the ``development.txt`` file. I recommend
-installing ``ipython``, it has a much better command line interface than the
-one you get from ``Python`` itself. The ``development.txt`` does this for you.
+There are four pip files that can be used ``approxeng.txt``, ``pygame.txt``,
+``monsterweb.txt`` or ``development.txt``. Unless you will be mofiying the
+``python-thunderborg`` code itself you will not need the ``development.txt``
+file. I recommend installing ``ipython``, it has a much better command line
+interface than the one you get from ``Python`` itself. The ``development.txt``
+installs the other three requierments files and ipython.
 
 .. code-block:: console
 
-    $ workon <your_project>
+    $ workon tborg3  # <your name>
     $ pip install -r requirements/approxeng.txt
     $ pip install ipython # If needed, it's included in development.txt.
 

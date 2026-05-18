@@ -27,10 +27,9 @@ press the ``Enter`` key.
     ERROR:root:ThunderBorg could not be found; is it properly attached, the correct address used, and the I2C driver module loaded?
 
 Opps, what happend? Well there are two issues here. The first one is easy
-to fix. Don't run this on your computer or a Reaspberry Pi with no
-ThunderBorg board attached, duh. The second issue is a bit more subtle.
-Log messages are going to the screen. How do we get them in a file for
-later use.
+to fix. You run this on your computer or a Reaspberry Pi with no ThunderBorg
+board attached, duh. The second issue is a bit more subtle. Log messages are
+going to the screen. How do we get them in a file for later use.
 
 We'll do the import again, but this time with the ``ConfigLogger`` class,
 but first we need to create a directory to put the log files in then

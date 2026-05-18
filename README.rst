@@ -4,21 +4,21 @@
 ThunderBorg Motor Controller API
 ********************************
 
-.. image:: https://img.shields.io/pypi/v/python-thunderborg.svg
-   :target: https://pypi.python.org/pypi/python-thunderborg
-   :alt: PyPi Version
-
-.. image:: http://img.shields.io/pypi/wheel/python-thunderborg.svg
-   :target: https://pypi.python.org/pypi/python-thunderborg
-   :alt: PyPI Wheel
-
-.. image:: http://img.shields.io/pypi/pyversions/python-thunderborg.svg
-   :target: https://pypi.python.org/pypi/python-thunderborg
-   :alt: Python Versions
-
 .. image:: http://img.shields.io/pypi/l/python-thunderborg.svg
    :target: https://pypi.python.org/pypi/python-thunderborg
    :alt: License
+
+.. image:: https://img.shields.io/pypi/v/python-thunderborg.svg
+   :target: https://pypi.python.org/project/python-thunderborg
+   :alt: PyPi Version
+
+.. image:: http://img.shields.io/pypi/pyversions/python-thunderborg.svg
+   :target: https://pypi.python.org/project/python-thunderborg
+   :alt: Python Versions
+
+.. image:: http://img.shields.io/pypi/wheel/python-thunderborg.svg
+   :target: https://pypi.python.org/project/python-thunderborg
+   :alt: PyPI Wheel
 
 
 Overview

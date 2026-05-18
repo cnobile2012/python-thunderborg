@@ -26,7 +26,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
 sys.path.append(BASE_DIR)
 
 from tborg import create_working_dir, ConfigLogger, ThunderBorg
-from tborg.utils.daemon import Daemon
+from daemonize import Daemon
 
 
 def is_raspberry_pi():

@@ -85,18 +85,19 @@ alldocs	: sphinx epub latexpdf
 .PHONY	: build
 build   : export PR_TAG=$(TEST_TAG)
 build	: clean
-	python setup.py sdist
+	@./config.py
+	hatch build dist
 
 .PHONY	: upload
 upload	: clobber
-	python setup.py sdist
-	python setup.py bdist_wheel --universal
-	twine upload --repository pypi dist/*
+	hatch publish --repo main dist/*
+#	twine upload --repository pypi dist/*
+
 
 .PHONY	: upload-test
 upload-test: clobber build
-	python setup.py bdist_wheel --universal
-	twine upload --repository testpypi dist/*
+	hatch publish --repo test dist/*
+#	twine upload --repository testpypi dist/*
 
 .PHONY	: install-dev
 install-dev:

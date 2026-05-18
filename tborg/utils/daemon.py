@@ -46,7 +46,6 @@ Exit values
 """
 
 # Core modules
-from __future__ import print_function
 import fcntl
 import io
 import logging
@@ -95,6 +94,7 @@ class Daemon(object):
         if self.use_eventlet:
             import eventlet.tpool
             eventlet.tpool.killall()
+
         try:
             pid = os.fork()
         except OSError as e:

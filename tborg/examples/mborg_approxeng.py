@@ -36,7 +36,7 @@ sys.path.append(BASE_DIR)
 
 from tborg import (
     create_working_dir, ConfigLogger, ThunderBorg, ThunderBorgException)
-from tborg.utils.daemon import Daemon
+from daemonize import Daemon
 
 create_working_dir()
 

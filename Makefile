@@ -90,7 +90,7 @@ build	: clean
 	hatch build dist
 
 .PHONY	: upload
-upload	: clobber
+upload	: clobber build
 	hatch publish --repo main dist/*
 #	twine upload --repository pypi dist/*
 

@@ -64,7 +64,6 @@ pyproject_hooks==1.2.0
 pytest==9.0.3
 python-daemonizer==1.0.1
 python-discovery==1.3.0
-python-thunderborg @ file:///home/cnobile/src/GitHub/thunderborg
 PyYAML==6.0.1
 readme_renderer==44.0
 requests==2.33.1

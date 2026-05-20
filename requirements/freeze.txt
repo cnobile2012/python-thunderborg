@@ -40,7 +40,7 @@ ptyprocess==0.7.0
 pure-eval==0.2.2
 pycparser==2.21
 pygame==2.5.0
-Pygments==2.15.1
+Pygments==2.20.0
 pytz==2023.3
 PyYAML==5.4
 readme-renderer==40.0

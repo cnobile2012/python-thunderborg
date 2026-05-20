@@ -36,7 +36,7 @@ You will get a ``[bluetooth]#`` command line, then type the following commands.
 
    Hold the SHARE then press and hold the PS button until the light rapidly
    flashes white. You should see something like the next line within other
-   lines. Copy the hex number, different on every controller, then run the
+   lines. Copy the hex number (different on every controller) then run the
    three commands below.
 
    [NEW] Device 02:34:FE:08:19:FA 02-34-FE-08-19-FA
@@ -85,4 +85,4 @@ these steps exactly.
    $ sudo rm -f /var/lib/bluetooth/B8:27:EB:CF:5A:FE/cache/*
    $ sudo systemctl start bluetooth
 
-Then try to repair the controller.
+Then try to re-pair the controller.

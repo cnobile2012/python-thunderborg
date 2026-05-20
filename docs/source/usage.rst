@@ -1,7 +1,11 @@
 .. -*-coding: utf-8-*-
+
 *****
 Usage
 *****
+
+Using the API
+-------------
 
 To get started let's use the command line interface ``ipython``. You will
 need to import and instantiate the ``ThunderBorg`` class. First we need to
@@ -26,8 +30,8 @@ press the ``Enter`` key.
     ERROR:root:ThunderBorg not found on bus 0 at address 0x15
     ERROR:root:ThunderBorg could not be found; is it properly attached, the correct address used, and the I2C driver module loaded?
 
-Opps, what happend? Well there are two issues here. The first one is easy
-to fix. You run this on your computer or a Reaspberry Pi with no ThunderBorg
+Opps, what happened? Well there are two issues here. The first one is easy
+to fix. You run this on your computer or a Raspberry Pi with no ThunderBorg
 board attached, duh. The second issue is a bit more subtle. Log messages are
 going to the screen. How do we get them in a file for later use.
 
@@ -89,3 +93,53 @@ command to halt the motors.
 
 And that's it. Look through the `API documentation <tborg.html>`_ for all
 the commands available.
+
+Using the Examples
+------------------
+
+There are currently three examples.
+
+1. Controlling the motors with the approxeng package. This is a third party
+   package designed specifically for robotics. It's light weight and has lots
+   of features. This is the
+   `approxeng.input <https://github.com/ApproxEng/approxeng.input>`_ GitHub
+   repository.
+
+2. Controlling the motors with the pygame package. This is a big bulky API
+   really meant for developing games, but has code for controllers. This is
+   their `documentation <https://www.pygame.org/docs/>`_. I have not done a lot
+   of testing with pygame, so you may find more bug in it. If you do please let
+   me know so I can fix them.
+
+3. Controlling the motors through a web interface using the camera. This has
+   similar functionality to the original example code written by the developers
+   of the MomnsterBorg robot. It is completely rewritten and updated and can be
+   run as the user instead of root since it uses port 9000 not 80. This can be
+   changed in the code. If the hostname is MonsterBorg you would assess the
+   service with: ``http:MonsterBorg.local:9000`` which would give you the
+   `index.html`. With this page you need to start the motors with one button
+   then stop them with another button. Another method to assess the service is
+   with: ``http:MonsterBorg.local:9000/hold``. The second method allows you to
+   hold the buttons down to move or turn, when the button is released the
+   motors automatically stop.
+
+All of these examples have bash startup scripts which can be put into a cron
+job. You would never want to run the one for approxeng and pygame packages
+together, but you can run either one of those with the web example making it
+easy to switch between a controller and the web interface.
+
+.. code-block:: console
+
+   @reboot /home/<your user name>/<path to project>/tborg/scripts/start_mborg_approxeng.sh
+
+The <path to project> can either be in your virtual environment or if you have
+a GitHub clone it will be in there. You could also copy the scrips you want to
+your user's bin directory. All three files will write a log file to `/tmp`
+which will have nothing in them if the crontab worked correctly.
+
+The above line would be put into your user's crontab file using the command
+below.
+
+.. code-block:: console
+
+   $ crontab -e

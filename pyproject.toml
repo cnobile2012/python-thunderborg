@@ -1,6 +1,9 @@
 #
 # pyproject.toml
 #
+# Self install for testing only
+# pip install -e . or pip install .
+#
 
 [tool.pytest.ini_options]
 minversion = "6.0"

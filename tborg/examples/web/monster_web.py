@@ -193,11 +193,11 @@ class WebServer(BaseRequestHandler):
         if url_path.startswith('/stream.mjpg'):
             self._serve_mjpeg_stream()
         elif url_path.endswith((".js", ".css", ".png", ".ico", ".jpg")):
-            self._log.info("media: %s", url_path)
+            self._log.debug("media: %s", url_path)
             self._serve_static(url_path)
         elif url_path.startswith('/halt'):
             # Turn the drives off
-            self._log.info("halt: %s", url_path)
+            self._log.debug("halt: %s", url_path)
             self._render_template('set.html', title="Halt Motors",
                                   percent_left=0, percent_right=0)
 
@@ -206,7 +206,7 @@ class WebServer(BaseRequestHandler):
                 watchdog.event.set()
         elif url_path.startswith('/set'):
             # Motor power setting: /set/left/right
-            self._log.info("set: %s", url_path)
+            self._log.debug("set: %s", url_path)
             parts = url_path.split('/')
 
             # Get the power levels
@@ -250,7 +250,7 @@ class WebServer(BaseRequestHandler):
                 watchdog.event.set()
         elif url_path.startswith('/photo'):
             # Save camera photo
-            self._log.info("photo: %s", url_path)
+            self._log.debug("photo: %s", url_path)
             lock_frame.acquire()
             capture_frame = self.GLOBAL_DATA['last_frame']
             lock_frame.release()
@@ -273,19 +273,19 @@ class WebServer(BaseRequestHandler):
             self._render_template("photo.html", title="Photo", msg=msg)
         elif url_path == '/' or url_path == "/index.html":
             # Main page, click buttons to move and to stop
-            self._log.info("/: %s", url_path)
+            self._log.debug("/: %s", url_path)
             self._render_template("index.html", title="Main Page")
         elif url_path == '/hold':
             # Alternate page, hold buttons to move (does not work with
             # all devices)
-            self._log.info("hold: %s", url_path)
+            self._log.debug("hold: %s", url_path)
             self._render_template("hold.html", title="Hold")
         elif url_path == '/stream':
             # Streaming frame, set a delayed refresh
-            self._log.info("stream: %s", url_path)
+            self._log.debug("stream: %s", url_path)
             self._render_template("stream.html", title="Robot Camera")
         else:
-            self._log.info("Unknown: %s", url_path)
+            self._log.warning("Unknown: %s", url_path)
             self._send(404, 'Not Found', 'text/html', f'Path : "{url_path}"')
 
     def parse_request(self, request):
@@ -322,7 +322,7 @@ class WebServer(BaseRequestHandler):
         if os.path.isfile(filepath):
             mime, _ = mimetypes.guess_type(filepath)
             mime = mime or "application/octet-stream"
-            self._log.info("filename: %s, mine: %s", filename, mime)
+            self._log.info("filename: %s, mime: %s", filename, mime)
 
             with open(filepath, "rb") as f:
                 body = f.read()
@@ -421,7 +421,7 @@ class MonsterWeb(Daemon):
 
         if self._borg:
             self.tb = ThunderBorg(logger_name=self._TBORG_LOGGER_NAME,
-                                  address=address, log_level=logging.INFO)
+                                  address=address, log_level=log_level)
             voltage_in = float(options.voltage_in)
             self.tb.set_comms_failsafe(False)
             self.tb.set_led_battery_state(False)
@@ -564,6 +564,9 @@ if __name__ == "__main__":
         '-d', '--debug', action='store_true', default=False, dest='debug',
         help="Run in debug mode (no thunderborg code is run).")
     parser.add_argument(
+        '-l', '--log-level', action='store_true', default=False, dest='level',
+        help="Set the log level to debug.")
+    parser.add_argument(
         '-v', '--voltage-in', type=float, default=12, dest='voltage_in',
         help=("The total voltage from the battery source, defaults to 12. "
               "If set to 0 (zero) the voltage is auto detected."))
@@ -594,8 +597,13 @@ if __name__ == "__main__":
 
     ret = 0
 
+    if options.level:
+        log_level=logging.DEBUG
+    else:
+        log_level=logging.INFO
+
     try:
-        mw = MonsterWeb(options, log_level=logging.DEBUG)
+        mw = MonsterWeb(options, log_level=log_level)
     except Exception:
         tb = sys.exc_info()[2]
         traceback.print_tb(tb)

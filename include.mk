@@ -4,7 +4,7 @@
 
 # Django Dynamic Column version info.
 MAJORVERSION	= 2
-MINORVERSION	= 0
+MINORVERSION	= 1
 PATCHLEVEL	= 0
 VERSION		= ${MAJORVERSION}.${MINORVERSION}.${PATCHLEVEL}
 # How mature is this project? Common values are

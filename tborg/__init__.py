@@ -81,11 +81,14 @@ class ConfigLogger(object):
         """
         if logger_name and file_path:
             logger = logging.getLogger(logger_name)
-            logger.setLevel(level)
+            logger.handlers.clear()
             handler = logging.FileHandler(file_path)
+            handler.setLevel(level)
             formatter = logging.Formatter(self._format)
             handler.setFormatter(formatter)
             logger.addHandler(handler)
+            logger.setLevel(level)
+            logger.propagate = False
         else:  # pragma: no cover
             logging.basicConfig(filename=file_path, format=self._format,
-                                level=level)
+                                level=level, force=True)

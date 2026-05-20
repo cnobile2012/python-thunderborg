@@ -407,7 +407,7 @@ class MonsterWeb(Daemon):
                          *args, **kwargs)
         self.port = port
         cl = ConfigLogger()
-        cl.config(logger_name=self._BASE_LOGGER_NAME, file_path=self._LOG_PATH,
+        cl.config(logger_name=self._LOGGER_NAME, file_path=self._LOG_PATH,
                   level=log_level)
         self._log = logging.getLogger(self._LOGGER_NAME)
         self._log.info("Starting MonsterWeb...")
@@ -418,6 +418,7 @@ class MonsterWeb(Daemon):
         self.watchdog = None
         self.running = True
         self.tb = None
+        self._log.info("Options: %s", options)
 
         if self._borg:
             self.tb = ThunderBorg(logger_name=self._TBORG_LOGGER_NAME,

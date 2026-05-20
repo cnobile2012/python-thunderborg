@@ -13,5 +13,5 @@ if [ -d "$SITE_PACKAGES" ]; then
     $TBORG_VE_BIN/python $TBORG_HOME/tborg/examples/mborg_pygame.py \
                          --voltage-in=0 > /tmp/mborg_pygame_cron.log 2>&1
 else
-    printf "site-packages not found inside %s\n" $PYTHON_PATH
+    printf "site-packages not found inside %s\n" "$PYTHON_PATH"
 fi

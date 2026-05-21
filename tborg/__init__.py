@@ -35,7 +35,7 @@ MEDIA_PATH = None
 def create_working_dir():  # pragma: no cover
     """
     This function creates a `borg_cube` directory containing a `logs`
-    and `run` directories.
+    `run`, and `media` directories.
 
     1. The `logs` directory contains all logs.
     2. The `run` directory contains all daemon pid/lock files.
@@ -65,19 +65,29 @@ def create_working_dir():  # pragma: no cover
     MEDIA_PATH = media
 
 
-class ConfigLogger(object):
+class ConfigLogger:
     """
     Setup some basic logging.
     """
     _DEFAULT_FORMAT = ("%(asctime)s %(levelname)s %(name)s %(funcName)s "
                        "[line:%(lineno)d] %(message)s")
 
-    def __init__(self, format=None):
+    def __init__(self, format: str=None) -> None:
+        """
+        Constructor sets up the formatting for logging.
+
+        :param str format: Defines the format of the logging message.
+        """
         self._format = format if format else self._DEFAULT_FORMAT
 
-    def config(self, logger_name=None, file_path=None, level=logging.WARNING):
+    def config(self, logger_name: str=None, file_path: str=None,
+               level: int=logging.WARNING) -> None:
         """
         Config the logger.
+
+        :param str logger_name: The name of the logger.
+        :param str file_path: The full path with the file name.
+        :param int level: The logging level.
         """
         if logger_name and file_path:
             logger = logging.getLogger(logger_name)
